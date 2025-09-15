@@ -50,10 +50,12 @@
 }
 @media (max-width: 480px) {
   .header {
+    height: 20%;
     flex-direction: row;          /* ahora los hijos están en fila */
     justify-content: space-between; /* logo a la izquierda, menú a la derecha */
     align-items: center;          /* centrados verticalmente */ 
-    padding-bottom: 0;       /* menos alto, más compacto */
+    padding-bottom: none;  
+    margin-bottom: none;     /* menos alto, más compacto */
   }
 
   .header__logo img {
@@ -65,6 +67,7 @@
 
   .header__toggle {
     position: relative;
+     height: 300px; 
     margin-left: auto; 
     bottom: 5rem;/* lo empuja al extremo derecho */
   }
