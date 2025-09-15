@@ -1,5 +1,57 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // ==== SECCIONES pantalla completa ====
+  // ==== MENÚ HAMBURGUESA ====
+  const toggle = document.querySelector(".header__toggle");
+  const nav = document.querySelector(".header__nav");
+  const navLinks = document.querySelectorAll(".header__nav .nav__link");
+  const header = document.querySelector(".header");
+
+  if (toggle && nav) {
+    toggle.setAttribute("aria-expanded", "false");
+
+    // Abrir/cerrar
+    toggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      nav.classList.toggle("header__nav--active");
+      toggle.classList.toggle("header__toggle--active");
+      toggle.setAttribute(
+        "aria-expanded",
+        nav.classList.contains("header__nav--active") ? "true" : "false"
+      );
+    });
+
+    // Cerrar al hacer clic en un enlace
+    navLinks.forEach((link) =>
+      link.addEventListener("click", () => {
+        nav.classList.remove("header__nav--active");
+        toggle.classList.remove("header__toggle--active");
+        toggle.setAttribute("aria-expanded", "false");
+      })
+    );
+
+    // Cerrar con Escape
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && nav.classList.contains("header__nav--active")) {
+        nav.classList.remove("header__nav--active");
+        toggle.classList.remove("header__toggle--active");
+        toggle.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    // Cerrar al hacer clic fuera del header
+    document.addEventListener("click", (e) => {
+      if (
+        nav.classList.contains("header__nav--active") &&
+        header &&
+        !header.contains(e.target)
+      ) {
+        nav.classList.remove("header__nav--active");
+        toggle.classList.remove("header__toggle--active");
+        toggle.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
+  // ==== SECCIONES pantalla completa + PUNTOS ====
   const sections = Array.from(document.querySelectorAll(".section"));
   const dotsContainer = document.getElementById("navDots");
 
@@ -16,7 +68,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateDots(index);
   }
 
-  // Crea puntos según número de secciones
   function buildDots() {
     dotsContainer.innerHTML = "";
     sections.forEach((_, i) => {
@@ -48,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => (isThrottled = false), 650);
   }
 
-  // Mostrar la primera sección y construir los puntos
+  // Primera sección y puntos
   showSection(current);
   buildDots();
 
@@ -57,6 +108,9 @@ document.addEventListener("DOMContentLoaded", () => {
     "wheel",
     (e) => {
       if (isThrottled) return;
+      // Si el menú está abierto, no navegamos
+      if (nav && nav.classList.contains("header__nav--active")) return;
+
       if (e.deltaY > 0 && current < sections.length - 1) {
         current++;
         showSection(current);
@@ -74,6 +128,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==== Teclado (← →) ====
   window.addEventListener("keydown", (e) => {
     if (isThrottled) return;
+    if (nav && nav.classList.contains("header__nav--active")) return;
+
     if (e.key === "ArrowRight" && current < sections.length - 1) {
       current++;
       showSection(current);
@@ -101,17 +157,20 @@ document.addEventListener("DOMContentLoaded", () => {
     "touchend",
     (e) => {
       if (isThrottled) return;
+      // No navegar si el menú está abierto
+      if (nav && nav.classList.contains("header__nav--active")) return;
+
       touchEndX = e.changedTouches[0].clientX;
       const deltaX = touchStartX - touchEndX;
 
-      const TH = 50; // umbral mínimo en px
+      const TH = 50; // umbral en px
       if (deltaX > TH && current < sections.length - 1) {
-        // swipe izquierda → siguiente sección
+        // swipe izquierda → siguiente
         current++;
         showSection(current);
         throttle();
       } else if (deltaX < -TH && current > 0) {
-        // swipe derecha → sección anterior
+        // swipe derecha → anterior
         current--;
         showSection(current);
         throttle();
@@ -142,9 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
     pages.forEach((page, i) => {
       page.classList.toggle("flipped", i < current);
     });
-    pagerEl.textContent = `${Math.min(current + 1, pages.length)} / ${
-      pages.length
-    }`;
+    pagerEl.textContent = `${Math.min(current + 1, pages.length)} / ${pages.length}`;
     btnPrev.disabled = current === 0;
     btnNext.disabled = current === pages.length - 1;
   }
