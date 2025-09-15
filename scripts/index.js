@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   const sections = document.querySelectorAll(".section");
   let current = 0;
   let isThrottled = false;
@@ -29,17 +29,47 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     showSection(current);
 
-    setTimeout(() => { isThrottled = false; }, 1000);
+    setTimeout(() => {
+      isThrottled = false;
+    }, 1000);
   });
 });
 
+// ==== Control con gestos táctiles ====
+let touchStartY = 0;
+let touchEndY = 0;
+
+window.addEventListener("touchstart", (e) => {
+  touchStartY = e.changedTouches[0].clientY;
+});
+
+window.addEventListener("touchend", (e) => {
+  if (isThrottled) return;
+  isThrottled = true;
+
+  touchEndY = e.changedTouches[0].clientY;
+  const deltaY = touchStartY - touchEndY;
+
+  if (deltaY > 50 && current < sections.length - 1) {
+    // deslizó hacia arriba → siguiente sección
+    current++;
+  } else if (deltaY < -50 && current > 0) {
+    // deslizó hacia abajo → sección anterior
+    current--;
+  }
+  showSection(current);
+
+  setTimeout(() => {
+    isThrottled = false;
+  }, 1000);
+});
 
 // ==== Clientes "Book Effect" ====
-document.addEventListener('DOMContentLoaded', () => {
-  const pages = Array.from(document.querySelectorAll('.clients__page'));
-  const btnPrev = document.querySelector('.clients__btn--prev');
-  const btnNext = document.querySelector('.clients__btn--next');
-  const pagerEl = document.getElementById('clientsPager');
+document.addEventListener("DOMContentLoaded", () => {
+  const pages = Array.from(document.querySelectorAll(".clients__page"));
+  const btnPrev = document.querySelector(".clients__btn--prev");
+  const btnNext = document.querySelector(".clients__btn--next");
+  const pagerEl = document.getElementById("clientsPager");
 
   if (!pages.length) return; // seguridad si no existe sección
 
@@ -53,33 +83,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function render() {
     pages.forEach((page, i) => {
-      page.classList.toggle('flipped', i < current);
+      page.classList.toggle("flipped", i < current);
     });
-    pagerEl.textContent = `${Math.min(current + 1, pages.length)} / ${pages.length}`;
+    pagerEl.textContent = `${Math.min(current + 1, pages.length)} / ${
+      pages.length
+    }`;
     btnPrev.disabled = current === 0;
     btnNext.disabled = current === pages.length - 1;
   }
 
-  btnNext.addEventListener('click', () => {
+  btnNext.addEventListener("click", () => {
     if (current < pages.length - 1) {
       current++;
       render();
     }
   });
 
-  btnPrev.addEventListener('click', () => {
+  btnPrev.addEventListener("click", () => {
     if (current > 0) {
       current--;
       render();
     }
   });
 
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight') btnNext.click();
-    if (e.key === 'ArrowLeft') btnPrev.click();
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") btnNext.click();
+    if (e.key === "ArrowLeft") btnPrev.click();
   });
 
   layoutStack();
   render();
 });
-
