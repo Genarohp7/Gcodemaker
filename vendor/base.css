@@ -39,3 +39,10 @@ html, body {
 /* Helpers opcionales */
 a { text-decoration: none; }
 img { max-width: 100%; display: block; }
+
+@media (max-width: 768px) {
+  body {
+    overflow-y: auto;      /* habilita desplazamiento vertical */
+    overflow-x: hidden;    /* sigue sin permitir scroll horizontal */
+  }
+}

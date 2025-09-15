@@ -66,6 +66,11 @@
     font-size: 1rem;
     padding: 0 1rem;
   }
+
+    .section {
+    height: auto;          /* la sección crece según el contenido */
+    min-height: 100vh;     /* asegura que ocupe al menos una pantalla completa */
+  }
 }
 
 @media (max-width: 480px) {
