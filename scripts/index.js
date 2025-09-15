@@ -1,4 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // ==== ANIMACIÓN ONLOAD sección "Quién soy" ====
+  const aboutSection = document.querySelector(".section--about");
+  if (aboutSection) {
+    const img = aboutSection.querySelector(".about__image");
+    const text = aboutSection.querySelector(".about__text");
+
+    // Disparamos la animación solo una vez al cargar
+    setTimeout(() => {
+      img?.classList.add("about__image--animate");
+      text?.classList.add("about__text--animate");
+    }, 200); // pequeño delay para que se note
+  }
+
   // ==== MENÚ HAMBURGUESA ====
   const toggle = document.querySelector(".header__toggle");
   const nav = document.querySelector(".header__nav");
@@ -108,7 +121,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "wheel",
     (e) => {
       if (isThrottled) return;
-      // Si el menú está abierto, no navegamos
       if (nav && nav.classList.contains("header__nav--active")) return;
 
       if (e.deltaY > 0 && current < sections.length - 1) {
@@ -157,20 +169,17 @@ document.addEventListener("DOMContentLoaded", () => {
     "touchend",
     (e) => {
       if (isThrottled) return;
-      // No navegar si el menú está abierto
       if (nav && nav.classList.contains("header__nav--active")) return;
 
       touchEndX = e.changedTouches[0].clientX;
       const deltaX = touchStartX - touchEndX;
 
-      const TH = 50; // umbral en px
+      const TH = 50;
       if (deltaX > TH && current < sections.length - 1) {
-        // swipe izquierda → siguiente
         current++;
         showSection(current);
         throttle();
       } else if (deltaX < -TH && current > 0) {
-        // swipe derecha → anterior
         current--;
         showSection(current);
         throttle();
@@ -187,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnNext = document.querySelector(".clients__btn--next");
   const pagerEl = document.getElementById("clientsPager");
 
-  if (!pages.length) return; // seguridad si no existe sección
+  if (!pages.length) return;
 
   let current = 0;
 
