@@ -83,20 +83,44 @@
 }
 
 
-/* Responsive */
+/* ==== Responsive ajustes About (mobile/tablet) ==== */
 @media (max-width: 768px) {
   .about {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    gap: 1rem;
+    padding: 1.5rem 1rem; /* espacio interior para respirar */
   }
 
   .about__image {
-    width: 200px;
-    margin-bottom: 1.5rem;
+    width: 160px;
+    height: auto;
+    margin: 3rem auto 0rem; /* baja un poco la imagen */
   }
 
   .about__text {
-    margin-top: 0; /* en móvil no hay desfase */
+    font-size: 0.2rem;     /* tamaño legible */
+    line-height: 0;      /* menos espacio entre líneas */
+    max-width: 90%;        /* que no toque los bordes */
+    margin: 0 auto;
+    text-align: justify;   /* más prolijo */
   }
+}
+
+@media (max-width: 480px) {
+  .about__image {
+    width: 100px;              /* un poco más pequeña */
+    margin: 1rem auto 1rem;    /* baja la imagen y deja aire */
+  }
+
+  .about__text {
+  position: relative;         /* ahora puede moverse */
+  font-size: 0.8rem;          /* tamaño compacto pero legible */
+  line-height: 1.3;           /* un poco más de aire para leer */
+  max-width: 90%;
+  margin: 0 auto;
+  text-align: justify;        /* mantiene ordenado el párrafo */
+  top: -40px;                     /* valor inicial, puedes cambiarlo */
+}
 }
