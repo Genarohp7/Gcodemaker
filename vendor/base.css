@@ -22,10 +22,10 @@ html {
 body,
 .page {
   margin: 0;
-  font-family: var(--font-sans);
+font-family: 'Montserrat', sans-serif;
   color: var(--color3);
-  background-color: #fff;       /* Fondo base del sitio */
-  line-height: 1.5;
+  background-color: #fff;       
+  line-height: 1.6;
 }
 
 /* Helpers opcionales */
