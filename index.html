@@ -36,39 +36,89 @@
     </header>
 
     <!-- QUIEN SOY -->
-   <section id="quien-soy" class="section section--about">
-  <h2 class="section__title">Quién soy</h2>
+    <section id="quien-soy" class="section section--about">
+      <h2 class="section__title">Quién soy</h2>
 
-  <div class="about">
-    <img src="./images/quien soy .png" alt="Imagen de perfil" class="about__image" />
+      <div class="about">
+        <img
+          src="./images/quien soy .png"
+          alt="Imagen de perfil"
+          class="about__image"
+        />
 
-    <div class="about__text">
-      <p class="about__paragraph">
-        Soy desarrollador web. Me apasiona crear sitios modernos y funcionales
-        que se adapten a las necesidades de cada proyecto. Me caracterizo por ser comprometido,
-        responsable y creativo, siempre buscando superar expectativas y entregar resultados con
-        honestidad y puntualidad.
-      </p>
-      <p class="about__paragraph">
-        Mi objetivo es impulsar a las pequeñas empresas a tener presencia digital, ayudándolas a crecer
-        y destacar en un mundo cada vez más conectado.
-      </p>
-    </div>
+        <div class="about__text">
+          <p class="about__paragraph">
+            Soy desarrollador web. Me apasiona crear sitios modernos y
+            funcionales que se adapten a las necesidades de cada proyecto. Me
+            caracterizo por ser comprometido, responsable y creativo, siempre
+            buscando superar expectativas y entregar resultados con honestidad y
+            puntualidad.
+          </p>
+          <p class="about__paragraph">
+            Mi objetivo es impulsar a las pequeñas empresas a tener presencia
+            digital, ayudándolas a crecer y destacar en un mundo cada vez más
+            conectado.
+          </p>
+        </div>
+      </div>
+    </section>
+
+ <!-- CONTACTO -->
+<section id="contacto" class="section section--services">
+  <h2 class="section__title">Contáctanos</h2>
+
+  <div class="contact__card">
+    <form id="contactForm" class="contact__form">
+      <div class="contact__field">
+        <label for="email" class="contact__label">Correo electrónico</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="contact__input"
+          placeholder="tu@correo.com"
+        />
+      </div>
+
+      <div class="contact__field">
+        <label for="phone" class="contact__label">Teléfono de contacto</label>
+        <input
+          type="text"
+          id="phone"
+          name="phone"
+          class="contact__input"
+          placeholder="Teléfono de contacto"
+          pattern="[0-9]*"
+          inputmode="numeric"
+        />
+      </div>
+
+      <div class="contact__field">
+        <label for="business" class="contact__label">Giro del negocio</label>
+        <input
+          type="text"
+          id="business"
+          name="business"
+          class="contact__input"
+          placeholder="Ejemplo: restaurante, escuela"
+        />
+      </div>
+
+      <div class="contact__field">
+        <label for="message" class="contact__label">Háblame de tu negocio</label>
+        <textarea
+          id="message"
+          name="message"
+          class="contact__textarea"
+          placeholder="Cuéntame qué necesitas..."
+        ></textarea>
+      </div>
+
+      <button type="submit" class="contact__button">Enviar</button>
+    </form>
   </div>
 </section>
 
-
-    <!-- QUE HACEMOS -->
-    <section id="que-hacemos" class="section section--services">
-      <h2 class="section__title">Qué hacemos</h2>
-      <p class="section__text">
-        Construimos sitios web modernos, adaptables y enfocados en resultados.
-        Desde páginas informativas hasta soluciones digitales completas.
-      </p>
-      <a href="#tu-sitio-web" class="button button--primary"
-        >Quiero mi página</a
-      >
-    </section>
 
     <!-- CLIENTES -->
     <section id="clientes" class="section section--clients">
@@ -167,26 +217,36 @@
       </div>
     </section>
 
- <!-- TU SITIO WEB -->
-<section id="tu-sitio-web" class="section section--contact website">
-  <h2 class="section__title website__title">¿Por qué tu negocio sí necesita una página web?</h2>
-  
-  <div class="website__content">
-    <img src="./images/pagina web.jpg" alt="Ilustración sobre páginas web" class="website__image" />
-    
-    <p class="section__text website__text">
-      En un mundo cada vez más conectado, una página web no es un lujo: es una necesidad estratégica. 
-      Aunque parezca que redes sociales u recomendaciones boca a boca bastan, los datos demuestran 
-      que tener presencia digital —y especialmente un sitio propio— trae ventajas claras, y no tenerla 
-      conlleva desventajas reales que pueden costarte clientes, ingresos y competitividad.
-    </p>
-  </div>
+    <!-- TU SITIO WEB -->
+    <section id="tu-sitio-web" class="section section--contact website">
+      <h2 class="section__title website__title">
+        ¿Por qué tu negocio sí necesita una página web?
+      </h2>
 
-  <a href="tu-sitio-web.html" class="button button--secondary website__button">
-    Quieres saber mas?
-  </a>
-</section>
+      <div class="website__content">
+        <img
+          src="./images/pagina web.jpg"
+          alt="Ilustración sobre páginas web"
+          class="website__image"
+        />
 
+        <p class="section__text website__text">
+          En un mundo cada vez más conectado, una página web no es un lujo: es
+          una necesidad estratégica. Aunque parezca que redes sociales u
+          recomendaciones boca a boca bastan, los datos demuestran que tener
+          presencia digital —y especialmente un sitio propio— trae ventajas
+          claras, y no tenerla conlleva desventajas reales que pueden costarte
+          clientes, ingresos y competitividad.
+        </p>
+      </div>
+
+      <a
+        href="tu-sitio-web.html"
+        class="button button--secondary website__button"
+      >
+        Quieres saber mas?
+      </a>
+    </section>
 
     <!-- PUNTOS DE NAVEGACIÓN ENTRE SECCIONES -->
     <div class="dots" id="navDots" aria-label="Paginación de secciones"></div>

@@ -5,11 +5,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const img = aboutSection.querySelector(".about__image");
     const text = aboutSection.querySelector(".about__text");
 
-    // Disparamos la animación solo una vez al cargar
     setTimeout(() => {
       img?.classList.add("about__image--animate");
       text?.classList.add("about__text--animate");
-    }, 200); // pequeño delay para que se note
+    }, 200);
   }
 
   // ==== MENÚ HAMBURGUESA ====
@@ -21,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (toggle && nav) {
     toggle.setAttribute("aria-expanded", "false");
 
-    // Abrir/cerrar
     toggle.addEventListener("click", (e) => {
       e.stopPropagation();
       nav.classList.toggle("header__nav--active");
@@ -32,7 +30,6 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     });
 
-    // Cerrar al hacer clic en un enlace
     navLinks.forEach((link) =>
       link.addEventListener("click", () => {
         nav.classList.remove("header__nav--active");
@@ -41,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
       })
     );
 
-    // Cerrar con Escape
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && nav.classList.contains("header__nav--active")) {
         nav.classList.remove("header__nav--active");
@@ -50,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Cerrar al hacer clic fuera del header
     document.addEventListener("click", (e) => {
       if (
         nav.classList.contains("header__nav--active") &&
@@ -61,6 +56,81 @@ document.addEventListener("DOMContentLoaded", () => {
         toggle.classList.remove("header__toggle--active");
         toggle.setAttribute("aria-expanded", "false");
       }
+    });
+  }
+
+  // ==== FORMULARIO DE CONTACTO ====
+  const form = document.getElementById("contactForm");
+  const emailInput = document.getElementById("email");
+  const phoneInput = document.getElementById("phone");
+  const submitBtn = form?.querySelector(".contact__button");
+
+  function validateForm() {
+    const emailValid =
+      emailInput.value.trim() !== "" &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim());
+
+    const phoneValid =
+      phoneInput.value.trim() !== "" &&
+      /^[0-9]{10}$/.test(phoneInput.value.trim());
+
+    if (submitBtn) {
+      submitBtn.disabled = !(emailValid || phoneValid);
+    }
+  }
+
+  if (form) {
+    emailInput.addEventListener("input", validateForm);
+
+    phoneInput.addEventListener("input", (e) => {
+      e.target.value = e.target.value.replace(/\D/g, ""); // solo números
+      if (e.target.value.length > 10) {
+        e.target.value = e.target.value.slice(0, 10); // máximo 10 dígitos
+      }
+      validateForm();
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      alert("Formulario enviado correctamente 🚀");
+      form.reset();
+      validateForm();
+    });
+
+    validateForm();
+  }
+
+  // ==== EFECTO DEGRADADO EN EL FORMULARIO ====
+  const contactCard = document.querySelector(".contact__card");
+  const inputs = document.querySelectorAll(".contact__input, .contact__textarea");
+
+  if (contactCard && inputs.length) {
+    const colors = ["#00006b", "#0055c5", "#81b8e1", "#ffcb4e", "#8ecc8a", "#ef943e", "#ff7e7f"];
+    let colorIndex = 0;
+    let intensity = 0;
+
+    function updateBackground() {
+      const currentColor = colors[colorIndex];
+      const gradient = `linear-gradient(135deg, ${currentColor} ${Math.floor(
+        intensity * 100
+      )}%, rgba(255,255,255,0.05))`;
+      contactCard.style.background = gradient;
+      contactCard.style.transition = "background 0.5s ease";
+    }
+
+    function nextColor() {
+      colorIndex = (colorIndex + 1) % colors.length;
+      intensity = 0;
+    }
+
+    inputs.forEach((input) => {
+      input.addEventListener("input", () => {
+        intensity += 0.1;
+        if (intensity >= 1) {
+          nextColor();
+        }
+        updateBackground();
+      });
     });
   }
 
@@ -112,7 +182,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => (isThrottled = false), 650);
   }
 
-  // Primera sección y puntos
   showSection(current);
   buildDots();
 
