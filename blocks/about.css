@@ -111,7 +111,7 @@
 @media (max-width: 480px) {
   .about__image {
     width: 80px;              /* un poco más pequeña */
-    margin: 3rem auto 1rem;    /* baja la imagen y deja aire */
+    margin: 2rem auto 1rem;    /* baja la imagen y deja aire */
   }
 
   .about__text {
