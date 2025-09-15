@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GCodemaker - Portafolio</title>
+    <link rel="stylesheet" href="./vendor/index.css" />
+  </head>
+  <body class="page">
+    <!-- HEADER -->
+    <header class="header">
+      <a href="index.html" class="header__logo">GCodemaker</a>
+
+      <!-- Botón hamburguesa -->
+      <button class="header__toggle" aria-label="Abrir menú">
+        <span class="header__bar"></span>
+        <span class="header__bar"></span>
+        <span class="header__bar"></span>
+      </button>
+
+      <nav class="header__nav nav">
+        <a href="quien-soy.html" class="nav__link">Quién soy</a>
+        <a href="que-hacemos.html" class="nav__link">Qué hacemos</a>
+        <a href="clientes.html" class="nav__link">Clientes</a>
+        <a href="tu-sitio-web.html" class="nav__link">Tu sitio web</a>
+        <a href="https://github.com/" target="_blank" class="nav__link"
+          >GitHub</a
+        >
+      </nav>
+    </header>
+
+    <!-- QUIEN SOY -->
+    <section id="quien-soy" class="section section--about">
+      <h2 class="section__title">Quién soy</h2>
+      <p class="section__text">
+        Soy Genaro, apasionado del desarrollo web. Mi meta es convertir ideas en
+        páginas que transmitan confianza, estilo y profesionalismo.
+      </p>
+    </section>
+
+    <!-- QUE HACEMOS -->
+    <section id="que-hacemos" class="section section--services">
+      <h2 class="section__title">Qué hacemos</h2>
+      <p class="section__text">
+        Construimos sitios web modernos, adaptables y enfocados en resultados.
+        Desde páginas informativas hasta soluciones digitales completas.
+      </p>
+      <a href="#tu-sitio-web" class="button button--primary"
+        >Quiero mi página</a
+      >
+    </section>
+
+    <!-- CLIENTES -->
+   <!-- CLIENTES -->
+<section id="clientes" class="section section--clients">
+  <h2 class="section__title">Clientes</h2>
+  <p class="section__text">
+    Estos son algunos de los proyectos que hemos realizado para diferentes clientes:
+  </p>
+
+  <div class="clients__book" id="clientsBook">
+    <!-- Página 1 -->
+    <article class="clients__page">
+      <div class="clients__media">
+        <img src="./images/clientes/dentista.jpg" alt="Logo dentista" class="clients__image" />
+      </div>
+      <div class="clients__meta">
+        <h3 class="clients__title">Cliente 1 — Dentista</h3>
+        <p class="clients__description">
+          Sitio web moderno para clínica dental, con sistema de citas en línea y blog informativo.
+        </p>
+      </div>
+    </article>
+
+    <!-- Página 2 -->
+    <article class="clients__page">
+      <div class="clients__media">
+        <img src="./images/clientes/escuela.jpg" alt="Logo escuela" class="clients__image" />
+      </div>
+      <div class="clients__meta">
+        <h3 class="clients__title">Cliente 2 — Escuela</h3>
+        <p class="clients__description">
+          Portal educativo con calendario de eventos, sección de noticias y login para alumnos.
+        </p>
+      </div>
+    </article>
+
+    <!-- Página 3 -->
+    <article class="clients__page">
+      <div class="clients__media">
+        <img src="./images/clientes/gyn.jpg" alt="Logo gimnasio" class="clients__image" />
+      </div>
+      <div class="clients__meta">
+        <h3 class="clients__title">Cliente 3 — Gimnasio</h3>
+        <p class="clients__description">
+          Landing page atractiva con registro a clases, horarios dinámicos y promociones.
+        </p>
+      </div>
+    </article>
+
+    <!-- Página 4 -->
+    <article class="clients__page">
+      <div class="clients__media">
+        <img src="./images/clientes/restaurant.jpg" alt="Logo restaurante" class="clients__image" />
+      </div>
+      <div class="clients__meta">
+        <h3 class="clients__title">Cliente 4 — Restaurante</h3>
+        <p class="clients__description">
+          Carta digital, galería de platillos y sistema de reservas online integrado.
+        </p>
+      </div>
+    </article>
+
+    <!-- Controles -->
+    <div class="clients__controls">
+      <button class="clients__btn clients__btn--prev" aria-label="Anterior">⟵</button>
+      <button class="clients__btn clients__btn--next" aria-label="Siguiente">⟶</button>
+    </div>
+    <div class="clients__pager" id="clientsPager">1 / 4</div>
+  </div>
+</section>
+
+
+    <!-- TU SITIO WEB -->
+    <section id="tu-sitio-web" class="section section--contact">
+      <h2 class="section__title">Tu sitio web</h2>
+      <p class="section__text">
+        Tu negocio necesita presencia digital. Un sitio web profesional abre
+        puertas a nuevos clientes y mejora la confianza en tu marca.
+      </p>
+      <a
+        href="mailto:contacto@gcodemaker.com.mx"
+        class="button button--secondary"
+        >Contáctame</a
+      >
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <p class="footer__text">
+        &copy; 2025 GCodemaker - Todos los derechos reservados |
+        <a href="https://github.com/" target="_blank" class="footer__link"
+          >Visita mi GitHub</a
+        >
+      </p>
+    </footer>
+
+    <script src="./scripts/index.js"></script>
+  </body>
+</html>

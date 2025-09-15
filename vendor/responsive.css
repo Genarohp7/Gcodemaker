@@ -1,0 +1,88 @@
+
+
+/* Tablets (pantallas <= 1024px) */
+@media (max-width: 1024px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .header__nav {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .section {
+    padding: 3rem 1.5rem;
+  }
+
+  .section__text {
+    font-size: 1rem;
+  }
+
+  .clients__grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+/* Celulares (pantallas <= 768px) */
+@media (max-width: 768px) {
+  .header {
+    align-items: center;
+  }
+
+  .header__logo {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .nav__link {
+    display: inline-block;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .section__title {
+    font-size: 1.4rem;
+  }
+
+  .section__text {
+    font-size: 0.95rem;
+  }
+
+  .clients__grid {
+    grid-template-columns: 1fr; /* una columna en celular */
+  }
+
+  .button {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .footer {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Celulares pequeños (<= 480px) */
+@media (max-width: 480px) {
+  .nav__link {
+    font-size: 0.8rem;
+    margin: 0.2rem;
+  }
+
+  .section__title {
+    font-size: 1.2rem;
+  }
+
+  .section__text {
+    font-size: 0.85rem;
+  }
+
+  .button {
+    font-size: 0.9rem;
+  }
+}

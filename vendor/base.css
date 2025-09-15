@@ -1,0 +1,33 @@
+
+:root {
+  --color1: #ffcb4e;
+  --color2: #d1e46e;
+  --color3: #00006b;
+  --color4: #0055c5;
+  --color5: #99bfff;
+
+  --font-sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body,
+.page {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color3);
+  background-color: #fff;       /* Fondo base del sitio */
+  line-height: 1.5;
+}
+
+/* Helpers opcionales */
+a { text-decoration: none; }
+img { max-width: 100%; display: block; }

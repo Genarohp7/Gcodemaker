@@ -1,0 +1,41 @@
+/* Estilos del nav en escritorio */
+.header__nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav__link {
+  color: white;
+  margin: 0 0.8rem;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.nav__link:hover {
+  color: var(--color2);
+  border-bottom: 2px solid var(--color1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header__nav {
+    display: none; /* oculto por defecto */
+    flex-direction: column;
+    width: 100%;
+    background-color: var(--color4);
+    margin-top: 1rem;
+    padding: 1rem 0;
+  }
+
+  .header__nav--active {
+    display: flex; /* visible al hacer click en el toggle */
+  }
+
+  .nav__link {
+    margin: 0;
+    padding: 0.8rem;
+    text-align: center;
+    font-size: 0.95rem;
+  }
+}

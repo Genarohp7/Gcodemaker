@@ -1,0 +1,44 @@
+.header {
+  background: linear-gradient(90deg, var(--color3), var(--color4));
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between; /* logo a la izquierda, hamburguesa a la derecha */
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Logo más hacia la izquierda */
+.header__logo {
+  margin: 0;
+  color: var(--color1);
+  font-size: 1.6rem; /* un poquito más grande */
+}
+
+/* Botón hamburguesa */
+.header__toggle {
+  display: none; /* oculto en escritorio */
+  flex-direction: column;
+  justify-content: space-between;
+  width: 35px;   /* más ancho */
+  height: 25px;  /* más alto */
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.header__bar {
+  height: 4px;   /* más grueso */
+  width: 100%;
+  background-color: white;
+  border-radius: 3px;
+}
+
+/* Responsive: mostrar toggle en móvil */
+@media (max-width: 768px) {
+  .header__toggle {
+    display: flex;
+  }
+}

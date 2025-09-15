@@ -1,0 +1,28 @@
+.button {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.8rem 1.5rem;
+  font-weight: bold;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.button--primary {
+  background-color: var(--color1);
+  color: var(--color3);
+}
+
+.button--primary:hover {
+  background-color: var(--color2);
+}
+
+.button--secondary {
+  background-color: var(--color4);
+  color: white;
+}
+
+.button--secondary:hover {
+  background-color: var(--color2);
+  color: var(--color3);
+}
