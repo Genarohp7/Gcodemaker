@@ -140,3 +140,19 @@
     padding: 0.6rem 1.2rem;
   }
 }
+
+
+/* ==== Ajuste especial para móviles con teclado ==== */
+@media (max-width: 480px) {
+  .section--contact {
+    justify-content: flex-start; /* evita que quede centrado y tapado */
+    padding-top: 7rem; /* espacio suficiente para que no choque con el header */
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+
+  .contact__card {
+    margin-top: 1rem; /* un poco de aire debajo del header */
+  }
+}
+
