@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Mostrar la primera sección
   showSection(current);
 
-  // Control con rueda del ratón
+  // ==== Control con rueda del ratón ====
   window.addEventListener("wheel", (e) => {
     if (isThrottled) return;
     isThrottled = true;
@@ -33,35 +33,33 @@ document.addEventListener("DOMContentLoaded", () => {
       isThrottled = false;
     }, 1000);
   });
-});
 
-// ==== Control con gestos táctiles ====
-let touchStartY = 0;
-let touchEndY = 0;
+  // ==== Control con gestos táctiles ====
+  let touchStartY = 0;
+  let touchEndY = 0;
 
-window.addEventListener("touchstart", (e) => {
-  touchStartY = e.changedTouches[0].clientY;
-});
+  window.addEventListener("touchstart", (e) => {
+    touchStartY = e.changedTouches[0].clientY;
+  });
 
-window.addEventListener("touchend", (e) => {
-  if (isThrottled) return;
-  isThrottled = true;
+  window.addEventListener("touchend", (e) => {
+    if (isThrottled) return;
+    isThrottled = true;
 
-  touchEndY = e.changedTouches[0].clientY;
-  const deltaY = touchStartY - touchEndY;
+    touchEndY = e.changedTouches[0].clientY;
+    const deltaY = touchStartY - touchEndY;
 
-  if (deltaY > 50 && current < sections.length - 1) {
-    // deslizó hacia arriba → siguiente sección
-    current++;
-  } else if (deltaY < -50 && current > 0) {
-    // deslizó hacia abajo → sección anterior
-    current--;
-  }
-  showSection(current);
+    if (deltaY > 50 && current < sections.length - 1) {
+      current++; // deslizó hacia arriba
+    } else if (deltaY < -50 && current > 0) {
+      current--; // deslizó hacia abajo
+    }
+    showSection(current);
 
-  setTimeout(() => {
-    isThrottled = false;
-  }, 1000);
+    setTimeout(() => {
+      isThrottled = false;
+    }, 1000);
+  });
 });
 
 // ==== Clientes "Book Effect" ====
