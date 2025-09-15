@@ -75,6 +75,7 @@
 
 @media (max-width: 480px) {
   .section__title {
+    margin: none;
     font-size: 1.6rem;
   }
 

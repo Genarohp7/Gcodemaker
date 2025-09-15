@@ -50,7 +50,7 @@
 }
 @media (max-width: 480px) {
   .header {
-    height: 20%;
+    height: 75px;
     flex-direction: row;          /* ahora los hijos están en fila */
     justify-content: space-between; /* logo a la izquierda, menú a la derecha */
     align-items: center;          /* centrados verticalmente */ 
@@ -59,17 +59,17 @@
   }
 
   .header__logo img {
-    width: 90px;   /* ajusta el tamaño del logo en móvil */
+    width: 50px;   /* ajusta el tamaño del logo en móvil */
     height: auto;
     position: relative;
-    right: 100%;
+    right: 150px;
   }
 
   .header__toggle {
     position: relative;
-     height: 300px; 
+     height: 30px; 
     margin-left: auto; 
-    bottom: 5rem;/* lo empuja al extremo derecho */
+    bottom: 3rem;/* lo empuja al extremo derecho */
   }
 }
 
