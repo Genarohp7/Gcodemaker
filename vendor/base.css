@@ -28,6 +28,14 @@ font-family: 'Montserrat', sans-serif;
   line-height: 1.6;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden;          /* sin scroll de página: controlamos nosotros la navegación */
+  overscroll-behavior: none; /* evita pull-to-refresh / rebote en muchos navegadores */
+  -webkit-overflow-scrolling: auto; /* iOS: menos inercia vertical */
+}
+
+
 /* Helpers opcionales */
 a { text-decoration: none; }
 img { max-width: 100%; display: block; }

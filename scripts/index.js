@@ -1,65 +1,124 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const sections = document.querySelectorAll(".section");
+  // ==== SECCIONES pantalla completa ====
+  const sections = Array.from(document.querySelectorAll(".section"));
+  const dotsContainer = document.getElementById("navDots");
+
+  if (!sections.length || !dotsContainer) return;
+
   let current = 0;
   let isThrottled = false;
 
   function showSection(index) {
     sections.forEach((sec, i) => {
       sec.classList.remove("active", "inactive");
-      if (i === index) {
-        sec.classList.add("active");
-      } else {
-        sec.classList.add("inactive");
-      }
+      sec.classList.add(i === index ? "active" : "inactive");
+    });
+    updateDots(index);
+  }
+
+  // Crea puntos según número de secciones
+  function buildDots() {
+    dotsContainer.innerHTML = "";
+    sections.forEach((_, i) => {
+      const dot = document.createElement("button");
+      dot.className = "dots__item";
+      dot.type = "button";
+      dot.setAttribute("aria-label", `Ir a la sección ${i + 1}`);
+      dot.addEventListener("click", () => {
+        if (isThrottled || current === i) return;
+        current = i;
+        showSection(current);
+        throttle();
+      });
+      dotsContainer.appendChild(dot);
+    });
+    updateDots(current);
+  }
+
+  function updateDots(activeIndex) {
+    const dots = dotsContainer.querySelectorAll(".dots__item");
+    dots.forEach((d, i) => {
+      d.classList.toggle("dots__item--active", i === activeIndex);
+      d.setAttribute("aria-current", i === activeIndex ? "true" : "false");
     });
   }
 
-  // Mostrar la primera sección
+  function throttle() {
+    isThrottled = true;
+    setTimeout(() => (isThrottled = false), 650);
+  }
+
+  // Mostrar la primera sección y construir los puntos
   showSection(current);
+  buildDots();
 
-  // ==== Control con rueda del ratón ====
-  window.addEventListener("wheel", (e) => {
+  // ==== Desktop: rueda del ratón ====
+  window.addEventListener(
+    "wheel",
+    (e) => {
+      if (isThrottled) return;
+      if (e.deltaY > 0 && current < sections.length - 1) {
+        current++;
+        showSection(current);
+        throttle();
+      } else if (e.deltaY < 0 && current > 0) {
+        current--;
+        showSection(current);
+        throttle();
+      }
+      e.preventDefault?.();
+    },
+    { passive: false }
+  );
+
+  // ==== Teclado (← →) ====
+  window.addEventListener("keydown", (e) => {
     if (isThrottled) return;
-    isThrottled = true;
-
-    if (e.deltaY > 0 && current < sections.length - 1) {
+    if (e.key === "ArrowRight" && current < sections.length - 1) {
       current++;
-    } else if (e.deltaY < 0 && current > 0) {
+      showSection(current);
+      throttle();
+    } else if (e.key === "ArrowLeft" && current > 0) {
       current--;
+      showSection(current);
+      throttle();
     }
-    showSection(current);
-
-    setTimeout(() => {
-      isThrottled = false;
-    }, 1000);
   });
 
-  // ==== Control con gestos táctiles ====
-  let touchStartY = 0;
-  let touchEndY = 0;
+  // ==== Móvil/Tablet: swipe horizontal ====
+  let touchStartX = 0;
+  let touchEndX = 0;
 
-  window.addEventListener("touchstart", (e) => {
-    touchStartY = e.changedTouches[0].clientY;
-  });
+  window.addEventListener(
+    "touchstart",
+    (e) => {
+      touchStartX = e.changedTouches[0].clientX;
+    },
+    { passive: true }
+  );
 
-  window.addEventListener("touchend", (e) => {
-    if (isThrottled) return;
-    isThrottled = true;
+  window.addEventListener(
+    "touchend",
+    (e) => {
+      if (isThrottled) return;
+      touchEndX = e.changedTouches[0].clientX;
+      const deltaX = touchStartX - touchEndX;
 
-    touchEndY = e.changedTouches[0].clientY;
-    const deltaY = touchStartY - touchEndY;
-
-    if (deltaY > 50 && current < sections.length - 1) {
-      current++; // deslizó hacia arriba
-    } else if (deltaY < -50 && current > 0) {
-      current--; // deslizó hacia abajo
-    }
-    showSection(current);
-
-    setTimeout(() => {
-      isThrottled = false;
-    }, 1000);
-  });
+      const TH = 50; // umbral mínimo en px
+      if (deltaX > TH && current < sections.length - 1) {
+        // swipe izquierda → siguiente sección
+        current++;
+        showSection(current);
+        throttle();
+      } else if (deltaX < -TH && current > 0) {
+        // swipe derecha → sección anterior
+        current--;
+        showSection(current);
+        throttle();
+      }
+    },
+    { passive: true }
+  );
 });
 
 // ==== Clientes "Book Effect" ====
