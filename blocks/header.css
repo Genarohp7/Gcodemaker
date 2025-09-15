@@ -12,9 +12,15 @@
 
 /* Logo más hacia la izquierda */
 .header__logo {
-  margin: 0;
-  color: var(--color1);
-  font-size: 1.6rem; /* un poquito más grande */
+  display: flex;
+  align-items: center;
+}
+
+.header__logo img {
+  height: 80px;     /* controla el tamaño vertical */
+  width: auto;      /* mantiene la proporción */
+  object-fit: contain;
+  background: transparent; /* asegura que no meta bloque de color */
 }
 
 /* Botón hamburguesa */
