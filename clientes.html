@@ -9,6 +9,11 @@
     />
     <title>GCodemaker - Portafolio</title>
     <link rel="stylesheet" href="./vendor/index.css" />
+    <link rel="stylesheet" href="./pages/clientes.css" />
+    <script
+      src="https://kit.fontawesome.com/e41f03414c.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body class="page">
     <!-- HEADER -->
@@ -34,10 +39,116 @@
       </nav>
     </header>
     <h2 class="section__title">Clientes</h2>
-<div class="clients__grid">
-  <div class="clients__card">Proyecto A</div>
-  <div class="clients__card">Proyecto B</div>
-  <div class="clients__card">Proyecto C</div>
-</div>
-</body>
+
+    <div class="clients">
+      <div class="clients__carousel">
+        <div class="clients__track">
+          <!-- Cliente 1 -->
+          <article class="clients__card">
+            <img
+              src="./images/clientes/shorticon.jpg"
+              alt="Logo Kelom"
+              class="clients__logo"
+            />
+
+            <h3 class="clients__name">
+              <a
+                href="https://kelom.com.mx/"
+                target="_blank"
+                class="clients__link"
+                >Kelom</a
+              >
+            </h3>
+
+            <p class="clients__description">
+              Es una página informativa y práctica que organiza su contenido en
+              secciones como ‘Nosotros’, ‘Blog’, ‘Recomendaciones’ y ‘Contacto’.
+              Funciona como un sitio de consulta con artículos, guías y un
+              formulario para comunicarse, todo presentado con una estructura
+              sencilla y visualmente atractiva.
+            </p>
+
+            <div class="clients__socialmedia">
+              <a
+                href="https://www.instagram.com/kelomcommx/"
+                target="_blank"
+                class="clients__social clients__social--instagram"
+              >
+                <i class="fa-brands fa-square-instagram"></i>
+              </a>
+              <a
+                href="https://maps.app.goo.gl"
+                target="_blank"
+                class="clients__social clients__social--map"
+              >
+                <i class="fa-solid fa-map"></i>
+              </a>
+              <a
+                href="https://www.facebook.com/profile.php?id=61559819904329"
+                target="_blank"
+                class="clients__social clients__social--facebook"
+              >
+                <i class="fa-brands fa-facebook"></i>
+              </a>
+            </div>
+          </article>
+
+          <!-- Cliente 2 -->
+          <article class="clients__card">
+            <img
+              src="./images/clientes/MMakers.png"
+              alt="Logo Demo"
+              class="clients__logo"
+            />
+
+            <h3 class="clients__name">
+              <a href="https://demo.com/" target="_blank" class="clients__link"
+                >Marketing Makers</a
+              >
+            </h3>
+
+            <p class="clients__description">
+              Ejemplo ficticio de empresa tecnológica enfocada en soluciones web
+              modernas y personalizadas.
+            </p>
+
+            <div class="clients__socialmedia">
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                class="https://www.instagram.com/marketingmakersmx/"
+              >
+                <i class="fa-brands fa-square-instagram"></i>
+              </a>
+              <a
+                href="https://maps.app.goo.gl"
+                target="_blank"
+                class="clients__social clients__social--map"
+              >
+                <i class="fa-solid fa-map"></i>
+              </a>
+              <a
+                href="https://www.facebook.com/people/Marketingmakersmx/61556090288615/?rdid=4EwN9woDdW9RX0h0&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F17J5mcdB1x%2F"
+                target="_blank"
+                class="clients__social clients__social--facebook"
+              >
+                <i class="fa-brands fa-facebook"></i>
+              </a>
+            </div>
+          </article>
+        </div>
+
+        <!-- Controles -->
+        <button class="clients__btn clients__btn--prev" aria-label="Anterior">
+          ←
+        </button>
+        <button class="clients__btn clients__btn--next" aria-label="Siguiente">
+          →
+        </button>
+        <div class="clients__pager" id="clientsPager">1 / 2</div>
+      </div>
+    </div>
+    <script src="./scripts/menu.js"></script>
+    <script src="./scripts/clientes.js"></script>
+  </body>
 </html>

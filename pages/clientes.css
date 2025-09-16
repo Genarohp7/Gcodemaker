@@ -1,0 +1,183 @@
+/* ===========================
+   CLIENTES
+=========================== */
+
+.clients {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Carrusel */
+.clients__carousel {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Track que se mueve */
+.clients__track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  width: 100%;
+}
+
+/* Cada tarjeta ocupa todo el ancho visible */
+.clients__card {
+  flex: 0 0 100%;
+  max-width: 100%;
+  padding: 1.5rem;
+  margin: 0 auto;
+  box-sizing: border-box;
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* Colores dinámicos */
+.clients__card:nth-child(5n + 1) {
+  background-color: var(--color1);
+}
+.clients__card:nth-child(5n + 2) {
+  background-color: var(--color2);
+  color: #000;
+}
+.clients__card:nth-child(5n + 3) {
+  background-color: var(--color3);
+  color: #fff;
+}
+.clients__card:nth-child(5n + 4) {
+  background-color: var(--color4);
+  color: #fff;
+}
+.clients__card:nth-child(5n + 5) {
+  background-color: var(--color5);
+  color: #000;
+}
+
+/* Logo */
+.clients__logo {
+  width: 120px;
+  height: auto;
+  margin: 0 auto 1rem auto;
+  display: block;
+}
+
+/* Nombre */
+.clients__name {
+  font-size: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.clients__link {
+  color: var(--color4);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.clients__link:hover {
+  text-decoration: underline;
+}
+
+/* Descripción */
+.clients__description {
+  font-size: 1rem;
+  margin: 1rem 0 1.5rem;
+  line-height: 1.5;
+}
+
+/* Redes sociales */
+.clients__socialmedia {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.clients__social {
+  font-size: 1.5rem;
+  color: var(--color3);
+  transition: color 0.3s;
+}
+
+.clients__social--instagram:hover {
+  color: #e4405f;
+}
+.clients__social--map:hover {
+  color: #34a853;
+}
+.clients__social--facebook:hover {
+  color: #1877f2;
+}
+
+/* Botones del carrusel */
+.clients__btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--color4);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  z-index: 10;
+}
+
+.clients__btn:hover {
+  background: var(--color3);
+}
+
+.clients__btn--prev {
+  left: 10px;
+}
+.clients__btn--next {
+  right: 10px;
+}
+
+/* Paginador */
+.clients__pager {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 1rem;
+  color: var(--color3);
+  font-weight: 500;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+@media (min-width: 768px) {
+  .clients__card {
+    padding: 2rem;
+  }
+
+  .clients__logo {
+    width: 160px;
+  }
+
+  .clients__name {
+    font-size: 1.8rem;
+  }
+
+  .clients__description {
+    font-size: 1.1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .clients__card {
+    flex: 0 0 100%; /* ✅ siempre ocupa todo el ancho en desktop */
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .clients__card {
+    padding: 1rem;
+  }
+}
