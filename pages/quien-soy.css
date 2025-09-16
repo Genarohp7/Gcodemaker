@@ -1,0 +1,68 @@
+/* ==== Página Quién Soy ==== */
+.quien-soy {
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: "Lora", serif;
+  color: #222;
+  line-height: 1.6;
+}
+
+/* Título */
+.quien-soy__title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-family: "Montserrat", sans-serif;
+  color: #00006b; /* tu color 3 */
+}
+
+/* Contenido (imagen + texto) */
+.quien-soy__content {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+/* Imagen */
+.quien-soy__image {
+  width: 280px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+}
+
+/* Texto */
+.quien-soy__text {
+  flex: 1;
+  font-size: 1.1rem;
+  text-align: justify;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .quien-soy__content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .quien-soy__image {
+    width: 200px;
+    margin-bottom: 1.5rem;
+  }
+
+  .quien-soy__text {
+    text-align: justify;
+    font-size: 1rem;
+  }
+}
+
+/* ==== Scroll normal solo en esta página ==== */
+body {
+  overflow-y: auto !important;
+  overflow-x: hidden;
+}
