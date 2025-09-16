@@ -3,11 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tu sitio web - Importancia</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <title>GCodemaker - Portafolio</title>
+    <link rel="stylesheet" href="./pages/tu-sitio-web.css" />
     <link rel="stylesheet" href="./vendor/index.css" />
   </head>
   <body class="page">
@@ -33,12 +34,85 @@
         >
       </nav>
     </header>
-    <h2 class="section__title">Tu sitio web</h2>
-<p class="section__text">
-  ¿Quieres dar el siguiente paso con tu negocio? 
-  Contáctanos y te ayudamos a crear un sitio web a tu medida.
-</p>
-<a href="mailto:contacto@gcodemaker.com.mx" class="button button--primary">Contáctame</a>
 
-</body>
+    <!-- SECCIÓN IMPORTANCIA DE UN SITIO WEB -->
+    <section class="tabs-section">
+      <h2 class="section__title">¿Por qué tu negocio necesita un sitio web?</h2>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="beneficios">✅ Beneficios</button>
+        <button class="tab" data-tab="riesgos">❌ Riesgos</button>
+        <button class="tab" data-tab="datos">📊 Datos</button>
+        <button class="tab" data-tab="conclusion">🧠 Conclusión</button>
+      </div>
+
+      <!-- Contenido pestañas -->
+      <div class="tab-content active" id="beneficios">
+        <img
+          src="./images/tusitioweb/digital.jpg"
+          alt="Planeta iluminado por ciudades"
+          class="tab-image"
+        />
+        <h3>Beneficios de tener un sitio web</h3>
+        <p>
+          El <span class="counter" data-target="75">0</span>% de los
+          consumidores juzgan la fiabilidad de un negocio por su sitio web.
+        </p>
+        <p>
+          Los negocios con sitio web crecen hasta
+          <span class="counter" data-target="2">0</span>x más rápido.
+        </p>
+        <p>
+          Disponibilidad 24/7, mayor alcance, control sobre tu marca y
+          profesionalismo son ventajas claras frente a solo redes sociales.
+        </p>
+      </div>
+
+      <div class="tab-content" id="riesgos">
+        <h3>Riesgos de no tenerlo</h3>
+        <ul>
+          <li>❌ Pérdida de clientes potenciales.</li>
+          <li>❌ Menor credibilidad ante nuevos usuarios.</li>
+          <li>❌ Competencia adelantada y más visible.</li>
+          <li>
+            ❌ Limitaciones de crecimiento (sin catálogo online, reservas o
+            automatización).
+          </li>
+          <li>❌ Dependencia total de redes sociales y sus algoritmos.</li>
+        </ul>
+      </div>
+
+      <div class="tab-content" id="datos">
+        <img
+          src="./images/tusitioweb/estadisticas.jpg"
+          alt="Laptop con estadísticas"
+          class="tab-image"
+        />
+        <h3>Datos comparativos</h3>
+        <canvas id="chart"></canvas>
+      </div>
+
+      <div class="tab-content" id="conclusion">
+        <img
+          src="./images/tusitioweb/succes.jpg"
+          alt="Persona celebrando al amanecer"
+          class="tab-image"
+        />
+        <h3>Tu página web es tu vitrina abierta al mundo</h3>
+        <p>
+          Invertir en ella asegura el crecimiento y la confianza de tu negocio.
+          Sin presencia digital, dejas clientes, credibilidad y oportunidades en
+          manos de otros.
+        </p>
+      </div>
+    </section>
+
+    <!-- Botón de contacto -->
+    <a href="./index.html#contacto" class="button button--primary">Contáctame</a>
+    <!-- Scripts -->
+    <script src="./scripts/menu.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./scripts/tu-sitio-web.js"></script>
+  </body>
 </html>

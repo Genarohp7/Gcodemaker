@@ -87,28 +87,55 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =============================
-     SLIDE ENTRE SECCIONES (SOLO EN index.html)
-     Requiere: <body class="page page--index"> y #navDots en el HTML
+     SLIDE ENTRE SECCIONES (INDEX)
+     Requiere .section en cada bloque
   ============================== */
-  const isIndex = document.body.classList.contains("page--index");
+  const isIndex =
+    document.body.classList.contains("page--index") ||
+    location.pathname.endsWith("/index.html") ||
+    location.pathname === "/";
+
   if (isIndex) {
     const sections = Array.from(document.querySelectorAll(".section"));
     const dotsContainer = document.getElementById("navDots");
-    const nav = document.querySelector(".header__nav"); // para bloquear navegación si el menú está abierto (clase se maneja en menu.js)
+    const nav = document.querySelector(".header__nav");
 
-    if (sections.length && dotsContainer) {
+    if (sections.length) {
       let current = 0;
       let isThrottled = false;
 
-      function showSection(index) {
+      function updateDots(activeIndex) {
+        if (!dotsContainer) return; // no-op si no hay dots
+        const dots = dotsContainer.querySelectorAll(".dots__item");
+        dots.forEach((d, i) => {
+          d.classList.toggle("dots__item--active", i === activeIndex);
+          d.setAttribute("aria-current", i === activeIndex ? "true" : "false");
+        });
+      }
+
+      function showSection(index, { updateHash = true } = {}) {
         sections.forEach((sec, i) => {
           sec.classList.remove("active", "inactive");
           sec.classList.add(i === index ? "active" : "inactive");
         });
         updateDots(index);
+
+        if (updateHash) {
+          const id = sections[index]?.id;
+          if (id) history.replaceState(null, "", "#" + id);
+        }
+      }
+
+      function showSectionById(id) {
+        const idx = sections.findIndex((sec) => sec.id === id);
+        if (idx !== -1) {
+          current = idx;
+          showSection(current);
+        }
       }
 
       function buildDots() {
+        if (!dotsContainer) return;
         dotsContainer.innerHTML = "";
         sections.forEach((_, i) => {
           const dot = document.createElement("button");
@@ -126,24 +153,66 @@ document.addEventListener("DOMContentLoaded", () => {
         updateDots(current);
       }
 
-      function updateDots(activeIndex) {
-        const dots = dotsContainer.querySelectorAll(".dots__item");
-        dots.forEach((d, i) => {
-          d.classList.toggle("dots__item--active", i === activeIndex);
-          d.setAttribute("aria-current", i === activeIndex ? "true" : "false");
-        });
-      }
-
       function throttle() {
         isThrottled = true;
         setTimeout(() => (isThrottled = false), 650);
       }
 
-      // Inicio
-      showSection(current);
+      function scrollToContacto() {
+        const contactoSection = document.getElementById("contacto");
+        if (contactoSection) {
+          contactoSection.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+
+      // Inicio (no pisar hash inicial)
+      showSection(current, { updateHash: false });
       buildDots();
 
-      // Rueda (desktop)
+      // Soporte de hash inicial (ej: /index.html#contacto)
+      const initialHash = location.hash.replace("#", "");
+      if (initialHash) {
+        showSectionById(initialHash);
+        if (initialHash === "contacto") {
+          setTimeout(scrollToContacto, 450);
+        }
+      }
+
+      // Responder a cambios de hash
+      window.addEventListener("hashchange", () => {
+        const id = location.hash.replace("#", "");
+        if (id) {
+          showSectionById(id);
+          if (id === "contacto") {
+            setTimeout(scrollToContacto, 450);
+          }
+        }
+      });
+
+      // Interceptar clics internos con hash (cuando ya estamos en index)
+      document.addEventListener("click", (e) => {
+        const a = e.target.closest('a[href^="#"], a[href*="#"]');
+        if (!a) return;
+
+        const url = new URL(a.href, location.href);
+        const targetId = url.hash.substring(1);
+        if (!targetId) return;
+
+        const pointsToIndex =
+          url.pathname === "/" ||
+          url.pathname.endsWith("/index.html") ||
+          url.pathname === location.pathname;
+
+        if (pointsToIndex) {
+          e.preventDefault();
+          showSectionById(targetId);
+          if (targetId === "contacto") {
+            setTimeout(scrollToContacto, 450);
+          }
+        }
+      });
+
+      // Navegación por rueda
       window.addEventListener(
         "wheel",
         (e) => {
