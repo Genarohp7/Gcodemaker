@@ -26,7 +26,6 @@
 
       <nav class="header__nav nav">
         <a href="quien-soy.html" class="nav__link">Quién soy</a>
-        <a href="que-hacemos.html" class="nav__link">Qué hacemos</a>
         <a href="clientes.html" class="nav__link">Clientes</a>
         <a href="tu-sitio-web.html" class="nav__link">Tu sitio web</a>
         <a href="https://github.com/Genarohp7" target="_blank" class="nav__link"
@@ -63,62 +62,67 @@
       </div>
     </section>
 
- <!-- CONTACTO -->
-<section id="contacto" class="section section--services">
-  <h2 class="section__title">Contáctanos</h2>
+    <!-- CONTACTO -->
+    <section id="contacto" class="section section--services">
+      <h2 class="section__title">Contáctanos</h2>
 
-  <div class="contact__card">
-    <form id="contactForm" class="contact__form">
-      <div class="contact__field">
-        <label for="email" class="contact__label">Correo electrónico</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          class="contact__input"
-          placeholder="tu@correo.com"
-        />
+      <div class="contact__card">
+        <form id="contactForm" class="contact__form">
+          <div class="contact__field">
+            <label for="email" class="contact__label">Correo electrónico</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="contact__input"
+              placeholder="tu@correo.com"
+            />
+          </div>
+
+          <div class="contact__field">
+            <label for="phone" class="contact__label"
+              >Teléfono de contacto</label
+            >
+            <input
+              type="text"
+              id="phone"
+              name="phone"
+              class="contact__input"
+              placeholder="Teléfono de contacto"
+              pattern="[0-9]*"
+              inputmode="numeric"
+            />
+          </div>
+
+          <div class="contact__field">
+            <label for="business" class="contact__label"
+              >Giro del negocio</label
+            >
+            <input
+              type="text"
+              id="business"
+              name="business"
+              class="contact__input"
+              placeholder="Ejemplo: restaurante, escuela"
+            />
+          </div>
+
+          <div class="contact__field">
+            <label for="message" class="contact__label"
+              >Háblame de tu negocio</label
+            >
+            <textarea
+              id="message"
+              name="message"
+              class="contact__textarea"
+              placeholder="Cuéntame qué necesitas..."
+            ></textarea>
+          </div>
+
+          <button type="submit" class="contact__button">Enviar</button>
+        </form>
       </div>
-
-      <div class="contact__field">
-        <label for="phone" class="contact__label">Teléfono de contacto</label>
-        <input
-          type="text"
-          id="phone"
-          name="phone"
-          class="contact__input"
-          placeholder="Teléfono de contacto"
-          pattern="[0-9]*"
-          inputmode="numeric"
-        />
-      </div>
-
-      <div class="contact__field">
-        <label for="business" class="contact__label">Giro del negocio</label>
-        <input
-          type="text"
-          id="business"
-          name="business"
-          class="contact__input"
-          placeholder="Ejemplo: restaurante, escuela"
-        />
-      </div>
-
-      <div class="contact__field">
-        <label for="message" class="contact__label">Háblame de tu negocio</label>
-        <textarea
-          id="message"
-          name="message"
-          class="contact__textarea"
-          placeholder="Cuéntame qué necesitas..."
-        ></textarea>
-      </div>
-
-      <button type="submit" class="contact__button">Enviar</button>
-    </form>
-  </div>
-</section>
-
+    </section>
 
     <!-- CLIENTES -->
     <section id="clientes" class="section section--clients">
@@ -139,7 +143,9 @@
             />
           </div>
           <div class="clients__meta">
-            <h3 class="clients__title"><a href="https://kelom.com.mx/" target="_blank">Kelom.com.mx</a></h3>
+            <h3 class="clients__title">
+              <a href="https://kelom.com.mx/" target="_blank">Kelom.com.mx</a>
+            </h3>
             <p class="clients__description">
               Sitio web moderno para consulta de proveedores
             </p>
@@ -158,7 +164,7 @@
           <div class="clients__meta">
             <h3 class="clients__title">Marketing Makers</h3>
             <p class="clients__description">
-              Landingpage para Diseño digital y Marketing 
+              Landingpage para Diseño digital y Marketing
             </p>
           </div>
         </article>
@@ -260,5 +266,6 @@
     </footer>
 
     <script src="./scripts/index.js"></script>
+    <script src="./scripts/menu.js"></script>
   </body>
 </html>
