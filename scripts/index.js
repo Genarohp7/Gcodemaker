@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* =============================
      SLIDE ENTRE SECCIONES (INDEX)
-     Requiere .section en cada bloque
+     Sin hashes en la URL
   ============================== */
   const isIndex =
     document.body.classList.contains("page--index") ||
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let isThrottled = false;
 
       function updateDots(activeIndex) {
-        if (!dotsContainer) return; // no-op si no hay dots
+        if (!dotsContainer) return;
         const dots = dotsContainer.querySelectorAll(".dots__item");
         dots.forEach((d, i) => {
           d.classList.toggle("dots__item--active", i === activeIndex);
@@ -113,17 +113,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      function showSection(index, { updateHash = true } = {}) {
+      function showSection(index) {
         sections.forEach((sec, i) => {
           sec.classList.remove("active", "inactive");
           sec.classList.add(i === index ? "active" : "inactive");
         });
         updateDots(index);
-
-        if (updateHash) {
-          const id = sections[index]?.id;
-          if (id) history.replaceState(null, "", "#" + id);
-        }
+        // NO escribimos hash en la URL
       }
 
       function showSectionById(id) {
@@ -158,61 +154,39 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => (isThrottled = false), 650);
       }
 
-      function scrollToContacto() {
-        const contactoSection = document.getElementById("contacto");
-        if (contactoSection) {
-          contactoSection.scrollIntoView({ behavior: "smooth" });
-        }
+      // 1) Si entraste con hash (ej: /index.html#clientes), ir a esa sección y limpiar la URL
+      if (location.hash) {
+        const targetId = location.hash.slice(1);
+        showSectionById(targetId);
+        history.replaceState(null, "", location.pathname + location.search);
+      } else {
+        // Primera sección por defecto
+        showSection(current);
       }
 
-      // Inicio (no pisar hash inicial)
-      showSection(current, { updateHash: false });
+      // 2) Dots
       buildDots();
 
-      // Soporte de hash inicial (ej: /index.html#contacto)
-      const initialHash = location.hash.replace("#", "");
-      if (initialHash) {
-        showSectionById(initialHash);
-        if (initialHash === "contacto") {
-          setTimeout(scrollToContacto, 450);
-        }
-      }
-
-      // Responder a cambios de hash
-      window.addEventListener("hashchange", () => {
-        const id = location.hash.replace("#", "");
-        if (id) {
-          showSectionById(id);
-          if (id === "contacto") {
-            setTimeout(scrollToContacto, 450);
-          }
-        }
-      });
-
-      // Interceptar clics internos con hash (cuando ya estamos en index)
-      document.addEventListener("click", (e) => {
-        const a = e.target.closest('a[href^="#"], a[href*="#"]');
-        if (!a) return;
-
-        const url = new URL(a.href, location.href);
-        const targetId = url.hash.substring(1);
-        if (!targetId) return;
-
-        const pointsToIndex =
-          url.pathname === "/" ||
-          url.pathname.endsWith("/index.html") ||
-          url.pathname === location.pathname;
-
-        if (pointsToIndex) {
+      // 3) Enlaces internos sin hash: usa data-scroll
+      //    <a href="#" data-scroll data-target="clientes">Clientes</a>
+      const scrollLinks = document.querySelectorAll('a[data-scroll][data-target]');
+      scrollLinks.forEach((link) => {
+        link.addEventListener("click", (e) => {
           e.preventDefault();
-          showSectionById(targetId);
-          if (targetId === "contacto") {
-            setTimeout(scrollToContacto, 450);
+          const targetId = link.getAttribute("data-target");
+          if (!targetId) return;
+          const idx = sections.findIndex((s) => s.id === targetId);
+          if (idx >= 0) {
+            current = idx;
+            showSection(current);
+            throttle();
           }
-        }
+          // Asegura URL sin hash
+          history.replaceState(null, "", location.pathname + location.search);
+        });
       });
 
-      // Navegación por rueda
+      // 4) Navegación por rueda
       window.addEventListener(
         "wheel",
         (e) => {
@@ -233,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { passive: false }
       );
 
-      // Teclado (← →)
+      // 5) Teclado (← →)
       window.addEventListener("keydown", (e) => {
         if (isThrottled) return;
         if (nav && nav.classList.contains("header__nav--active")) return;
@@ -249,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // Swipe horizontal (móvil/tablet)
+      // 6) Swipe horizontal (móvil/tablet)
       let touchStartX = 0;
       let touchEndX = 0;
 
