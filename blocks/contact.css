@@ -1,19 +1,25 @@
 /* ==== Formulario de contacto (sección Contacto) ==== */
+
+/* Centrado de la sección y aire con los dots */
+.section--services,
 .section--contact {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding-inline: 1.5rem;
+  padding-bottom: 5rem; /* que los dots no tapen el botón */
 }
 
+/* Tarjeta compacta y centrada (más pequeña en desktop) */
 .contact__card {
-  background: rgba(255, 255, 255, 0.15); /* translúcido */
-  backdrop-filter: blur(14px); /* efecto vidrio */
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-radius: 16px;
-  padding: 2rem;
-  max-width: 520px;
-  width: 100%;
+  padding: 1.5rem; /* un poco menos de padding */
+  width: min(460px, 32vw); /* ¡clave!: no excede ~460px en desktop */
+  margin: 0 auto;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.25);
   animation: fadeInUp 0.8s ease;
@@ -25,7 +31,7 @@
 .contact__form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.1rem; /* menos separación entre campos */
   width: 100%;
 }
 
@@ -36,9 +42,9 @@
 }
 
 .contact__label {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 500;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.25rem;
   color: #fff;
   font-family: "Montserrat", sans-serif;
   transition: color 0.3s ease;
@@ -49,8 +55,8 @@
   background: transparent;
   border: none;
   border-bottom: 2px solid rgba(0, 0, 0, 0.5);
-  padding: 0.6rem 0;
-  font-size: 1rem;
+  padding: 0.55rem 0;
+  font-size: 0.95rem;
   color: #fff;
   outline: none;
   font-family: "Lora", serif;
@@ -59,25 +65,25 @@
 
 .contact__input::placeholder,
 .contact__textarea::placeholder {
-  color: rgba(255, 255, 255, 0.8); 
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .contact__input:focus,
 .contact__textarea:focus {
-  border-bottom-color: #ffcb4e; /* amarillo de tu paleta */
+  border-bottom-color: #ffcb4e;
   transform: scale(1.01);
 }
 
 .contact__textarea {
-  min-height: 120px;
+  min-height: 110px; /* un pelín más compacto */
   resize: vertical;
 }
 
 /* Botón con degradado */
 .contact__button {
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  margin-top: 0.75rem;
+  padding: 0.65rem 1.2rem;
+  font-size: 0.95rem;
   font-weight: bold;
   border: none;
   border-radius: 10px;
@@ -112,24 +118,45 @@
   }
 }
 
-/* ==== Responsive ==== */
-@media (max-width: 768px) {
+/* ===== Desktop extra ===== */
+@media (min-width: 1200px) {
+  /* si esta vista es la de “services/contacto” dentro del index */
+  .section--services .section__title {
+    margin-top: 6rem;
+  }
   .contact__card {
-    padding: 1.5rem;
-    max-width: 90%;
+    margin-top: 0.25rem;
   }
 }
 
+/* ==== Tablets ==== */
+@media (max-width: 1024px) {
+  .contact__card {
+    width: min(520px, 60vw); /* un poco más ancho en tablet */
+    padding: 1.5rem;
+  }
+}
+
+/* ==== Móviles (<=768px) ==== */
+@media (max-width: 768px) {
+  .contact__card {
+    width: 92vw;
+    max-width: 520px;
+    padding: 1.25rem;
+  }
+}
+
+/* ==== Móviles pequeños (<=480px) ==== */
 @media (max-width: 480px) {
   .contact__card {
+    width: 95vw;
+    max-width: 520px;
     padding: 1rem;
-    max-width: 95%;
   }
 
   .contact__label {
     font-size: 0.9rem;
   }
-
   .contact__input,
   .contact__textarea {
     font-size: 0.9rem;
@@ -137,22 +164,57 @@
 
   .contact__button {
     font-size: 0.9rem;
-    padding: 0.6rem 1.2rem;
+    padding: 0.6rem 1.1rem;
   }
-}
 
-
-/* ==== Ajuste especial para móviles con teclado ==== */
-@media (max-width: 480px) {
-  .section--contact {
-    justify-content: flex-start; /* evita que quede centrado y tapado */
-    padding-top: 7rem; /* espacio suficiente para que no choque con el header */
+  /* Ajuste cuando aparece el teclado */
+  .section--contact,
+  .section--services {
+    justify-content: flex-start;
+    padding-top: 7rem;
     min-height: 100vh;
     box-sizing: border-box;
   }
 
   .contact__card {
-    margin-top: 1rem; /* un poco de aire debajo del header */
+    margin-top: 1rem;
   }
 }
 
+/* === Desktop: el formulario siempre cabe por encima de los dots === */
+:root {
+  /* ajusta si tu header cambia de alto */
+  --header-h: 88px;
+  --dots-h: 44px; /* alto aprox. de los puntos + aire */
+  --section-vpad: 32px; /* paddings verticales de la sección */
+}
+
+@media (min-width: 1025px) {
+  /* da aire para que no choque con los dots */
+  .section--services {
+    padding-bottom: calc(var(--dots-h) + 12px);
+  }
+
+  /* límite de alto + scroll interno del contenido */
+  .contact__card {
+    max-height: calc(
+      100vh - var(--header-h) - var(--dots-h) - (2 * var(--section-vpad))
+    );
+    overflow: hidden; /* oculta el exceso del contenedor */
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* el formulario hace scroll si se excede */
+  .contact__form {
+    overflow-y: auto;
+    padding-right: 6px; /* evita que tape la barra de scroll */
+    gap: 1.1rem; /* un poco menos de separación */
+  }
+
+  /* que el botón no se salga y tenga aire del borde inferior */
+  .contact__button {
+    margin-top: 0.75rem;
+    flex: 0 0 auto; /* evita que se comprima */
+  }
+}

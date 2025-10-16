@@ -20,18 +20,14 @@
 /* Responsive */
 @media (max-width: 768px) {
   .header__nav {
-    display: none; /* oculto por defecto */
+    display: none;
     flex-direction: column;
     width: 100%;
     background-color: var(--color4);
     margin-top: 1rem;
     padding: 1rem 0;
   }
-
-  .header__nav--active {
-    display: flex; /* visible al hacer click en el toggle */
-  }
-
+  .header__nav--active { display: flex; }
   .nav__link {
     margin: 0;
     padding: 0.8rem;

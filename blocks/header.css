@@ -1,75 +1,73 @@
+/* header.css - CÓDIGO CON LOS AJUSTES */
+
 .header {
-  background: linear-gradient(90deg, var(--color3), var(--color4));
-  color: white;
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between; /* logo a la izquierda, hamburguesa a la derecha */
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+    background: linear-gradient(90deg, var(--color3), var(--color4));
+    color: white;
+    /* AJUSTE 2: Se reduce el padding vertical de 1rem a 0.5rem (arriba y abajo) */
+    padding: 0.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
-/* Logo más hacia la izquierda */
+/* Logo */
 .header__logo {
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
 }
-
 .header__logo img {
-  height: 80px;     /* controla el tamaño vertical */
-  width: auto;      /* mantiene la proporción */
-  object-fit: contain;
-  background: transparent; /* asegura que no meta bloque de color */
+    /* AJUSTE 1: Se reduce la altura del logo de 80px a 50px */
+    height: 50px; 
+    width: auto;
+    object-fit: contain;
+    background: transparent;
 }
 
 /* Botón hamburguesa */
 .header__toggle {
-  display: none; /* oculto en escritorio */
-  flex-direction: column;
-  justify-content: space-between;
-  width: 35px;   /* más ancho */
-  height: 25px;  /* más alto */
-  background: none;
-  border: none;
-  cursor: pointer;
+    display: none; /* oculto en escritorio */
+    flex-direction: column;
+    justify-content: space-between;
+    width: 35px;
+    height: 25px;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
-
 .header__bar {
-  height: 4px;   /* más grueso */
-  width: 100%;
-  background-color: white;
-  border-radius: 3px;
+    height: 4px;
+    width: 100%;
+    background-color: white;
+    border-radius: 3px;
 }
 
-/* Responsive: mostrar toggle en móvil */
+/* Responsive */
 @media (max-width: 768px) {
-  .header__toggle {
-    display: flex;
-  }
+    .header__toggle { display: flex; }
 }
+
 @media (max-width: 480px) {
-  .header {
-    height: 75px;
-    flex-direction: row;          /* ahora los hijos están en fila */
-    justify-content: space-between; /* logo a la izquierda, menú a la derecha */
-    align-items: center;          /* centrados verticalmente */ 
-    padding-bottom: none;  
-    margin-bottom: none;     /* menos alto, más compacto */
-  }
-
-  .header__logo img {
-    width: 50px;   /* ajusta el tamaño del logo en móvil */
-    height: auto;
-    position: relative;
-    right: 150px;
-  }
-
-  .header__toggle {
-    position: relative;
-     height: 30px; 
-    margin-left: auto; 
-    bottom: 3rem;/* lo empuja al extremo derecho */
-  }
+    .header {
+        /* Es importante que este ajuste en móvil sea consistente con el cambio en escritorio */
+        height: 75px; /* Dejar o ajustar si es necesario, pero 75px parece aún alto */
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .header__logo img {
+        /* AJUSTE: Aplicar también el nuevo tamaño del logo o dejar que herede */
+        width: 50px; /* Mantener 50px */
+        /* height: auto;  Dejar que herede o especificar 50px */
+        position: relative;
+        right: 150px; /* tal como lo tenías */
+    }
+    .header__toggle {
+        position: relative;
+        height: 30px;
+        margin-left: auto;
+        bottom: 3rem; /* tal como lo tenías y te funciona en móvil */
+    }
 }
-

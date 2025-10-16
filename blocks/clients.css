@@ -1,44 +1,63 @@
+/* ====== Sección (envolvente opcional) ====== */
+.section-custumer {
+  width: 100vw;
+  height: 100vh;
+}
+
+.section-clients {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 50px;
+}
+
+/* ====== Grid clásico (si lo usas en otra vista) ====== */
 .clients__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 .clients__card {
-  background: white;
+  background: #fff;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 1rem;
   transition: transform 0.3s;
 }
-
 .clients__card:hover {
   transform: translateY(-5px);
 }
 
-/* ==== Catálogo tipo libro ==== */
+/* ====== Catálogo tipo libro ====== */
 .clients__book {
   position: relative;
-  width: 520px;  /* escritorio */
-  height: 620px;
-  margin: 2rem auto;
+  width: clamp(320px, 50vw, 520px);
+  min-height: clamp(120px, 60vh, 260px);
+  margin: 1rem auto 2.25rem;
   perspective: 1800px;
 }
 
+/* Cada “página” ocupa todo el libro */
 .clients__page {
   position: absolute;
   inset: 0;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 25px 60px rgba(0,0,0,.15);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
   transform-origin: left center;
   transition: transform 0.9s ease;
   backface-visibility: hidden;
-  display: grid;
-  grid-template-rows: 1fr auto;
-  padding: 16px 16px 50px;
+
+  /* FLEX en columna */
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px; /* separación entre media y meta */
+  padding: 20px 22px 64px; /* aire inferior para el pager */
   box-sizing: border-box;
+  height: 60vh;
 }
 
 .clients__page.flipped {
@@ -46,42 +65,56 @@
   pointer-events: none;
 }
 
+/* Media/imagen */
 .clients__media {
-  display: grid;
-  place-items: center;
+  /* elimina cualquier width: 10% previo */
+  width: 100%; /* ocupa el ancho del libro */
+  flex: 1 1 auto; /* crece para rellenar el alto disponible */
+  min-height: clamp(180px, 34vh, 320px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 10px;
   background: #eef3ff;
+  padding: 10px;
 }
-
 .clients__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-width: 90%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+
+  /* elimina cualquier posicionamiento previo como bottom: 80px; */
+  position: static;
 }
 
+/* Texto */
 .clients__meta {
-  margin-top: 12px;
+  flex: 0 0 auto;
+  margin-top: 8px;
 }
-
 .clients__title {
   margin: 0 0 6px;
   font-size: 20px;
   line-height: 1.2;
 }
-
 .clients__description {
   margin: 0;
   color: #4b5563;
   font-size: 14px;
 }
 
-/* ==== Flechas de navegación ==== */
+/* ====== Flechas ====== */
 .clients__controls {
   position: absolute;
   top: 50%;
-  left: -90px;   /* botones hacia afuera en escritorio */
-  right: -90px;
+  left: clamp(-60px, -8vw, -90px);
+  right: clamp(-60px, -8vw, -90px);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -89,7 +122,6 @@
   pointer-events: none;
   z-index: 10;
 }
-
 .clients__btn {
   pointer-events: auto;
   display: inline-flex;
@@ -106,91 +138,82 @@
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
   transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
   z-index: 11;
+  position: relative;
+  top: 30px;
 }
-
 .clients__btn:hover {
   background: var(--color1);
   color: var(--color3);
   transform: scale(1.1);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
-
 .clients__btn:active {
   transform: scale(0.95);
 }
 
-/* ==== Paginador ==== */
+/* ====== Pager ====== */
 .clients__pager {
   position: absolute;
-  bottom: 16px;
+  bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 12px;
   color: #6b7280;
-  background: rgba(255,255,255,.9);
+  background: rgba(255, 255, 255, 0.9);
   padding: 6px 10px;
   border-radius: 999px;
-  box-shadow: 0 4px 10px rgba(0,0,0,.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
-/* ====== RESPONSIVE ====== */
+/* ====== Responsive ====== */
 
-/* Tablets (<=1024px) */
-@media (max-width: 1024px) {
-  .clients__book {
-    width: 420px;
-    height: 520px;
-  }
-
-  .clients__controls {
-    left: -60px;
-    right: -60px;
-  }
-
-  .clients__btn {
-    width: 50px;
-    height: 50px;
-    font-size: 24px;
-  }
-}
-
-/* Móviles grandes (<=768px) */
+/* Tablets / móviles grandes */
 @media (max-width: 768px) {
-  .clients__book {
-    width: 320px;
-    height: 420px;
+  .clients__media {
+    min-height: clamp(160px, 30vh, 240px);
   }
-
-  .clients__controls {
-    left: -40px;
-    right: -40px;
+  .clients__page {
+    grid-template-rows: minmax(200px, 58%) auto;
+    padding: 16px 16px 56px;
   }
-
   .clients__btn {
     width: 45px;
     height: 45px;
     font-size: 22px;
+    position: relative;
+    top: 100px;
+  }
+  .clients__controls {
+    left: -40px;
+    right: -40px;
+    left: clamp(-60px, -12vw, -128px);
+    right: clamp(-60px, -12vw, -128px);
   }
 }
 
-/* Móviles pequeños (<=480px) */
+/* Móviles pequeños */
 @media (max-width: 480px) {
+  .clients__media {
+    min-height: 180px;
+  }
   .clients__book {
-    width: 260px;
-    height: 360px;
+    width: 260px; /* clamp ya lo gestiona, pero lo fijamos aquí si prefieres */
+    min-height: 360px;
   }
-
-  .clients__controls {
-    left: -30px;
-    right: -30px;
+  .clients__page {
+    grid-template-rows: minmax(180px, 56%) auto;
   }
-
   .clients__btn {
     width: 40px;
     height: 40px;
     font-size: 20px;
   }
-
+  .clients__controls {
+    left: -30px;
+    right: -30px;
+     left: clamp(-45px, -1vw, -136px);
+    right: clamp(-45px, -1vw, -136px);
+  }
   .clients__pager {
     font-size: 11px;
     padding: 4px 8px;

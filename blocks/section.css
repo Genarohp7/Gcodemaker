@@ -1,85 +1,37 @@
+/* section.css - CÓDIGO FINAL (Solo funcionalidad de transición y colores) */
+
 .section {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100vh;   /* cada sección ocupa la pantalla completa */
-  width: 100vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  opacity: 0;
-  transition: opacity 1s ease, filter 1s ease;
-  color: white;
-  padding: 2rem;
-  box-sizing: border-box;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    font-size: 1.5rem;
+    opacity: 0;
+    transition: opacity 1s ease, filter 1s ease;
+    color: white;
+    box-sizing: border-box; /* Fundamental para todos los componentes */
+    /* Se eliminan: display, flex-direction, align-items, justify-content, padding, height: auto/min-height: 100vh de los media queries */
 }
 
 /* Personaliza colores de fondo por sección */
-.section--about { background: #99bfff; }
+.section--about    { background: #99bfff; }
 .section--services { background: #0055c5; }
-.section--clients { background: #d1e46e; color: #222; }
-.section--contact { background: #ffcb4e; color: #000; }
+.section--clients  { background: #d1e46e; color: #222; } /* Mantenemos el color de texto aquí */
+.section--contact  { background: #ffcb4e; color: #000; } /* Mantenemos el color de texto aquí */
 
 /* Estados del efecto */
 .section.active {
-  opacity: 1;
-  filter: blur(0px);
-  z-index: 1;
+    opacity: 1;
+    filter: blur(0px);
+    z-index: 1;
 }
-
 .section.inactive {
-  opacity: 0;
-  filter: blur(20px);
-  z-index: 0;
+    opacity: 0;
+    filter: blur(20px);
+    z-index: 0;
 }
 
-/* ==== Títulos de sección (h2) ==== */
-.section__title {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-top: 5rem;
-  margin-bottom: 1rem;
-  text-align: center;
-  font-family: 'Montserrat', sans-serif; /* o la fuente elegida */
-  color: inherit; /* usa el color que defina cada .section--X */
-}
-
-/* ==== Texto descriptivo de sección ==== */
-.section__text {
-  max-width: 700px;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  text-align: center;
-  font-family: 'Lora', serif; /* elegante para lectura */
-  color: inherit;
-}
-
-/* ==== Responsive ==== */
-@media (max-width: 768px) {
-  .section__title {
-    font-size: 2rem;
-  }
-
-  .section__text {
-    font-size: 1rem;
-    padding: 0 1rem;
-  }
-
-    .section {
-    height: auto;          /* la sección crece según el contenido */
-    min-height: 100vh;     /* asegura que ocupe al menos una pantalla completa */
-  }
-}
-
-@media (max-width: 480px) {
-  .section__title {
-    margin: none;
-    font-size: 1.6rem;
-  }
-
-  .section__text {
-    font-size: 0.9rem;
-  }
-}
+/* * NOTA: Los estilos de .section__title y .section__text se han migrado.
+* NOTA: Los media queries se han migrado.
+*/
