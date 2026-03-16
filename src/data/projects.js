@@ -9,6 +9,7 @@ const projects = [
     stack: ["React", "Vite", "Node", "PostgreSQL"],
     url: "https://kelom.com.mx/",
     cta: "Ver proyecto",
+    featured: true,
   },
   {
     id: "marketing-makers",
@@ -20,6 +21,7 @@ const projects = [
     stack: ["HTML", "CSS", "JavaScript"],
     url: "",
     cta: "Próximamente",
+    featured: false,
   },
   {
     id: "gcodemaker",
@@ -31,6 +33,7 @@ const projects = [
     stack: ["React", "Vite", "CSS"],
     url: "",
     cta: "En construcción",
+    featured: false,
   },
 ];
 

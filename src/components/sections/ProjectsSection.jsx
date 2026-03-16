@@ -1,6 +1,9 @@
 import projects from "../../data/projects";
 
 function ProjectsSection() {
+  const featuredProject = projects.find((project) => project.featured);
+  const secondaryProjects = projects.filter((project) => !project.featured);
+
   return (
     <section id="proyectos" className="section">
       <div className="section__container">
@@ -12,8 +15,67 @@ function ProjectsSection() {
           web más completas y funcionales.
         </p>
 
+        {featuredProject ? (
+          <article className="projects__featured">
+            <div className="projects__featured-content">
+              <p className="projects__featured-label">Proyecto destacado</p>
+              <p className="projects__tag">{featuredProject.category}</p>
+              <h3 className="projects__featured-title">{featuredProject.name}</h3>
+              <p className="projects__featured-highlight">
+                {featuredProject.highlight}
+              </p>
+              <p className="projects__description">
+                {featuredProject.description}
+              </p>
+
+              <ul className="projects__stack">
+                {featuredProject.stack.map((item) => (
+                  <li key={item} className="projects__stack-item">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="projects__actions">
+                {featuredProject.url ? (
+                  <a
+                    href={featuredProject.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="button button--primary"
+                  >
+                    {featuredProject.cta}
+                  </a>
+                ) : (
+                  <span className="projects__link projects__link--disabled">
+                    {featuredProject.cta}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="projects__featured-side">
+              <div className="projects__featured-box">
+                <span className="projects__featured-box-label">Enfoque</span>
+                <p className="projects__featured-box-text">
+                  Plataforma web orientada a claridad de contenido, experiencia
+                  moderna y estructura escalable.
+                </p>
+              </div>
+
+              <div className="projects__featured-box">
+                <span className="projects__featured-box-label">Valor</span>
+                <p className="projects__featured-box-text">
+                  Muestra capacidad para trabajar una solución real con visión
+                  de producto y evolución constante.
+                </p>
+              </div>
+            </div>
+          </article>
+        ) : null}
+
         <div className="projects">
-          {projects.map((project) => (
+          {secondaryProjects.map((project) => (
             <article key={project.id} className="projects__card">
               <div className="projects__top">
                 <p className="projects__tag">{project.category}</p>
