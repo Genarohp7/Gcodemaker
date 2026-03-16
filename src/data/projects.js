@@ -4,16 +4,22 @@ const projects = [
     name: "Kelom",
     category: "Plataforma web",
     description:
-      "Proyecto orientado al sector de bodas, con enfoque en organización de proveedores, estructura clara de contenido y experiencia moderna.",
+      "Proyecto enfocado en el sector de bodas, diseñado para organizar la consulta de proveedores y ofrecer una experiencia clara, moderna y funcional.",
+    highlight: "Proyecto real en producción",
+    stack: ["React", "Vite", "Node", "PostgreSQL"],
     url: "https://kelom.com.mx/",
+    cta: "Ver proyecto",
   },
   {
     id: "marketing-makers",
     name: "Marketing Makers",
     category: "Landing page",
     description:
-      "Sitio para presentar servicios de diseño y marketing digital con una estructura visual enfocada en comunicar valor de forma directa.",
+      "Sitio orientado a presentar servicios de diseño y marketing digital con una estructura visual enfocada en comunicar valor de forma directa.",
+    highlight: "Proyecto de presentación comercial",
+    stack: ["HTML", "CSS", "JavaScript"],
     url: "",
+    cta: "Próximamente",
   },
   {
     id: "gcodemaker",
@@ -21,7 +27,10 @@ const projects = [
     category: "Portafolio profesional",
     description:
       "Reconstrucción completa de mi portafolio personal para convertirlo en una presentación más sólida, clara y profesional.",
+    highlight: "Migración y rediseño en curso",
+    stack: ["React", "Vite", "CSS"],
     url: "",
+    cta: "En construcción",
   },
 ];
 
