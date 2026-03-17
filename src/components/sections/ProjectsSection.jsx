@@ -1,30 +1,99 @@
+import { useEffect, useState } from "react";
 import projects from "../../data/projects";
 
 function ProjectsSection() {
-  const featuredProject = projects.find((project) => project.featured);
-  const secondaryProjects = projects.filter((project) => !project.featured);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const totalProjects = projects.length;
+  const currentProject = projects[currentIndex];
 
-  const featuredNotes = featuredProject?.notes ?? [];
-  const featuredStack = featuredProject?.stack ?? [];
+  useEffect(() => {
+    if (totalProjects <= 1) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % totalProjects);
+    }, 6500);
+
+    return () => window.clearInterval(intervalId);
+  }, [totalProjects]);
+
+  function handlePrev() {
+    setCurrentIndex((prev) => (prev - 1 + totalProjects) % totalProjects);
+  }
+
+  function handleNext() {
+    setCurrentIndex((prev) => (prev + 1) % totalProjects);
+  }
+
+  function handleGoTo(index) {
+    setCurrentIndex(index);
+  }
+
+  if (!currentProject) return null;
+
+  const projectNotes = currentProject.notes ?? [];
+  const projectStack = currentProject.stack ?? [];
 
   return (
     <section id="proyectos" className="section">
       <div className="section__container">
         <p className="section__eyebrow">Proyectos</p>
-        <h2 className="section__title">Trabajo reciente y proyectos relevantes</h2>
+        <h2 className="section__title">
+          Proyectos reales, mejoras y soluciones en evolución
+        </h2>
         <p className="section__text section__text--intro">
-          Aquí muestro proyectos con distintos enfoques, desde soluciones más
-          comerciales hasta plataformas con una estructura más robusta. La idea
-          no es enseñar cajas bonitas: es mostrar criterio, construcción y evolución.
+          Aquí muestro proyectos de distintos tipos: algunos nacen desde cero y
+          otros demuestran cómo una idea o una presentación pueden mejorar mucho
+          cuando se trabaja con más claridad, mejor estructura y una imagen más
+          profesional.
         </p>
 
-        {featuredProject ? (
-          <article className="projects__featured">
+        <div className="projects__carousel">
+          <div className="projects__carousel-header">
+            <div className="projects__carousel-copy">
+              <h3 className="projects__carousel-title">{currentProject.name}</h3>
+              <p className="projects__carousel-text">
+                {currentProject.featured
+                  ? "Proyecto principal del portafolio"
+                  : "Proyecto destacado dentro del carrusel"}
+              </p>
+            </div>
+
+            <div className="projects__carousel-controls">
+              <span className="projects__carousel-pager">
+                {currentIndex + 1} / {totalProjects}
+              </span>
+
+              <button
+                type="button"
+                className="projects__carousel-btn"
+                onClick={handlePrev}
+                aria-label="Proyecto anterior"
+              >
+                ←
+              </button>
+
+              <button
+                type="button"
+                className="projects__carousel-btn"
+                onClick={handleNext}
+                aria-label="Proyecto siguiente"
+              >
+                →
+              </button>
+            </div>
+          </div>
+
+          <article
+            key={currentProject.id}
+            className={`projects__featured projects__featured--carousel ${
+              currentProject.featured ? "projects__featured--primary" : ""
+            }`}
+          >
             <div className="projects__featured-media">
               <div className="projects__featured-image-wrap">
                 <img
-                  src={featuredProject.imageSrc}
-                  alt={featuredProject.imageAlt}
+                  src={currentProject.imageSrc}
+                  alt={currentProject.imageAlt}
                   className="projects__featured-image"
                   loading="lazy"
                 />
@@ -32,27 +101,33 @@ function ProjectsSection() {
             </div>
 
             <div className="projects__featured-content">
-              <p className="projects__featured-label">Proyecto destacado</p>
-              <p className="projects__tag">{featuredProject.category}</p>
+              <div className="projects__featured-meta">
+                <p className="projects__featured-label">
+                  {currentProject.featured
+                    ? "Proyecto estrella"
+                    : "Proyecto del portafolio"}
+                </p>
+                <span className="projects__featured-status">
+                  {currentProject.status}
+                </span>
+              </div>
+
+              <p className="projects__tag">{currentProject.category}</p>
 
               <h3 className="projects__featured-title">
-                {featuredProject.name}
+                {currentProject.name}
               </h3>
 
               <p className="projects__featured-highlight">
-                {featuredProject.highlight}
-              </p>
-
-              <p className="projects__description">
-                {featuredProject.description}
+                {currentProject.description}
               </p>
 
               <p className="projects__featured-summary">
-                {featuredProject.summary}
+                {currentProject.summary}
               </p>
 
               <ul className="projects__stack">
-                {featuredStack.map((item) => (
+                {projectStack.map((item) => (
                   <li key={item} className="projects__stack-item">
                     {item}
                   </li>
@@ -60,83 +135,54 @@ function ProjectsSection() {
               </ul>
 
               <div className="projects__actions">
-                <a
-                  href={featuredProject.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="button button--primary"
-                >
-                  {featuredProject.cta}
-                </a>
+                {currentProject.url ? (
+                  <a
+                    href={currentProject.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="button button--primary"
+                  >
+                    {currentProject.cta}
+                  </a>
+                ) : (
+                  <span className="projects__link projects__link--disabled">
+                    {currentProject.cta}
+                  </span>
+                )}
               </div>
             </div>
 
             <div className="projects__featured-side">
-              {featuredNotes.map((note) => (
+              {projectNotes.map((note) => (
                 <div key={note} className="projects__featured-box">
-                  <span className="projects__featured-box-label">Punto clave</span>
+                  <span className="projects__featured-box-label">
+                    Punto clave
+                  </span>
                   <p className="projects__featured-box-text">{note}</p>
                 </div>
               ))}
             </div>
           </article>
-        ) : null}
 
-        <div className="projects__secondary-header">
-          <h3 className="projects__secondary-title">Más proyectos</h3>
-          <p className="projects__secondary-text">
-            Otros trabajos que también forman parte de mi evolución y del tipo de soluciones que puedo construir.
-          </p>
-        </div>
-
-        <div className="projects">
-          {secondaryProjects.map((project) => (
-            <article key={project.id} className="projects__card">
-              <div className="projects__card-media">
-                <img
-                  src={project.imageSrc}
-                  alt={project.imageAlt}
-                  className="projects__card-image"
-                  loading="lazy"
-                />
-              </div>
-
-              <div className="projects__top">
-                <p className="projects__tag">{project.category}</p>
-                <p className="projects__highlight">{project.highlight}</p>
-              </div>
-
-              <h3 className="projects__title">{project.name}</h3>
-
-              <p className="projects__description">{project.description}</p>
-              <p className="projects__card-summary">{project.summary}</p>
-
-              <ul className="projects__stack">
-                {(project.stack ?? []).map((item) => (
-                  <li key={item} className="projects__stack-item">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-
-              <div className="projects__actions">
-                {project.url ? (
-                  <a
-                    href={project.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="projects__link"
-                  >
-                    {project.cta}
-                  </a>
-                ) : (
-                  <span className="projects__link projects__link--disabled">
-                    {project.cta}
-                  </span>
-                )}
-              </div>
-            </article>
-          ))}
+          <div
+            className="projects__carousel-dots"
+            aria-label="Seleccionar proyecto"
+          >
+            {projects.map((project, index) => (
+              <button
+                key={project.id}
+                type="button"
+                className={`projects__carousel-dot ${
+                  index === currentIndex
+                    ? "projects__carousel-dot--active"
+                    : ""
+                }`}
+                onClick={() => handleGoTo(index)}
+                aria-label={`Ir al proyecto ${project.name}`}
+                aria-current={index === currentIndex ? "true" : "false"}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
