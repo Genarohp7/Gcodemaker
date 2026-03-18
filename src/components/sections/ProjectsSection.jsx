@@ -98,6 +98,30 @@ function ProjectsSection() {
                   loading="lazy"
                 />
               </div>
+
+              {currentProject.logoSrc ? (
+                <div className="projects__media-brand">
+                  <img
+                    src={currentProject.logoSrc}
+                    alt={
+                      currentProject.logoAlt ?? `Logo de ${currentProject.name}`
+                    }
+                    className="projects__media-brand-logo"
+                    loading="lazy"
+                    width="64"
+                    height="64"
+                  />
+
+                  <div className="projects__media-brand-copy">
+                    <span className="projects__media-brand-name">
+                      {currentProject.name}
+                    </span>
+                    <span className="projects__media-brand-subtitle">
+                      {currentProject.category}
+                    </span>
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <div className="projects__featured-content">
@@ -114,9 +138,7 @@ function ProjectsSection() {
 
               <p className="projects__tag">{currentProject.category}</p>
 
-              <h3 className="projects__featured-title">
-                {currentProject.name}
-              </h3>
+              <h3 className="projects__featured-title">{currentProject.name}</h3>
 
               <p className="projects__featured-highlight">
                 {currentProject.description}

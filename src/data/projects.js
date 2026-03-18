@@ -79,6 +79,8 @@ const projects = [
     url: "https://kelom.com.mx/",
     cta: "Ver proyecto",
     featured: true,
+    logoSrc: "/marcas/Kelom.png",
+    logoAlt: "Logo de Kelom",
     imageSrc: createProjectPreview({
       title: "Kelom",
       subtitle: "Plataforma web para el sector de bodas",
@@ -106,6 +108,8 @@ const projects = [
     url: "https://marketingmakers.com.mx/",
     cta: "Ver proyecto",
     featured: false,
+    logoSrc: "/marcas/MMakers.png",
+    logoAlt: "Logo de Marketing Makers",
     imageSrc: createProjectPreview({
       title: "Marketing Makers",
       subtitle: "Sitio comercial para marketing y diseño",
@@ -133,6 +137,8 @@ const projects = [
     url: "https://genarohp7.github.io/pizza/",
     cta: "Ver proyecto",
     featured: false,
+    logoSrc: "/marcas/Pizza.png",
+    logoAlt: "Logo del proyecto Pizza",
     imageSrc: createProjectPreview({
       title: "Pizza",
       subtitle: "Landing page para una pizzería",
@@ -160,6 +166,8 @@ const projects = [
     url: "https://gcodemaker.com.mx/",
     cta: "Ver proyecto",
     featured: false,
+    logoSrc: "/marcas/gcodemaker.png",
+    logoAlt: "Logo de GCodemaker",
     imageSrc: createProjectPreview({
       title: "GCodemaker",
       subtitle: "Portafolio personal en evolución",
