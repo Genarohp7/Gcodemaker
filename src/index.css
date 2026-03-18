@@ -323,9 +323,25 @@ img {
 
 .header__brand {
   display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+.header__logo-image {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
+.header__brand-copy {
+  display: inline-flex;
   flex-direction: column;
   justify-content: center;
   gap: 0.1rem;
+  min-width: 0;
 }
 
 .header__logo {
@@ -1135,6 +1151,15 @@ img {
 
   .projects__featured {
     padding: 1.25rem;
+  }
+
+    .header__logo-image {
+    width: 36px;
+    height: 36px;
+  }
+
+  .header__brand {
+    gap: 0.65rem;
   }
 }
 /* =========================

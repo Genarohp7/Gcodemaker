@@ -55,8 +55,16 @@ function Header() {
     <header className="header">
       <div className="header__container">
         <a href="#inicio" className="header__brand" onClick={handleCloseMenu}>
-          <span className="header__logo">GCodemaker</span>
-          <span className="header__brand-text">Desarrollo web</span>
+          <img
+            src="/logo-gcodemaker.png"
+            alt="Logo de GCodemaker"
+            className="header__logo-image"
+          />
+
+          <span className="header__brand-copy">
+            <span className="header__logo">GCodemaker</span>
+            <span className="header__brand-text">Desarrollo web</span>
+          </span>
         </a>
 
         <button
