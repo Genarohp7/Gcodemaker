@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 function createHeroPreview() {
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" fill="none">
@@ -101,15 +103,19 @@ function HeroSection() {
           </p>
 
           <p className="hero__description hero__description--secondary">
-            Trabajamos con negocios que necesitan una presencia clara, confiable
-            y útil para vender más: desde una página nueva hasta la mejora de un
-            sitio que ya existe.
+            También puedes revisar una promoción de entrada y paquetes pensados
+            para distintos momentos de tu negocio, desde una opción para empezar
+            rápido hasta soluciones más completas.
           </p>
 
           <div className="hero__actions">
             <a href="#contacto" className="button button--primary">
               Solicita tu página
             </a>
+
+            <Link to="/promociones-paquetes" className="button button--secondary">
+              Ver promociones y paquetes
+            </Link>
 
             <a href="#proyectos" className="button button--secondary">
               Ver ejemplos

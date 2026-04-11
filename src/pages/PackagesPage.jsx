@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 function PackagesPage() {
   const promo = {
     title: "Página de Arranque",
@@ -46,7 +48,8 @@ function PackagesPage() {
       id: "impulso-comercial",
       name: "Impulso Comercial",
       price: "$8,900 MXN",
-      audience: "Para negocios que quieren una página enfocada en conseguir clientes",
+      audience:
+        "Para negocios que quieren una página enfocada en conseguir clientes",
       benefit:
         "Ayuda a que tu página no solo se vea bien, sino que también trabaje mejor para atraer y convertir clientes.",
       includes: [
@@ -88,7 +91,7 @@ function PackagesPage() {
   ];
 
   return (
-    <main className="page__content">
+    <>
       <section className="hero">
         <div className="hero__container">
           <div className="section__container--narrow">
@@ -112,9 +115,9 @@ function PackagesPage() {
                 Quiero solicitar información
               </a>
 
-              <a href="/" className="button button--secondary">
+              <Link to="/" className="button button--secondary">
                 Volver al inicio
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -136,9 +139,7 @@ function PackagesPage() {
 
             <aside className="services-section__panel">
               <div className="services-section__panel-box">
-                <span className="services-section__panel-label">
-                  Ideal para
-                </span>
+                <span className="services-section__panel-label">Ideal para</span>
                 <p className="services-section__panel-text">
                   Negocios que quieren empezar con buena imagen, contacto claro y
                   una inversión más ligera.
@@ -146,12 +147,11 @@ function PackagesPage() {
               </div>
 
               <div className="services-section__panel-box">
-                <span className="services-section__panel-label">
-                  Importante
-                </span>
+                <span className="services-section__panel-label">Importante</span>
                 <p className="services-section__panel-text">
                   Esta promoción funciona como puerta de entrada para después
-                  crecer hacia una solución más completa si tu negocio lo necesita.
+                  crecer hacia una solución más completa si tu negocio lo
+                  necesita.
                 </p>
               </div>
             </aside>
@@ -212,7 +212,8 @@ function PackagesPage() {
           </h2>
           <p className="section__text section__text--intro">
             Estos paquetes están pensados para que puedas empezar con una base
-            profesional y, si lo necesitas, crecer hacia una solución más completa.
+            profesional y, si lo necesitas, crecer hacia una solución más
+            completa.
           </p>
 
           <div className="services services--enhanced">
@@ -253,7 +254,9 @@ function PackagesPage() {
                   </article>
 
                   <article className="about-section__principle">
-                    <h4 className="about-section__principle-title">No incluye</h4>
+                    <h4 className="about-section__principle-title">
+                      No incluye
+                    </h4>
                     <ul className="services__list">
                       {pkg.excludes.map((item) => (
                         <li key={item} className="services__item">
@@ -280,7 +283,10 @@ function PackagesPage() {
         </div>
       </section>
 
-      <section className="final-cta" aria-labelledby="packages-final-cta-title">
+      <section
+        className="final-cta"
+        aria-labelledby="packages-final-cta-title"
+      >
         <div className="section__container">
           <div className="final-cta__box">
             <div className="final-cta__content">
@@ -312,7 +318,7 @@ function PackagesPage() {
           </div>
         </div>
       </section>
-    </main>
+    </>
   );
 }
 
