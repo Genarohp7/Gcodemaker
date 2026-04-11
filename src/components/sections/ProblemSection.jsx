@@ -1,3 +1,27 @@
+import { motion as Motion } from "motion/react";
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.08,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 26 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
+
 function ProblemSection() {
   const problems = [
     {
@@ -53,49 +77,77 @@ function ProblemSection() {
   return (
     <section id="problema" className="section section--alt">
       <div className="section__container">
-        <div className="services-section__header">
-          <div className="services-section__copy">
+        <Motion.div
+          className="services-section__header"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={containerVariants}
+        >
+          <Motion.div className="services-section__copy" variants={itemVariants}>
             <p className="section__eyebrow">El problema</p>
 
             <h2 className="section__title">
-              Muchos negocios no tienen un mal servicio, pero sí una mala presencia digital
+              Muchos negocios no tienen un mal servicio, pero sí una mala
+              presencia digital
             </h2>
 
             <p className="section__text section__text--intro">
-              Cuando un negocio no se presenta bien en internet, pierde claridad,
-              confianza y oportunidades. Y eso termina afectando contactos,
-              ventas y crecimiento.
+              Cuando un negocio no se presenta bien en internet, pierde
+              claridad, confianza y oportunidades. Y eso termina afectando
+              contactos, ventas y crecimiento.
             </p>
-          </div>
+          </Motion.div>
 
-          <aside className="services-section__panel">
-            <div className="services-section__panel-box">
+          <Motion.aside
+            className="services-section__panel"
+            variants={containerVariants}
+          >
+            <Motion.div
+              className="services-section__panel-box"
+              variants={itemVariants}
+              whileHover={{ y: -3 }}
+            >
               <span className="services-section__panel-label">
                 Lo que suele pasar
               </span>
               <p className="services-section__panel-text">
                 El negocio sí funciona, pero su presencia digital no ayuda lo
-                suficiente a convencer, explicar ni convertir visitas en clientes.
+                suficiente a convencer, explicar ni convertir visitas en
+                clientes.
               </p>
-            </div>
+            </Motion.div>
 
-            <div className="services-section__panel-box">
+            <Motion.div
+              className="services-section__panel-box"
+              variants={itemVariants}
+              whileHover={{ y: -3 }}
+            >
               <span className="services-section__panel-label">
                 Lo importante
               </span>
               <p className="services-section__panel-text">
                 Una buena página no solo sirve para verse mejor. Sirve para dar
-                confianza, ordenar la información y facilitar que una persona te contacte.
+                confianza, ordenar la información y facilitar que una persona te
+                contacte.
               </p>
-            </div>
-          </aside>
-        </div>
+            </Motion.div>
+          </Motion.aside>
+        </Motion.div>
 
-        <div className="services services--enhanced">
+        <Motion.div
+          className="services services--enhanced"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.12 }}
+          variants={containerVariants}
+        >
           {problems.map((problem) => (
-            <article
+            <Motion.article
               key={problem.id}
               className="services__card services__card--enhanced"
+              variants={itemVariants}
+              whileHover={{ y: -4 }}
             >
               <div className="services__top">
                 <p className="services__label">{problem.label}</p>
@@ -116,9 +168,9 @@ function ProblemSection() {
                   </li>
                 ))}
               </ul>
-            </article>
+            </Motion.article>
           ))}
-        </div>
+        </Motion.div>
       </div>
     </section>
   );

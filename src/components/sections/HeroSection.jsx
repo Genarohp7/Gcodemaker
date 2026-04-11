@@ -170,11 +170,12 @@ function HeroSection() {
 
             <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
               <Link
-                to="/promociones-paquetes"
-                className="button button--secondary"
-              >
-                Ver promociones y paquetes
-              </Link>
+  to="/promociones-paquetes"
+  viewTransition
+  className="button button--secondary"
+>
+  Ver promociones y paquetes
+</Link>
             </Motion.div>
 
             <Motion.a

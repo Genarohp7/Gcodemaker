@@ -1,3 +1,27 @@
+import { motion as Motion } from "motion/react";
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.08,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 26 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
+
 function ServicesSection() {
   const services = [
     {
@@ -41,49 +65,77 @@ function ServicesSection() {
   return (
     <section id="servicios" className="section section--alt">
       <div className="section__container">
-        <div className="services-section__header">
-          <div className="services-section__copy">
+        <Motion.div
+          className="services-section__header"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={containerVariants}
+        >
+          <Motion.div className="services-section__copy" variants={itemVariants}>
             <p className="section__eyebrow">Servicios</p>
 
             <h2 className="section__title">
-              Páginas web pensadas para ayudar a tu negocio a verse mejor y conseguir más clientes
+              Páginas web pensadas para ayudar a tu negocio a verse mejor y
+              conseguir más clientes
             </h2>
 
             <p className="section__text section__text--intro">
               No todos los negocios necesitan lo mismo. Por eso el enfoque cambia
-              según el tipo de cliente, el giro y lo que se necesita comunicar para
-              vender mejor.
+              según el tipo de cliente, el giro y lo que se necesita comunicar
+              para vender mejor.
             </p>
-          </div>
+          </Motion.div>
 
-          <aside className="services-section__panel">
-            <div className="services-section__panel-box">
+          <Motion.aside
+            className="services-section__panel"
+            variants={containerVariants}
+          >
+            <Motion.div
+              className="services-section__panel-box"
+              variants={itemVariants}
+              whileHover={{ y: -3 }}
+            >
               <span className="services-section__panel-label">
                 Lo que buscamos
               </span>
               <p className="services-section__panel-text">
-                Que tu negocio tenga una página clara, profesional y útil para que
-                una persona entienda rápido qué ofreces y cómo puede contactarte.
+                Que tu negocio tenga una página clara, profesional y útil para
+                que una persona entienda rápido qué ofreces y cómo puede
+                contactarte.
               </p>
-            </div>
+            </Motion.div>
 
-            <div className="services-section__panel-box">
+            <Motion.div
+              className="services-section__panel-box"
+              variants={itemVariants}
+              whileHover={{ y: -3 }}
+            >
               <span className="services-section__panel-label">
                 También mejoramos sitios existentes
               </span>
               <p className="services-section__panel-text">
-                Si tu página actual se ve vieja, confusa o poco profesional, también
-                puedo ayudarte a mejorarla para que transmita más confianza y funcione mejor.
+                Si tu página actual se ve vieja, confusa o poco profesional,
+                también puedo ayudarte a mejorarla para que transmita más
+                confianza y funcione mejor.
               </p>
-            </div>
-          </aside>
-        </div>
+            </Motion.div>
+          </Motion.aside>
+        </Motion.div>
 
-        <div className="services services--enhanced">
+        <Motion.div
+          className="services services--enhanced"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.12 }}
+          variants={containerVariants}
+        >
           {services.map((service) => (
-            <article
+            <Motion.article
               key={service.id}
               className="services__card services__card--enhanced"
+              variants={itemVariants}
+              whileHover={{ y: -4 }}
             >
               <div className="services__top">
                 <p className="services__label">{service.label}</p>
@@ -104,9 +156,9 @@ function ServicesSection() {
                   </li>
                 ))}
               </ul>
-            </article>
+            </Motion.article>
           ))}
-        </div>
+        </Motion.div>
       </div>
     </section>
   );

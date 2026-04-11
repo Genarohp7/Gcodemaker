@@ -1,3 +1,27 @@
+import { motion as Motion } from "motion/react";
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.08,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 26 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
+
 function SolutionSection() {
   const solutions = [
     {
@@ -41,8 +65,14 @@ function SolutionSection() {
   return (
     <section id="solucion" className="section">
       <div className="section__container">
-        <div className="services-section__header">
-          <div className="services-section__copy">
+        <Motion.div
+          className="services-section__header"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={containerVariants}
+        >
+          <Motion.div className="services-section__copy" variants={itemVariants}>
             <p className="section__eyebrow">La solución</p>
 
             <h2 className="section__title">
@@ -54,10 +84,17 @@ function SolutionSection() {
               está en tener una página que explique bien tu negocio, transmita
               confianza y facilite que una persona te contacte.
             </p>
-          </div>
+          </Motion.div>
 
-          <aside className="services-section__panel">
-            <div className="services-section__panel-box">
+          <Motion.aside
+            className="services-section__panel"
+            variants={containerVariants}
+          >
+            <Motion.div
+              className="services-section__panel-box"
+              variants={itemVariants}
+              whileHover={{ y: -3 }}
+            >
               <span className="services-section__panel-label">
                 Qué buscamos
               </span>
@@ -65,9 +102,13 @@ function SolutionSection() {
                 Que tu negocio se vea profesional, se entienda rápido y tenga
                 una presencia digital que sí ayude a generar oportunidades.
               </p>
-            </div>
+            </Motion.div>
 
-            <div className="services-section__panel-box">
+            <Motion.div
+              className="services-section__panel-box"
+              variants={itemVariants}
+              whileHover={{ y: -3 }}
+            >
               <span className="services-section__panel-label">
                 Cómo se logra
               </span>
@@ -75,15 +116,23 @@ function SolutionSection() {
                 Con una página bien organizada, visualmente clara y pensada para
                 que el cliente encuentre lo importante sin esfuerzo.
               </p>
-            </div>
-          </aside>
-        </div>
+            </Motion.div>
+          </Motion.aside>
+        </Motion.div>
 
-        <div className="services services--enhanced">
+        <Motion.div
+          className="services services--enhanced"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.12 }}
+          variants={containerVariants}
+        >
           {solutions.map((solution) => (
-            <article
+            <Motion.article
               key={solution.id}
               className="services__card services__card--enhanced"
+              variants={itemVariants}
+              whileHover={{ y: -4 }}
             >
               <div className="services__top">
                 <p className="services__label">{solution.label}</p>
@@ -104,9 +153,9 @@ function SolutionSection() {
                   </li>
                 ))}
               </ul>
-            </article>
+            </Motion.article>
           ))}
-        </div>
+        </Motion.div>
       </div>
     </section>
   );

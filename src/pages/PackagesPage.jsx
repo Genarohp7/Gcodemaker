@@ -1,4 +1,40 @@
 import { Link } from "react-router";
+import { motion as Motion } from "motion/react";
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.08,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 26 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 28, scale: 0.985 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.68,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
 
 function PackagesPage() {
   const promo = {
@@ -103,39 +139,62 @@ function PackagesPage() {
     <>
       <section className="hero">
         <div className="hero__container">
-          <div className="section__container--narrow">
-            <p className="hero__eyebrow">Promociones y paquetes</p>
-            <h1 className="hero__title">
+          <Motion.div
+            className="section__container--narrow"
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+          >
+            <Motion.p className="hero__eyebrow" variants={itemVariants}>
+              Promociones y paquetes
+            </Motion.p>
+
+            <Motion.h1 className="hero__title" variants={itemVariants}>
               Opciones claras para crear o mejorar la página web de tu negocio
-            </h1>
-            <p className="hero__description">
+            </Motion.h1>
+
+            <Motion.p className="hero__description" variants={itemVariants}>
               Aquí puedes ver una promoción de entrada para empezar rápido y los
               paquetes principales para negocios que buscan una solución más
               completa, más profesional y más útil para conseguir clientes.
-            </p>
+            </Motion.p>
 
-            <div className="hero__actions">
-              <a
+            <Motion.div className="hero__actions" variants={itemVariants}>
+              <Motion.a
                 href="https://wa.me/525567359470"
                 target="_blank"
                 rel="noreferrer"
                 className="button button--primary"
+                whileHover={{ y: -3, scale: 1.01 }}
+                whileTap={{ scale: 0.985 }}
               >
                 Quiero solicitar información
-              </a>
+              </Motion.a>
 
-              <Link to="/" className="button button--secondary">
-                Volver al inicio
-              </Link>
-            </div>
-          </div>
+              <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
+                <Link
+                  to="/"
+                  viewTransition
+                  className="button button--secondary"
+                >
+                  Volver al inicio
+                </Link>
+              </Motion.div>
+            </Motion.div>
+          </Motion.div>
         </div>
       </section>
 
       <section className="section section--alt">
         <div className="section__container">
-          <div className="services-section__header">
-            <div className="services-section__copy">
+          <Motion.div
+            className="services-section__header"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={containerVariants}
+          >
+            <Motion.div className="services-section__copy" variants={itemVariants}>
               <p className="section__eyebrow">Promoción de entrada</p>
               <h2 className="section__title">
                 {promo.title} — {promo.price}
@@ -144,29 +203,47 @@ function PackagesPage() {
                 {promo.subtitle}
               </p>
               <p className="section__text">{promo.description}</p>
-            </div>
+            </Motion.div>
 
-            <aside className="services-section__panel">
-              <div className="services-section__panel-box">
+            <Motion.aside
+              className="services-section__panel"
+              variants={containerVariants}
+            >
+              <Motion.div
+                className="services-section__panel-box"
+                variants={itemVariants}
+                whileHover={{ y: -3 }}
+              >
                 <span className="services-section__panel-label">Ideal para</span>
                 <p className="services-section__panel-text">
                   Negocios que quieren empezar con buena imagen, contacto claro y
                   una inversión más ligera.
                 </p>
-              </div>
+              </Motion.div>
 
-              <div className="services-section__panel-box">
+              <Motion.div
+                className="services-section__panel-box"
+                variants={itemVariants}
+                whileHover={{ y: -3 }}
+              >
                 <span className="services-section__panel-label">Importante</span>
                 <p className="services-section__panel-text">
                   Esta promoción funciona como puerta de entrada para después
                   crecer hacia una solución más completa si tu negocio lo
                   necesita.
                 </p>
-              </div>
-            </aside>
-          </div>
+              </Motion.div>
+            </Motion.aside>
+          </Motion.div>
 
-          <div className="projects__featured projects__featured--primary">
+          <Motion.div
+            className="projects__featured projects__featured--primary"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.12 }}
+            variants={cardVariants}
+            whileHover={{ y: -4 }}
+          >
             <div className="projects__featured-content">
               <p className="projects__featured-label">Promoción activa</p>
               <p className="projects__featured-status">Precio de arranque</p>
@@ -175,19 +252,28 @@ function PackagesPage() {
               <p className="projects__featured-summary">{promo.description}</p>
 
               <div className="projects__actions">
-                <a
+                <Motion.a
                   href="https://wa.me/525567359470"
                   target="_blank"
                   rel="noreferrer"
                   className="button button--primary"
+                  whileHover={{ y: -3, scale: 1.01 }}
+                  whileTap={{ scale: 0.985 }}
                 >
                   Quiero esta promoción
-                </a>
+                </Motion.a>
               </div>
             </div>
 
             <div className="projects__featured-side">
-              <div className="projects__featured-box">
+              <Motion.div
+                className="projects__featured-box"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ y: -2 }}
+              >
                 <span className="projects__featured-box-label">Incluye</span>
                 <ul className="services__list">
                   {promo.includes.map((item) => (
@@ -196,9 +282,20 @@ function PackagesPage() {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </Motion.div>
 
-              <div className="projects__featured-box">
+              <Motion.div
+                className="projects__featured-box"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{
+                  duration: 0.5,
+                  delay: 0.08,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                whileHover={{ y: -2 }}
+              >
                 <span className="projects__featured-box-label">No incluye</span>
                 <ul className="services__list">
                   {promo.excludes.map((item) => (
@@ -207,31 +304,53 @@ function PackagesPage() {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </Motion.div>
             </div>
-          </div>
+          </Motion.div>
         </div>
       </section>
 
       <section className="section">
         <div className="section__container">
-          <p className="section__eyebrow">Paquetes principales</p>
-          <h2 className="section__title">
-            Elige la opción que mejor se adapte al momento de tu negocio
-          </h2>
-          <p className="section__text section__text--intro">
-            Estos paquetes están pensados para que puedas empezar con una base
-            profesional y, si lo necesitas, crecer hacia una solución más
-            completa.
-          </p>
+          <Motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={containerVariants}
+          >
+            <Motion.p className="section__eyebrow" variants={itemVariants}>
+              Paquetes principales
+            </Motion.p>
 
-          <div className="services services--enhanced">
+            <Motion.h2 className="section__title" variants={itemVariants}>
+              Elige la opción que mejor se adapte al momento de tu negocio
+            </Motion.h2>
+
+            <Motion.p
+              className="section__text section__text--intro"
+              variants={itemVariants}
+            >
+              Estos paquetes están pensados para que puedas empezar con una base
+              profesional y, si lo necesitas, crecer hacia una solución más
+              completa.
+            </Motion.p>
+          </Motion.div>
+
+          <Motion.div
+            className="services services--enhanced"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.12 }}
+            variants={containerVariants}
+          >
             {packages.map((pkg) => (
-              <article
+              <Motion.article
                 key={pkg.id}
                 className={`services__card services__card--enhanced ${
                   pkg.highlighted ? "projects__featured--primary" : ""
                 }`}
+                variants={cardVariants}
+                whileHover={{ y: -4 }}
               >
                 <div className="services__top">
                   <p className="services__label">{pkg.name}</p>
@@ -251,7 +370,14 @@ function PackagesPage() {
                 </p>
 
                 <div className="about-section__principles">
-                  <article className="about-section__principle">
+                  <Motion.article
+                    className="about-section__principle"
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    whileHover={{ y: -2 }}
+                  >
                     <h4 className="about-section__principle-title">Incluye</h4>
                     <ul className="services__list">
                       {pkg.includes.map((item) => (
@@ -260,9 +386,20 @@ function PackagesPage() {
                         </li>
                       ))}
                     </ul>
-                  </article>
+                  </Motion.article>
 
-                  <article className="about-section__principle">
+                  <Motion.article
+                    className="about-section__principle"
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{
+                      duration: 0.45,
+                      delay: 0.06,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    whileHover={{ y: -2 }}
+                  >
                     <h4 className="about-section__principle-title">
                       No incluye
                     </h4>
@@ -273,22 +410,24 @@ function PackagesPage() {
                         </li>
                       ))}
                     </ul>
-                  </article>
+                  </Motion.article>
                 </div>
 
                 <div className="projects__actions">
-                  <a
+                  <Motion.a
                     href="https://wa.me/525567359470"
                     target="_blank"
                     rel="noreferrer"
                     className="button button--primary"
+                    whileHover={{ y: -3, scale: 1.01 }}
+                    whileTap={{ scale: 0.985 }}
                   >
                     Solicitar este paquete
-                  </a>
+                  </Motion.a>
                 </div>
-              </article>
+              </Motion.article>
             ))}
-          </div>
+          </Motion.div>
         </div>
       </section>
 
@@ -297,7 +436,14 @@ function PackagesPage() {
         aria-labelledby="packages-final-cta-title"
       >
         <div className="section__container">
-          <div className="final-cta__box">
+          <Motion.div
+            className="final-cta__box"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={cardVariants}
+            whileHover={{ y: -3 }}
+          >
             <div className="final-cta__content">
               <p className="final-cta__eyebrow">¿No sabes cuál elegir?</p>
               <h2 id="packages-final-cta-title" className="final-cta__title">
@@ -311,20 +457,28 @@ function PackagesPage() {
             </div>
 
             <div className="final-cta__actions">
-              <a
+              <Motion.a
                 href="https://wa.me/525567359470"
                 target="_blank"
                 rel="noreferrer"
                 className="button button--primary"
+                whileHover={{ y: -3, scale: 1.01 }}
+                whileTap={{ scale: 0.985 }}
               >
                 Quiero asesoría
-              </a>
+              </Motion.a>
 
-              <a href="/#contacto" className="button button--secondary">
-                Ir al contacto
-              </a>
+              <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
+                <Link
+                  to="/#contacto"
+                  viewTransition
+                  className="button button--secondary"
+                >
+                  Ir al contacto
+                </Link>
+              </Motion.div>
             </div>
-          </div>
+          </Motion.div>
         </div>
       </section>
     </>
