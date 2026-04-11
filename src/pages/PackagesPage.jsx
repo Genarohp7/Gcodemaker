@@ -19,6 +19,7 @@ function PackagesPage() {
       "Varias páginas o secciones avanzadas",
       "Procesos internos como citas, reservas o administración",
       "Cambios ilimitados",
+      "Costos de dominio, hospedaje o herramientas externas que cobren por uso",
     ],
   };
 
@@ -26,7 +27,7 @@ function PackagesPage() {
     {
       id: "presencia-profesional",
       name: "Presencia Profesional",
-      price: "$4,900 MXN",
+      price: "Desde $4,900 MXN",
       audience: "Para negocios que quieren una página completa y profesional",
       benefit:
         "Ayuda a que tu negocio se vea formal, genere más confianza y tenga una presencia digital sólida.",
@@ -37,17 +38,19 @@ function PackagesPage() {
         "Información de contacto visible",
         "Botones para facilitar el contacto",
         "Diseño adaptable a celular",
+        "Optimización básica para ayudarte a aparecer mejor en Google",
       ],
       excludes: [
         "Funciones especiales hechas a la medida",
         "Sistemas para citas, reservas o administración",
         "Integraciones avanzadas",
+        "Costos de dominio, hospedaje, licencias o herramientas externas que cobren por uso",
       ],
     },
     {
       id: "impulso-comercial",
       name: "Impulso Comercial",
-      price: "$8,900 MXN",
+      price: "Desde $8,900 MXN",
       audience:
         "Para negocios que quieren una página enfocada en conseguir clientes",
       benefit:
@@ -59,11 +62,15 @@ function PackagesPage() {
         "Espacios para generar más confianza",
         "Presentación más completa y comercial",
         "Enfoque más claro en captar contactos",
+        "Formularios sencillos para facilitar el contacto",
+        "Optimización más completa para ayudarte a aparecer mejor en Google",
+        "Medición conectada con Google Analytics para revisar visitas y acciones importantes",
       ],
       excludes: [
         "Sistemas personalizados complejos",
         "Procesos internos avanzados",
         "Funciones especiales fuera del alcance del paquete",
+        "Costos de dominio, hospedaje, licencias o herramientas externas que cobren por uso",
       ],
       highlighted: true,
     },
@@ -86,6 +93,8 @@ function PackagesPage() {
         "Precio único para todos los casos",
         "Funciones ilimitadas sin revisión previa",
         "Alcance indefinido",
+        "Costos de dominio, hospedaje, licencias o herramientas externas que cobren por uso",
+        "Costos variables de servidor, servicios de envío de correos u otras plataformas que se cobran según el uso",
       ],
     },
   ];
