@@ -1,4 +1,7 @@
 function ContactSection() {
+ const emailHref = "mailto:gehernandez@gcodemaker.com";
+const whatsappHref = "https://wa.me/525567359470";
+
   return (
     <section id="contacto" className="section contact-section">
       <div className="section__container section__container--narrow">
@@ -6,44 +9,44 @@ function ContactSection() {
           <p className="section__eyebrow">Contacto</p>
 
           <h2 className="section__title">
-            Si tienes una idea, un negocio o un sitio que necesita mejorar, hablemos
+            Solicita tu página web y empieza a darle a tu negocio una presencia más profesional
           </h2>
 
           <p className="section__text">
-            Me interesa colaborar en proyectos que necesiten una presencia
-            digital más clara, más profesional y mejor estructurada. Si estás
-            buscando una landing page, un sitio informativo o una mejora para tu
-            página actual, podemos revisar qué necesitas y cómo resolverlo.
+            Si tu negocio necesita una página nueva o una mejora para verse más
+            claro, más confiable y más profesional, este es un buen momento para
+            dar el siguiente paso.
           </p>
 
           <p className="section__text">
-            Esta nueva versión del portafolio sigue en construcción, pero ya
-            puedes contactarme para conversar sobre tu proyecto.
+            Puedo ayudarte a crear una página pensada para que tus clientes
+            entiendan rápido lo que ofreces, confíen más en tu negocio y puedan
+            contactarte con facilidad.
           </p>
 
           <div className="contact-section__actions">
             <a
-              href="mailto:genaro@example.com"
+              href={whatsappHref}
+              target="_blank"
+              rel="noreferrer"
               className="button button--primary"
             >
-              Enviar correo
+              Solicitar por WhatsApp
             </a>
 
             <a
-              href="https://github.com/Genarohp7"
-              target="_blank"
-              rel="noreferrer"
+              href={emailHref}
               className="button button--secondary"
             >
-              Ver GitHub
+              Solicitar por correo
             </a>
           </div>
 
           <div className="contact-section__note">
-            <span className="contact-section__note-label">Nota</span>
+            <span className="contact-section__note-label">Importante</span>
             <p className="contact-section__note-text">
-              Más adelante esta sección tendrá formulario real y mejor integración
-              de contacto. Por ahora, el correo funciona como vía directa.
+              Reemplaza <strong>+52 55 22737432</strong> y <strong>gehernandez@gcodemaker.com.mx</strong>
+              {" "}por tus datos reales para dejar esta sección lista para conversión.
             </p>
           </div>
         </div>

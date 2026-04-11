@@ -33,7 +33,7 @@ function createAboutPreview() {
       <rect x="586" y="706" width="120" height="14" rx="7" fill="rgba(255,255,255,0.14)"/>
 
       <text x="450" y="790" text-anchor="middle" fill="#EAF3FF" font-family="Montserrat, Arial, sans-serif" font-size="34" font-weight="700">
-        Build with clarity
+        Claridad. Confianza. Resultado.
       </text>
     </svg>
   `;
@@ -47,26 +47,45 @@ function AboutSection() {
   const principles = [
     {
       id: "claridad",
-      title: "Claridad antes que adorno",
-      text: "Me interesa que cada sitio explique bien lo importante y no obligue al usuario a adivinar qué sigue.",
+      title: "Primero se entiende, luego se ve bonito",
+      text: "Una página útil debe dejar claro qué hace tu negocio, a quién ayuda y cómo puede contactarte una persona interesada.",
     },
     {
-      id: "estructura",
-      title: "Estructura con intención",
-      text: "Una buena página no solo se ve bien: ordena el contenido, guía la atención y transmite más confianza.",
+      id: "confianza",
+      title: "La imagen también vende",
+      text: "Cuando un sitio se ve cuidado, ordenado y profesional, transmite más confianza y hace que el negocio se tome más en serio.",
     },
     {
-      id: "ejecucion",
-      title: "Ejecución seria",
-      text: "Trabajo con atención al detalle, lógica de construcción y visión práctica para que cada proyecto tenga base real.",
+      id: "mejora",
+      title: "No todo tiene que empezar desde cero",
+      text: "También puedo trabajar sobre una página que ya existe para mejorar su imagen, su estructura y la forma en la que presenta tu negocio.",
     },
   ];
 
-  const stack = ["HTML", "CSS", "JavaScript", "React", "Node"];
+  const stack = [
+    "Páginas para negocios",
+    "Landing pages",
+    "Mejora de sitios",
+    "Diseño claro",
+    "Presencia profesional",
+  ];
+
   const stats = [
-    { id: "focus", value: "UX clara", label: "Experiencias pensadas para comunicar mejor" },
-    { id: "build", value: "Front-end", label: "Base fuerte para productos modernos" },
-    { id: "tone", value: "Sin humo", label: "Más criterio técnico, menos ornamento vacío" },
+    {
+      id: "focus",
+      value: "Más claridad",
+      label: "Para que tu negocio se entienda rápido",
+    },
+    {
+      id: "trust",
+      value: "Más confianza",
+      label: "Para que tu página se vea más profesional",
+    },
+    {
+      id: "action",
+      value: "Más oportunidad",
+      label: "Para convertir visitas en contactos",
+    },
   ];
 
   return (
@@ -77,7 +96,7 @@ function AboutSection() {
             <div className="about-section__visual">
               <img
                 src={aboutPreview}
-                alt="Vista conceptual de un perfil profesional de desarrollador web"
+                alt="Vista conceptual de una presencia digital profesional"
                 className="about-section__image"
                 loading="lazy"
               />
@@ -94,31 +113,28 @@ function AboutSection() {
           </div>
 
           <div className="about-section__content">
-            <p className="section__eyebrow">Sobre mí</p>
+            <p className="section__eyebrow">Quién trabajará tu página</p>
 
             <h2 className="section__title">
-              Desarrollo web con enfoque práctico, visual y funcional
+              Trabajo para que tu negocio tenga una página clara, profesional y útil para vender mejor
             </h2>
 
             <p className="section__text">
-              Soy Genaro Hernández Piñeiro, desarrollador web enfocado en crear
-              sitios claros, modernos y bien estructurados para negocios,
-              marcas y proyectos que necesitan una presencia digital más seria y
-              profesional.
+              Soy Genaro Hernández Piñeiro y me dedico a crear y mejorar páginas
+              web para negocios que necesitan verse mejor en internet y transmitir
+              más confianza desde el primer vistazo.
             </p>
 
             <p className="section__text">
-              Me interesa que cada página tenga sentido: que comunique bien, que
-              se vea confiable y que ayude a presentar mejor un producto,
-              servicio o idea. No se trata solo de que “se vea bonita”, sino de
-              construir una herramienta útil y bien pensada.
+              Mi enfoque no es llenar una página de cosas innecesarias. Lo
+              importante es que el sitio ayude a explicar bien tu negocio, se vea
+              profesional y facilite que una persona interesada te contacte.
             </p>
 
             <p className="section__text">
-              Trabajo con HTML, CSS, JavaScript, React y Node, y disfruto
-              convertir necesidades reales en soluciones limpias, funcionales y
-              adaptables. Me tomo cada proyecto con seriedad, orden y atención
-              al detalle.
+              Trabajo tanto en proyectos nuevos como en sitios que ya existen y
+              necesitan una actualización para verse más actuales, más claros y
+              mejor organizados.
             </p>
 
             <div className="about-section__principles">
@@ -142,7 +158,7 @@ function AboutSection() {
               <div className="about-section__signature">
                 <span className="about-section__signature-label">Enfoque</span>
                 <p className="about-section__signature-text">
-                  Resolver con claridad, presentar con intención y construir con criterio técnico.
+                  Hacer que una página se vea mejor, se entienda mejor y ayude más al negocio.
                 </p>
               </div>
             </div>

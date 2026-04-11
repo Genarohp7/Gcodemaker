@@ -10,9 +10,9 @@ function HomePage() {
   return (
     <>
       <HeroSection />
-      <AboutSection />
       <ServicesSection />
       <ProjectsSection />
+      <AboutSection />
       <ProcessSection />
       <ContactSection />
       <FinalCtaSection />

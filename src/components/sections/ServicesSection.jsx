@@ -1,39 +1,39 @@
 function ServicesSection() {
   const services = [
     {
-      id: "sitios-informativos",
-      label: "Base sólida",
-      title: "Sitios web informativos",
+      id: "restaurantes",
+      label: "Restaurantes",
+      title: "Páginas web para restaurantes que quieren vender más",
       description:
-        "Páginas claras y profesionales para presentar tu negocio, tus servicios, tu propuesta de valor y tus medios de contacto de forma ordenada.",
+        "Una página para restaurante debe ayudar a que las personas vean tu menú, encuentren tu negocio, conozcan tus promociones y te contacten rápido.",
       includes: [
-        "Estructura clara de contenido",
-        "Diseño adaptable a móvil y desktop",
-        "Presentación más confiable de tu negocio",
+        "Menú digital fácil de consultar",
+        "Información clara de ubicación, horarios y contacto",
+        "Presentación más profesional para atraer más clientes",
       ],
     },
     {
-      id: "landing-pages",
-      label: "Conversión",
-      title: "Landing pages",
+      id: "salud",
+      label: "Sector salud",
+      title: "Páginas web para clínicas, doctores y dentistas",
       description:
-        "Páginas pensadas para comunicar una oferta puntual, captar prospectos y llevar al usuario hacia una acción concreta sin ruido innecesario.",
+        "En salud, una buena página ayuda a transmitir confianza, explicar tus servicios con claridad y facilitar que un paciente te contacte o agende.",
       includes: [
-        "Mensaje enfocado en una sola meta",
-        "Jerarquía visual clara",
-        "Llamadas a la acción mejor planteadas",
+        "Información profesional y fácil de entender",
+        "Mayor confianza para nuevos pacientes",
+        "Base lista para citas, contacto y presencia online",
       ],
     },
     {
-      id: "redisenos",
-      label: "Optimización",
-      title: "Rediseño y mejora web",
+      id: "negocios-pequenos",
+      label: "Negocios pequeños",
+      title: "Páginas web para negocios que van empezando",
       description:
-        "Si tu sitio actual se ve desactualizado, confuso o poco profesional, puedo ayudarte a reorganizarlo y darle una presencia mucho más sólida.",
+        "Si tu negocio apenas está creciendo, una página web puede ayudarte a verte más serio, explicar mejor lo que haces y no depender solo de redes sociales.",
       includes: [
-        "Mejor organización visual",
-        "Ajuste de experiencia y claridad",
-        "Renovación de imagen digital",
+        "Presencia online clara y rápida de lanzar",
+        "Mejor imagen para clientes nuevos",
+        "Una base digital para empezar a vender con más confianza",
       ],
     },
   ];
@@ -46,35 +46,34 @@ function ServicesSection() {
             <p className="section__eyebrow">Servicios</p>
 
             <h2 className="section__title">
-              Soluciones web pensadas para comunicar mejor y verse más profesionales
+              Páginas web pensadas para ayudar a tu negocio a verse mejor y conseguir más clientes
             </h2>
 
             <p className="section__text section__text--intro">
-              No todos los proyectos necesitan lo mismo. A veces hace falta una
-              landing clara; otras, un sitio completo que explique mejor lo que
-              hace un negocio. La idea es construir una solución útil, bien
-              presentada y con objetivos claros.
+              No todos los negocios necesitan lo mismo. Por eso el enfoque cambia
+              según el tipo de cliente, el giro y lo que se necesita comunicar para
+              vender mejor.
             </p>
           </div>
 
           <aside className="services-section__panel">
             <div className="services-section__panel-box">
               <span className="services-section__panel-label">
-                Enfoque de trabajo
+                Lo que buscamos
               </span>
               <p className="services-section__panel-text">
-                Diseño y desarrollo con una lógica simple: claridad primero,
-                estructura después y presentación con intención al final.
+                Que tu negocio tenga una página clara, profesional y útil para que
+                una persona entienda rápido qué ofreces y cómo puede contactarte.
               </p>
             </div>
 
             <div className="services-section__panel-box">
               <span className="services-section__panel-label">
-                Lo importante
+                También mejoramos sitios existentes
               </span>
               <p className="services-section__panel-text">
-                Un sitio útil no solo se ve bien; también explica mejor, genera
-                más confianza y ayuda a que el negocio se tome más en serio.
+                Si tu página actual se ve vieja, confusa o poco profesional, también
+                puedo ayudarte a mejorarla para que transmita más confianza y funcione mejor.
               </p>
             </div>
           </aside>
@@ -82,7 +81,10 @@ function ServicesSection() {
 
         <div className="services services--enhanced">
           {services.map((service) => (
-            <article key={service.id} className="services__card services__card--enhanced">
+            <article
+              key={service.id}
+              className="services__card services__card--enhanced"
+            >
               <div className="services__top">
                 <p className="services__label">{service.label}</p>
 

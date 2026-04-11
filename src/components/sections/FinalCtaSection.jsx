@@ -4,30 +4,26 @@ function FinalCtaSection() {
       <div className="section__container">
         <div className="final-cta__box">
           <div className="final-cta__content">
-            <p className="final-cta__eyebrow">Siguiente paso</p>
+            <p className="final-cta__eyebrow">Da el siguiente paso</p>
+
             <h2 id="final-cta-title" className="final-cta__title">
-              Si tu negocio necesita una presencia digital más clara y profesional,
-              es buen momento para construirla mejor.
+              Si quieres una página web que ayude a tu negocio a verse mejor y conseguir más clientes, este es el momento de empezar
             </h2>
+
             <p className="final-cta__text">
-              Un sitio bien planteado puede ayudarte a comunicar mejor, generar
-              más confianza y presentar tu negocio con más seriedad desde el
-              primer vistazo.
+              Una buena página no solo sirve para estar en internet. Sirve para
+              dar confianza, explicar mejor lo que haces y facilitar que una
+              persona interesada te contacte.
             </p>
           </div>
 
           <div className="final-cta__actions">
             <a href="#contacto" className="button button--primary">
-              Quiero mejorar mi sitio
+              Solicitar mi página
             </a>
 
-            <a
-              href="https://github.com/Genarohp7"
-              target="_blank"
-              rel="noreferrer"
-              className="button button--secondary"
-            >
-              Ver trabajo
+            <a href="#proyectos" className="button button--secondary">
+              Ver ejemplos
             </a>
           </div>
         </div>

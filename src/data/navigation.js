@@ -5,19 +5,19 @@ const navigation = [
     href: "#inicio",
   },
   {
-    id: "sobre-mi",
-    label: "Sobre mí",
-    href: "#sobre-mi",
-  },
-  {
     id: "servicios",
-    label: "Servicios",
+    label: "Soluciones",
     href: "#servicios",
   },
   {
     id: "proyectos",
-    label: "Proyectos",
+    label: "Ejemplos",
     href: "#proyectos",
+  },
+  {
+    id: "sobre-mi",
+    label: "Quién hará tu página",
+    href: "#sobre-mi",
   },
   {
     id: "contacto",

@@ -46,7 +46,7 @@ function createHeroPreview() {
       <rect x="758" y="624" width="264" height="80" rx="18" fill="rgba(255,203,78,0.12)"/>
 
       <text x="112" y="836" fill="#EAF3FF" font-family="Montserrat, Arial, sans-serif" font-size="50" font-weight="700">
-        Build. Present. Convert.
+        Más clientes. Mejor presencia.
       </text>
     </svg>
   `;
@@ -58,28 +58,28 @@ const heroPreview = createHeroPreview();
 
 function HeroSection() {
   const tags = [
-    "Sitios informativos",
-    "Landing pages",
-    "React + Vite",
-    "UI clara y profesional",
-    "Experiencias web funcionales",
+    "Restaurantes",
+    "Clínicas y consultorios",
+    "Dentistas",
+    "Negocios pequeños",
+    "Páginas para vender más",
   ];
 
   const metrics = [
     {
       id: "claridad",
-      value: "UX clara",
-      label: "Estructura pensada para que el usuario entienda rápido lo importante.",
+      value: "Más claridad",
+      label: "Para que tus clientes entiendan rápido qué ofreces y cómo contactarte.",
     },
     {
       id: "presencia",
-      value: "Imagen sólida",
-      label: "Diseño y desarrollo para que un negocio se vea más confiable y profesional.",
+      value: "Más confianza",
+      label: "Para que tu negocio se vea profesional y no dependa solo de redes sociales.",
     },
     {
-      id: "desarrollo",
-      value: "Código real",
-      label: "Soluciones construidas con criterio técnico, no solo con buena intención.",
+      id: "resultado",
+      value: "Más oportunidades",
+      label: "Una página bien hecha ayuda a atraer clientes y a convertir mejor las visitas.",
     },
   ];
 
@@ -87,32 +87,32 @@ function HeroSection() {
     <section id="inicio" className="hero">
       <div className="hero__container hero__container--grid">
         <div className="hero__main">
-          <p className="hero__eyebrow">Desarrollo web para negocios y marcas</p>
+          <p className="hero__eyebrow">Páginas web para negocios que quieren crecer</p>
 
           <h1 className="hero__title">
-            Diseño y desarrollo experiencias web que ayudan a presentar mejor un
-            negocio, comunicar con claridad y dar una imagen más profesional.
+            Páginas web para negocios que quieren más clientes
           </h1>
 
           <p className="hero__description">
-            Soy Genaro Hernández Piñeiro, desarrollador web enfocado en crear
-            sitios modernos, funcionales y bien estructurados para negocios,
-            marcas y proyectos que necesitan una presencia digital más seria.
+            Si tu negocio no tiene página web, se ve poco profesional o depende
+            solo de redes sociales, estás dejando pasar oportunidades. En
+            GCodemaker creamos páginas pensadas para ayudarte a mostrar mejor tu
+            negocio y convertir visitas en contactos reales.
           </p>
 
           <p className="hero__description hero__description--secondary">
-            Trabajo con HTML, CSS, JavaScript, React y Node para construir
-            soluciones claras, útiles y visualmente sólidas. Menos relleno,
-            menos humo y más intención en cada pantalla.
+            Trabajamos con negocios que necesitan una presencia clara, confiable
+            y útil para vender más: desde una página nueva hasta la mejora de un
+            sitio que ya existe.
           </p>
 
           <div className="hero__actions">
-            <a href="#proyectos" className="button button--primary">
-              Ver proyectos
+            <a href="#contacto" className="button button--primary">
+              Solicita tu página
             </a>
 
-            <a href="#contacto" className="button button--secondary">
-              Hablemos de tu proyecto
+            <a href="#proyectos" className="button button--secondary">
+              Ver ejemplos
             </a>
           </div>
 
@@ -127,12 +127,12 @@ function HeroSection() {
 
         <aside className="hero__panel">
           <div className="hero__panel-card">
-            <p className="hero__panel-label">Vista conceptual</p>
+            <p className="hero__panel-label">Lo que debe lograr una buena página</p>
 
             <div className="hero__preview">
               <img
                 src={heroPreview}
-                alt="Vista conceptual de una interfaz web moderna"
+                alt="Vista conceptual de una página web profesional para negocios"
                 className="hero__preview-image"
                 loading="eager"
               />
