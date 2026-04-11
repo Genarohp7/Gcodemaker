@@ -1,14 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router";
 import navigation from "../../data/navigation";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("inicio");
 
-  const navItems = useMemo(() => navigation, []);
+  const { pathname, hash } = useLocation();
+
+  const isHomePage = pathname === "/";
+  const isPackagesPage = pathname === "/promociones-paquetes";
 
   useEffect(() => {
-    const sectionIds = navItems
+    if (!isHomePage) return undefined;
+
+    const sectionIds = navigation
       .map((item) => item.href.replace("#", ""))
       .filter(Boolean);
 
@@ -41,7 +47,7 @@ function Header() {
       sections.forEach((section) => observer.unobserve(section));
       observer.disconnect();
     };
-  }, [navItems]);
+  }, [isHomePage]);
 
   function handleToggleMenu() {
     setIsMenuOpen((prev) => !prev);
@@ -51,10 +57,24 @@ function Header() {
     setIsMenuOpen(false);
   }
 
+  function getSectionHref(hashHref) {
+    return isHomePage ? hashHref : `/${hashHref}`;
+  }
+
+  const brandHref = isHomePage ? "#inicio" : "/";
+  const packagesHref = "/promociones-paquetes";
+  const contactHref = isHomePage ? "#contacto" : "/#contacto";
+
+  const currentActiveSection = isPackagesPage
+    ? "promociones-paquetes"
+    : isHomePage && hash
+      ? hash.replace("#", "")
+      : activeSection;
+
   return (
     <header className="header">
       <div className="header__container">
-        <a href="#inicio" className="header__brand" onClick={handleCloseMenu}>
+        <a href={brandHref} className="header__brand" onClick={handleCloseMenu}>
           <img
             src="/logo-gcodemaker.png"
             alt="Logo de GCodemaker"
@@ -86,14 +106,14 @@ function Header() {
             isMenuOpen ? "header__nav--active" : ""
           }`}
         >
-          {navItems.map((item) => {
+          {navigation.map((item) => {
             const sectionId = item.href.replace("#", "");
-            const isActive = activeSection === sectionId;
+            const isActive = isHomePage && currentActiveSection === sectionId;
 
             return (
               <a
                 key={item.id}
-                href={item.href}
+                href={getSectionHref(item.href)}
                 className={`header__link ${
                   isActive ? "header__link--active" : ""
                 }`}
@@ -106,7 +126,18 @@ function Header() {
           })}
 
           <a
-            href="#contacto"
+            href={packagesHref}
+            className={`header__link ${
+              isPackagesPage ? "header__link--active" : ""
+            }`}
+            onClick={handleCloseMenu}
+            aria-current={isPackagesPage ? "true" : "false"}
+          >
+            Promociones y paquetes
+          </a>
+
+          <a
+            href={contactHref}
             className="button button--primary button--header"
             onClick={handleCloseMenu}
           >
