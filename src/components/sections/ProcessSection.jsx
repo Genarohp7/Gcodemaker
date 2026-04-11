@@ -1,36 +1,36 @@
 function ProcessSection() {
   const steps = [
     {
-      id: "descubrimiento",
+      id: "contacto",
       number: "01",
-      title: "Entiendo el objetivo",
-      text: "Primero aterrizo qué necesita tu negocio, qué quieres comunicar y qué papel debe cumplir el sitio dentro de esa meta.",
+      title: "Me cuentas qué necesita tu negocio",
+      text: "Primero revisamos qué tipo de página necesitas, qué quieres comunicar y cuál es el objetivo principal: vender más, generar confianza o facilitar el contacto.",
     },
     {
-      id: "estructura",
+      id: "propuesta",
       number: "02",
-      title: "Organizo la estructura",
-      text: "Defino una base clara para que el contenido tenga lógica, el recorrido sea fácil y la información importante no quede enterrada.",
+      title: "Definimos la mejor opción para ti",
+      text: "Después organizamos la idea para que tu página tenga una estructura clara, una presentación profesional y un enfoque útil para tu tipo de negocio.",
     },
     {
-      id: "desarrollo",
+      id: "entrega",
       number: "03",
-      title: "Desarrollo y ajusto",
-      text: "Construyo la solución cuidando presentación, funcionalidad y adaptación a distintos dispositivos, haciendo ajustes cuando hace falta.",
+      title: "Desarrollo, ajusto y dejamos todo listo",
+      text: "Construyo la página, hago los ajustes necesarios y la dejo preparada para que tu negocio tenga una presencia digital más seria, más clara y más efectiva.",
     },
   ];
 
   return (
     <section id="proceso" className="section section--alt">
       <div className="section__container">
-        <p className="section__eyebrow">Proceso</p>
+        <p className="section__eyebrow">Cómo trabajamos</p>
         <h2 className="section__title">
-          Una forma de trabajo clara, ordenada y enfocada en resultados
+          Un proceso simple para que tu página avance sin complicaciones
         </h2>
         <p className="section__text section__text--intro">
-          Me gusta trabajar por etapas para que cada proyecto tenga dirección,
-          coherencia y una ejecución más limpia. Menos improvisación, menos
-          humo, mejores resultados.
+          La idea es que todo sea claro desde el inicio: entender qué necesita tu
+          negocio, definir la mejor solución y desarrollar una página que te ayude
+          a verte mejor y a conseguir más oportunidades.
         </p>
 
         <div className="process">
