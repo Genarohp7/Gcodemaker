@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { motion as Motion } from "motion/react";
 
 function createHeroPreview() {
   const svg = `
@@ -58,6 +59,42 @@ function createHeroPreview() {
 
 const heroPreview = createHeroPreview();
 
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.08,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.65,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
+
+const panelVariants = {
+  hidden: { opacity: 0, x: 30, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    transition: {
+      duration: 0.8,
+      ease: [0.22, 1, 0.36, 1],
+      delay: 0.18,
+    },
+  },
+};
+
 function HeroSection() {
   const tags = [
     "Restaurantes",
@@ -71,89 +108,166 @@ function HeroSection() {
     {
       id: "claridad",
       value: "Más claridad",
-      label: "Para que tus clientes entiendan rápido qué ofreces y cómo contactarte.",
+      label:
+        "Para que tus clientes entiendan rápido qué ofreces y cómo contactarte.",
     },
     {
       id: "presencia",
       value: "Más confianza",
-      label: "Para que tu negocio se vea profesional y no dependa solo de redes sociales.",
+      label:
+        "Para que tu negocio se vea profesional y no dependa solo de redes sociales.",
     },
     {
       id: "resultado",
       value: "Más oportunidades",
-      label: "Una página bien hecha ayuda a atraer clientes y a convertir mejor las visitas.",
+      label:
+        "Una página bien hecha ayuda a atraer clientes y a convertir mejor las visitas.",
     },
   ];
 
   return (
     <section id="inicio" className="hero">
       <div className="hero__container hero__container--grid">
-        <div className="hero__main">
-          <p className="hero__eyebrow">Páginas web para negocios que quieren crecer</p>
+        <Motion.div
+          className="hero__main"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <Motion.p className="hero__eyebrow" variants={itemVariants}>
+            Páginas web para negocios que quieren crecer
+          </Motion.p>
 
-          <h1 className="hero__title">
+          <Motion.h1 className="hero__title" variants={itemVariants}>
             Páginas web para negocios que quieren más clientes
-          </h1>
+          </Motion.h1>
 
-          <p className="hero__description">
+          <Motion.p className="hero__description" variants={itemVariants}>
             Si tu negocio no tiene página web, se ve poco profesional o depende
             solo de redes sociales, estás dejando pasar oportunidades. En
             GCodemaker creamos páginas pensadas para ayudarte a mostrar mejor tu
             negocio y convertir visitas en contactos reales.
-          </p>
+          </Motion.p>
 
-          <p className="hero__description hero__description--secondary">
+          <Motion.p
+            className="hero__description hero__description--secondary"
+            variants={itemVariants}
+          >
             También puedes revisar una promoción de entrada y paquetes pensados
             para distintos momentos de tu negocio, desde una opción para empezar
             rápido hasta soluciones más completas.
-          </p>
+          </Motion.p>
 
-          <div className="hero__actions">
-            <a href="#contacto" className="button button--primary">
+          <Motion.div className="hero__actions" variants={itemVariants}>
+            <Motion.a
+              href="#contacto"
+              className="button button--primary"
+              whileHover={{ y: -3, scale: 1.01 }}
+              whileTap={{ scale: 0.985 }}
+            >
               Solicita tu página
-            </a>
+            </Motion.a>
 
-            <Link to="/promociones-paquetes" className="button button--secondary">
-              Ver promociones y paquetes
-            </Link>
+            <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
+              <Link
+                to="/promociones-paquetes"
+                className="button button--secondary"
+              >
+                Ver promociones y paquetes
+              </Link>
+            </Motion.div>
 
-            <a href="#proyectos" className="button button--secondary">
+            <Motion.a
+              href="#proyectos"
+              className="button button--secondary"
+              whileHover={{ y: -3 }}
+              whileTap={{ scale: 0.985 }}
+            >
               Ver ejemplos
-            </a>
-          </div>
+            </Motion.a>
+          </Motion.div>
 
-          <ul className="hero__tags">
-            {tags.map((item) => (
-              <li key={item} className="hero__tag">
+          <Motion.ul className="hero__tags" variants={itemVariants}>
+            {tags.map((item, index) => (
+              <Motion.li
+                key={item}
+                className="hero__tag"
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.45,
+                  delay: 0.45 + index * 0.06,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                whileHover={{ y: -2 }}
+              >
                 {item}
-              </li>
+              </Motion.li>
             ))}
-          </ul>
-        </div>
+          </Motion.ul>
+        </Motion.div>
 
-        <aside className="hero__panel">
+        <Motion.aside
+          className="hero__panel"
+          variants={panelVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <div className="hero__panel-card">
-            <p className="hero__panel-label">Lo que debe lograr una buena página</p>
+            <Motion.p
+              className="hero__panel-label"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.28, duration: 0.55 }}
+            >
+              Lo que debe lograr una buena página
+            </Motion.p>
 
-            <div className="hero__preview">
-              <img
+            <Motion.div
+              className="hero__preview"
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                delay: 0.34,
+                duration: 0.7,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <Motion.img
                 src={heroPreview}
                 alt="Vista conceptual de una página web profesional para negocios"
                 className="hero__preview-image"
                 loading="eager"
+                animate={{ y: [0, -6, 0] }}
+                transition={{
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
               />
-            </div>
+            </Motion.div>
 
             <div className="hero__metrics">
-              {metrics.map((item) => (
-                <article key={item.id} className="hero__metric">
+              {metrics.map((item, index) => (
+                <Motion.article
+                  key={item.id}
+                  className="hero__metric"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    delay: 0.46 + index * 0.08,
+                    duration: 0.55,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  whileHover={{ y: -2 }}
+                >
                   <span className="hero__metric-value">{item.value}</span>
                   <span className="hero__metric-label">{item.label}</span>
-                </article>
+                </Motion.article>
               ))}
             </div>
           </div>
-        </aside>
+        </Motion.aside>
       </div>
     </section>
   );

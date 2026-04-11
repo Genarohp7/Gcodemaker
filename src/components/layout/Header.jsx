@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router";
-import navigation from "../../data/navigation";
+import { Link, NavLink, useLocation } from "react-router";
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,9 +13,7 @@ function Header() {
   useEffect(() => {
     if (!isHomePage) return undefined;
 
-    const sectionIds = navigation
-      .map((item) => item.href.replace("#", ""))
-      .filter(Boolean);
+    const sectionIds = ["inicio", "servicios", "proyectos", "sobre-mi", "contacto"];
 
     const sections = sectionIds
       .map((id) => document.getElementById(id))
@@ -49,6 +46,22 @@ function Header() {
     };
   }, [isHomePage]);
 
+  useEffect(() => {
+    if (!isHomePage || !hash) return;
+
+    const targetId = hash.replace("#", "");
+    const targetElement = document.getElementById(targetId);
+
+    if (!targetElement) return;
+
+    requestAnimationFrame(() => {
+      targetElement.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, [isHomePage, hash]);
+
   function handleToggleMenu() {
     setIsMenuOpen((prev) => !prev);
   }
@@ -57,13 +70,9 @@ function Header() {
     setIsMenuOpen(false);
   }
 
-  function getSectionHref(hashHref) {
-    return isHomePage ? hashHref : `/${hashHref}`;
+  function getSectionHref(sectionHash) {
+    return isHomePage ? sectionHash : `/${sectionHash}`;
   }
-
-  const brandHref = isHomePage ? "#inicio" : "/";
-  const packagesHref = "/promociones-paquetes";
-  const contactHref = isHomePage ? "#contacto" : "/#contacto";
 
   const currentActiveSection = isPackagesPage
     ? "promociones-paquetes"
@@ -74,18 +83,38 @@ function Header() {
   return (
     <header className="header">
       <div className="header__container">
-        <a href={brandHref} className="header__brand" onClick={handleCloseMenu}>
-          <img
-            src="/logo-gcodemaker.png"
-            alt="Logo de GCodemaker"
-            className="header__logo-image"
-          />
+        {isHomePage ? (
+          <a href="#inicio" className="header__brand" onClick={handleCloseMenu}>
+            <img
+              src="/logo-gcodemaker.png"
+              alt="Logo de GCodemaker"
+              className="header__logo-image"
+            />
 
-          <span className="header__brand-copy">
-            <span className="header__logo">GCodemaker</span>
-            <span className="header__brand-text">Desarrollo web</span>
-          </span>
-        </a>
+            <span className="header__brand-copy">
+              <span className="header__logo">GCodemaker</span>
+              <span className="header__brand-text">Desarrollo web</span>
+            </span>
+          </a>
+        ) : (
+          <Link
+            to="/"
+            viewTransition
+            className="header__brand"
+            onClick={handleCloseMenu}
+          >
+            <img
+              src="/logo-gcodemaker.png"
+              alt="Logo de GCodemaker"
+              className="header__logo-image"
+            />
+
+            <span className="header__brand-copy">
+              <span className="header__logo">GCodemaker</span>
+              <span className="header__brand-text">Desarrollo web</span>
+            </span>
+          </Link>
+        )}
 
         <button
           type="button"
@@ -106,43 +135,101 @@ function Header() {
             isMenuOpen ? "header__nav--active" : ""
           }`}
         >
-          {navigation.map((item) => {
-            const sectionId = item.href.replace("#", "");
-            const isActive = isHomePage && currentActiveSection === sectionId;
-
-            return (
-              <a
-                key={item.id}
-                href={getSectionHref(item.href)}
-                className={`header__link ${
-                  isActive ? "header__link--active" : ""
-                }`}
-                onClick={handleCloseMenu}
-                aria-current={isActive ? "true" : "false"}
-              >
-                {item.label}
-              </a>
-            );
-          })}
-
           <a
-            href={packagesHref}
+            href={getSectionHref("#inicio")}
             className={`header__link ${
-              isPackagesPage ? "header__link--active" : ""
+              isHomePage && currentActiveSection === "inicio"
+                ? "header__link--active"
+                : ""
             }`}
             onClick={handleCloseMenu}
-            aria-current={isPackagesPage ? "true" : "false"}
+            aria-current={
+              isHomePage && currentActiveSection === "inicio" ? "true" : "false"
+            }
           >
-            Promociones y paquetes
+            Inicio
           </a>
 
           <a
-            href={contactHref}
-            className="button button--primary button--header"
+            href={getSectionHref("#servicios")}
+            className={`header__link ${
+              isHomePage && currentActiveSection === "servicios"
+                ? "header__link--active"
+                : ""
+            }`}
+            onClick={handleCloseMenu}
+            aria-current={
+              isHomePage && currentActiveSection === "servicios"
+                ? "true"
+                : "false"
+            }
+          >
+            Soluciones
+          </a>
+
+          <a
+            href={getSectionHref("#proyectos")}
+            className={`header__link ${
+              isHomePage && currentActiveSection === "proyectos"
+                ? "header__link--active"
+                : ""
+            }`}
+            onClick={handleCloseMenu}
+            aria-current={
+              isHomePage && currentActiveSection === "proyectos"
+                ? "true"
+                : "false"
+            }
+          >
+            Ejemplos
+          </a>
+
+          <a
+            href={getSectionHref("#sobre-mi")}
+            className={`header__link ${
+              isHomePage && currentActiveSection === "sobre-mi"
+                ? "header__link--active"
+                : ""
+            }`}
+            onClick={handleCloseMenu}
+            aria-current={
+              isHomePage && currentActiveSection === "sobre-mi"
+                ? "true"
+                : "false"
+            }
+          >
+            Quién hará tu página
+          </a>
+
+          <NavLink
+            to="/promociones-paquetes"
+            viewTransition
+            className={({ isActive }) =>
+              `header__link ${isActive ? "header__link--active" : ""}`
+            }
             onClick={handleCloseMenu}
           >
-            Contactar
-          </a>
+            Promociones y paquetes
+          </NavLink>
+
+          {isHomePage ? (
+            <a
+              href="#contacto"
+              className="button button--primary button--header"
+              onClick={handleCloseMenu}
+            >
+              Contactar
+            </a>
+          ) : (
+            <Link
+              to="/#contacto"
+              viewTransition
+              className="button button--primary button--header"
+              onClick={handleCloseMenu}
+            >
+              Contactar
+            </Link>
+          )}
         </nav>
       </div>
     </header>
