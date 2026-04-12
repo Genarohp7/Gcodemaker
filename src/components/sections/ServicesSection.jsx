@@ -39,7 +39,7 @@ function ServicesSection() {
     {
       id: "salud",
       label: "Sector salud",
-      title: "Páginas web para clínicas, doctores y dentistas",
+      title: "Páginas web para el sector Salud",
       description:
         "En salud, una buena página ayuda a transmitir confianza, explicar tus servicios con claridad y facilitar que un paciente te contacte o agende.",
       includes: [
