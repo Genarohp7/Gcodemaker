@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { motion as Motion } from "motion/react";
+import { trackEvent } from "../lib/analytics";
 
 const containerVariants = {
   hidden: {},
@@ -135,6 +136,58 @@ function PackagesPage() {
     },
   ];
 
+  function trackPackagesCta(params) {
+    trackEvent("packages_cta_click", params);
+  }
+
+  function handleTopWhatsappClick() {
+    trackPackagesCta({
+      cta_name: "quiero_solicitar_informacion",
+      cta_location: "packages_hero",
+      destination: "whatsapp",
+    });
+  }
+
+  function handlePromoClick() {
+    trackPackagesCta({
+      cta_name: "quiero_esta_promocion",
+      cta_location: "packages_promo",
+      destination: "whatsapp",
+      offer_type: "promo",
+      offer_name: promo.title,
+      offer_price: promo.price,
+    });
+  }
+
+  function handlePackageClick(pkg) {
+    trackPackagesCta({
+      cta_name: "solicitar_este_paquete",
+      cta_location: "packages_grid",
+      destination: "whatsapp",
+      offer_type: "package",
+      package_id: pkg.id,
+      package_name: pkg.name,
+      package_price: pkg.price,
+      package_highlighted: pkg.highlighted ? "true" : "false",
+    });
+  }
+
+  function handleAdviceClick() {
+    trackPackagesCta({
+      cta_name: "quiero_asesoria",
+      cta_location: "packages_final_cta",
+      destination: "whatsapp",
+    });
+  }
+
+  function handleContactClick() {
+    trackPackagesCta({
+      cta_name: "ir_al_contacto",
+      cta_location: "packages_final_cta",
+      destination: "/#contacto",
+    });
+  }
+
   return (
     <>
       <section className="hero">
@@ -167,6 +220,7 @@ function PackagesPage() {
                 className="button button--primary"
                 whileHover={{ y: -3, scale: 1.01 }}
                 whileTap={{ scale: 0.985 }}
+                onClick={handleTopWhatsappClick}
               >
                 Quiero solicitar información
               </Motion.a>
@@ -194,7 +248,10 @@ function PackagesPage() {
             viewport={{ once: true, amount: 0.2 }}
             variants={containerVariants}
           >
-            <Motion.div className="services-section__copy" variants={itemVariants}>
+            <Motion.div
+              className="services-section__copy"
+              variants={itemVariants}
+            >
               <p className="section__eyebrow">Promoción de entrada</p>
               <h2 className="section__title">
                 {promo.title} — {promo.price}
@@ -259,6 +316,7 @@ function PackagesPage() {
                   className="button button--primary"
                   whileHover={{ y: -3, scale: 1.01 }}
                   whileTap={{ scale: 0.985 }}
+                  onClick={handlePromoClick}
                 >
                   Quiero esta promoción
                 </Motion.a>
@@ -375,7 +433,10 @@ function PackagesPage() {
                     initial={{ opacity: 0, y: 16 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.2 }}
-                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{
+                      duration: 0.45,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
                     whileHover={{ y: -2 }}
                   >
                     <h4 className="about-section__principle-title">Incluye</h4>
@@ -421,6 +482,7 @@ function PackagesPage() {
                     className="button button--primary"
                     whileHover={{ y: -3, scale: 1.01 }}
                     whileTap={{ scale: 0.985 }}
+                    onClick={() => handlePackageClick(pkg)}
                   >
                     Solicitar este paquete
                   </Motion.a>
@@ -464,6 +526,7 @@ function PackagesPage() {
                 className="button button--primary"
                 whileHover={{ y: -3, scale: 1.01 }}
                 whileTap={{ scale: 0.985 }}
+                onClick={handleAdviceClick}
               >
                 Quiero asesoría
               </Motion.a>
@@ -473,6 +536,7 @@ function PackagesPage() {
                   to="/#contacto"
                   viewTransition
                   className="button button--secondary"
+                  onClick={handleContactClick}
                 >
                   Ir al contacto
                 </Link>

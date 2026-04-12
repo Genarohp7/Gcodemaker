@@ -3,15 +3,29 @@ import { useLocation } from "react-router";
 import { ReactLenis } from "lenis/react";
 import "lenis/dist/lenis.css";
 
+import { initAnalytics, trackPageView } from "../../lib/analytics";
+import CookieBanner from "../common/CookieBanner";
 import Header from "./Header";
 import Footer from "./Footer";
 
 function Layout({ children }) {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
 
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    initAnalytics();
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
   }, [pathname]);
+
+  useEffect(() => {
+    trackPageView({
+      page_title: document.title,
+      page_location: window.location.href,
+      page_path: `${pathname}${search}`,
+    });
+  }, [pathname, search]);
 
   return (
     <ReactLenis
@@ -39,6 +53,7 @@ function Layout({ children }) {
         </main>
 
         <Footer />
+        <CookieBanner />
       </div>
     </ReactLenis>
   );

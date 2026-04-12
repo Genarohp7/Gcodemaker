@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { motion as Motion } from "motion/react";
+import { trackEvent } from "../../lib/analytics";
 
 function createHeroPreview() {
   const svg = `
@@ -125,6 +126,30 @@ function HeroSection() {
     },
   ];
 
+  function handlePrimaryCtaClick() {
+    trackEvent("hero_cta_click", {
+      cta_name: "solicita_tu_pagina",
+      cta_location: "hero",
+      destination: "#contacto",
+    });
+  }
+
+  function handlePackagesCtaClick() {
+    trackEvent("hero_cta_click", {
+      cta_name: "ver_promociones_y_paquetes",
+      cta_location: "hero",
+      destination: "/promociones-paquetes",
+    });
+  }
+
+  function handleExamplesCtaClick() {
+    trackEvent("hero_cta_click", {
+      cta_name: "ver_ejemplos",
+      cta_location: "hero",
+      destination: "#proyectos",
+    });
+  }
+
   return (
     <section id="inicio" className="hero">
       <div className="hero__container hero__container--grid">
@@ -164,18 +189,20 @@ function HeroSection() {
               className="button button--primary"
               whileHover={{ y: -3, scale: 1.01 }}
               whileTap={{ scale: 0.985 }}
+              onClick={handlePrimaryCtaClick}
             >
               Solicita tu página
             </Motion.a>
 
             <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
               <Link
-  to="/promociones-paquetes"
-  viewTransition
-  className="button button--secondary"
->
-  Ver promociones y paquetes
-</Link>
+                to="/promociones-paquetes"
+                viewTransition
+                className="button button--secondary"
+                onClick={handlePackagesCtaClick}
+              >
+                Ver promociones y paquetes
+              </Link>
             </Motion.div>
 
             <Motion.a
@@ -183,6 +210,7 @@ function HeroSection() {
               className="button button--secondary"
               whileHover={{ y: -3 }}
               whileTap={{ scale: 0.985 }}
+              onClick={handleExamplesCtaClick}
             >
               Ver ejemplos
             </Motion.a>
