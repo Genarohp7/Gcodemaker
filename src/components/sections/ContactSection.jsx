@@ -1,6 +1,6 @@
 function ContactSection() {
  const emailHref = "mailto:gehernandez@gcodemaker.com";
-const whatsappHref = "https://wa.me/525567359470";
+const whatsappHref = "https://wa.me/525522737432";
 
   return (
     <section id="contacto" className="section contact-section">
