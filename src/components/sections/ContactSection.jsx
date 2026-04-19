@@ -1,6 +1,17 @@
 function ContactSection() {
- const emailHref = "mailto:gehernandez@gcodemaker.com";
-const whatsappHref = "https://wa.me/525522737432";
+  const emailHref = "mailto:gehernandez@gcodemaker.com";
+  const whatsappHref = "https://wa.me/525522737432";
+
+  const handleWhatsAppClick = () => {
+    if (typeof window !== "undefined" && typeof window.gtag === "function") {
+      window.gtag("event", "whatsapp_click", {
+        event_category: "contacto",
+        event_label: "Solicitar por WhatsApp",
+        link_url: whatsappHref,
+        contact_method: "whatsapp",
+      });
+    }
+  };
 
   return (
     <section id="contacto" className="section contact-section">
@@ -30,6 +41,7 @@ const whatsappHref = "https://wa.me/525522737432";
               target="_blank"
               rel="noreferrer"
               className="button button--primary"
+              onClick={handleWhatsAppClick}
             >
               Solicitar por WhatsApp
             </a>
