@@ -1,64 +1,8 @@
 import { Link } from "react-router";
 import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
+import HeroScene from "./HeroScene";
 
-function createHeroPreview() {
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" fill="none">
-      <defs>
-        <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="900" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#07111F"/>
-          <stop offset="1" stop-color="#0B1728"/>
-        </linearGradient>
-        <linearGradient id="glow" x1="160" y1="120" x2="1040" y2="780" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#4DA3FF" stop-opacity="0.35"/>
-          <stop offset="1" stop-color="#FFCB4E" stop-opacity="0.18"/>
-        </linearGradient>
-      </defs>
-
-      <rect width="1200" height="900" rx="40" fill="url(#bg)"/>
-      <rect x="28" y="28" width="1144" height="844" rx="28" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)"/>
-
-      <circle cx="94" cy="84" r="10" fill="#FF5F57"/>
-      <circle cx="126" cy="84" r="10" fill="#FEBC2E"/>
-      <circle cx="158" cy="84" r="10" fill="#28C840"/>
-
-      <rect x="214" y="62" width="430" height="42" rx="21" fill="rgba(255,255,255,0.06)"/>
-      <rect x="950" y="62" width="140" height="42" rx="21" fill="rgba(255,255,255,0.06)"/>
-
-      <rect x="70" y="150" width="1060" height="680" rx="30" fill="url(#glow)"/>
-
-      <rect x="112" y="194" width="294" height="592" rx="26" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.08)"/>
-      <rect x="442" y="194" width="620" height="258" rx="26" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.08)"/>
-      <rect x="442" y="486" width="620" height="300" rx="26" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.08)"/>
-
-      <rect x="150" y="236" width="120" height="16" rx="8" fill="rgba(255,255,255,0.18)"/>
-      <rect x="150" y="270" width="180" height="16" rx="8" fill="rgba(255,255,255,0.10)"/>
-      <rect x="150" y="304" width="144" height="16" rx="8" fill="rgba(255,255,255,0.10)"/>
-
-      <rect x="150" y="368" width="220" height="112" rx="20" fill="rgba(77,163,255,0.14)"/>
-      <rect x="150" y="510" width="220" height="112" rx="20" fill="rgba(255,203,78,0.12)"/>
-      <rect x="150" y="652" width="220" height="96" rx="20" fill="rgba(255,255,255,0.06)"/>
-
-      <rect x="480" y="232" width="170" height="18" rx="9" fill="rgba(255,255,255,0.18)"/>
-      <rect x="480" y="268" width="260" height="16" rx="8" fill="rgba(255,255,255,0.10)"/>
-      <rect x="480" y="300" width="230" height="16" rx="8" fill="rgba(255,255,255,0.10)"/>
-      <rect x="480" y="352" width="540" height="56" rx="18" fill="rgba(255,255,255,0.08)"/>
-
-      <rect x="480" y="526" width="250" height="176" rx="22" fill="rgba(255,255,255,0.07)"/>
-      <rect x="758" y="526" width="264" height="80" rx="18" fill="rgba(77,163,255,0.14)"/>
-      <rect x="758" y="624" width="264" height="80" rx="18" fill="rgba(255,203,78,0.12)"/>
-
-      <text x="112" y="836" fill="#EAF3FF" font-family="Montserrat, Arial, sans-serif" font-size="50" font-weight="700">
-        Más clientes. Mejor presencia.
-      </text>
-    </svg>
-  `;
-
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-}
-
-const heroPreview = createHeroPreview();
 const WHATSAPP_HREF =
   "https://wa.me/525567359470?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20una%20p%C3%A1gina%20web%20para%20mi%20negocio";
 
@@ -299,18 +243,7 @@ function HeroSection() {
                 ease: [0.22, 1, 0.36, 1],
               }}
             >
-              <Motion.img
-                src={heroPreview}
-                alt="Vista conceptual de una página web profesional para negocios"
-                className="hero__preview-image"
-                loading="eager"
-                animate={{ y: [0, -6, 0] }}
-                transition={{
-                  duration: 8,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
+              <HeroScene />
             </Motion.div>
 
             <div className="hero__metrics">
