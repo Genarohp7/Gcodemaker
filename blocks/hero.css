@@ -259,25 +259,165 @@
       rgba(77, 163, 255, 0.08)
     );
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
 }
 
 .hero-scene {
   position: absolute;
   inset: 0;
   z-index: 0;
+  opacity: 0;
+  animation: heroSceneReveal 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .hero-scene canvas {
   width: 100% !important;
   height: 100% !important;
   display: block;
+  transform: scale(1.01);
 }
 
-.hero__preview-image {
-  width: 100%;
-  height: auto;
-  transform: scale(1.01);
+.hero__preview-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0;
+  animation: heroFallbackReveal 0.45s ease forwards;
+}
+
+.hero__preview-fallback-glow,
+.hero__preview-fallback-ring,
+.hero__preview-fallback-core {
+  position: absolute;
+  pointer-events: none;
+}
+
+.hero__preview-fallback-glow {
+  border-radius: 999px;
+  filter: blur(34px);
+  opacity: 0.75;
+}
+
+.hero__preview-fallback-glow--1 {
+  top: 18%;
+  left: 22%;
+  width: 160px;
+  height: 160px;
+  background: rgba(77, 163, 255, 0.16);
+  animation: heroFallbackFloat 7.5s ease-in-out infinite;
+}
+
+.hero__preview-fallback-glow--2 {
+  right: 18%;
+  bottom: 20%;
+  width: 130px;
+  height: 130px;
+  background: rgba(255, 203, 78, 0.12);
+  animation: heroFallbackFloat 8.4s ease-in-out infinite reverse;
+}
+
+.hero__preview-fallback-ring {
+  top: 50%;
+  left: 50%;
+  border-radius: 999px;
+  border: 1px solid rgba(173, 202, 238, 0.18);
+  transform: translate(-50%, -50%);
+}
+
+.hero__preview-fallback-ring--outer {
+  width: 210px;
+  height: 210px;
+  border-color: rgba(77, 163, 255, 0.22);
+  box-shadow: 0 0 24px rgba(77, 163, 255, 0.08);
+  animation: heroFallbackSpin 11s linear infinite;
+}
+
+.hero__preview-fallback-ring--inner {
+  width: 126px;
+  height: 126px;
+  border-color: rgba(255, 203, 78, 0.2);
+  box-shadow: 0 0 18px rgba(255, 203, 78, 0.08);
+  animation: heroFallbackSpinReverse 9s linear infinite;
+}
+
+.hero__preview-fallback-core {
+  top: 50%;
+  left: 50%;
+  width: 72px;
+  height: 72px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.96), transparent 38%),
+    linear-gradient(145deg, rgba(217, 235, 255, 0.9), rgba(77, 163, 255, 0.18));
+  border: 1px solid rgba(173, 202, 238, 0.18);
+  box-shadow:
+    0 0 28px rgba(77, 163, 255, 0.12),
+    0 0 18px rgba(255, 203, 78, 0.08);
+  transform: translate(-50%, -50%) rotate(14deg);
+  animation: heroCorePulse 2.8s ease-in-out infinite;
+}
+
+@keyframes heroFallbackReveal {
+  from {
+    opacity: 0;
+    transform: scale(1.03);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes heroSceneReveal {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes heroFallbackFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(10px, -8px, 0) scale(1.04);
+  }
+}
+
+@keyframes heroFallbackSpin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes heroFallbackSpinReverse {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+}
+
+@keyframes heroCorePulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) rotate(14deg) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(14deg) scale(1.05);
+  }
 }
 
 .hero__metrics {
@@ -350,6 +490,22 @@
 
   .hero__preview {
     min-height: 320px;
+    border-radius: 20px;
+  }
+
+  .hero__preview-fallback-ring--outer {
+    width: 180px;
+    height: 180px;
+  }
+
+  .hero__preview-fallback-ring--inner {
+    width: 112px;
+    height: 112px;
+  }
+
+  .hero__preview-fallback-core {
+    width: 62px;
+    height: 62px;
     border-radius: 20px;
   }
 }

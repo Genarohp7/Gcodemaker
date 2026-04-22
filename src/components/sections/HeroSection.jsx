@@ -1,7 +1,9 @@
+import { lazy, Suspense } from "react";
 import { Link } from "react-router";
 import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
-import HeroScene from "./HeroScene";
+
+const HeroScene = lazy(() => import("./HeroScene"));
 
 const WHATSAPP_HREF =
   "https://wa.me/525567359470?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20una%20p%C3%A1gina%20web%20para%20mi%20negocio";
@@ -41,6 +43,18 @@ const panelVariants = {
     },
   },
 };
+
+function HeroSceneFallback() {
+  return (
+    <div className="hero__preview-fallback" aria-hidden="true">
+      <span className="hero__preview-fallback-glow hero__preview-fallback-glow--1" />
+      <span className="hero__preview-fallback-glow hero__preview-fallback-glow--2" />
+      <span className="hero__preview-fallback-ring hero__preview-fallback-ring--outer" />
+      <span className="hero__preview-fallback-ring hero__preview-fallback-ring--inner" />
+      <span className="hero__preview-fallback-core" />
+    </div>
+  );
+}
 
 function HeroSection() {
   const tags = [
@@ -230,7 +244,7 @@ function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.28, duration: 0.55 }}
             >
-             
+              Lo que debe sentir tu cliente al entrar
             </Motion.p>
 
             <Motion.div
@@ -243,7 +257,9 @@ function HeroSection() {
                 ease: [0.22, 1, 0.36, 1],
               }}
             >
-              <HeroScene />
+              <Suspense fallback={<HeroSceneFallback />}>
+                <HeroScene />
+              </Suspense>
             </Motion.div>
 
             <div className="hero__metrics">

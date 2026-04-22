@@ -1,19 +1,37 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { ReactLenis } from "lenis/react";
 import "lenis/dist/lenis.css";
 
 import { initAnalytics, trackPageView } from "../../lib/analytics";
 import CookieBanner from "../common/CookieBanner";
-import GlobalSceneBackground from "./GlobalSceneBackground";
 import Header from "./Header";
 import Footer from "./Footer";
 
+const GlobalSceneBackground = lazy(() => import("./GlobalSceneBackground"));
+
 function Layout({ children }) {
   const { pathname, search } = useLocation();
+  const [isPageReady, setIsPageReady] = useState(false);
 
   useEffect(() => {
     initAnalytics();
+  }, []);
+
+  useEffect(() => {
+    let frameId = 0;
+    let timeoutId = 0;
+
+    frameId = window.requestAnimationFrame(() => {
+      timeoutId = window.setTimeout(() => {
+        setIsPageReady(true);
+      }, 120);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.clearTimeout(timeoutId);
+    };
   }, []);
 
   useEffect(() => {
@@ -41,21 +59,32 @@ function Layout({ children }) {
     >
       <div className="page">
         <div className="page__ambient" aria-hidden="true">
-          <GlobalSceneBackground />
+          <Suspense
+            fallback={
+              <div className="global-scene-background global-scene-background--fallback" />
+            }
+          >
+            <GlobalSceneBackground />
+          </Suspense>
+
           <span className="page__glow page__glow--1"></span>
           <span className="page__glow page__glow--2"></span>
           <span className="page__glow page__glow--3"></span>
           <span className="page__grid"></span>
         </div>
 
-        <Header />
+        <div
+          className={`page__shell ${isPageReady ? "page__shell--ready" : ""}`}
+        >
+          <Header />
 
-        <main className="page__content">
-          <div className="page__inner">{children}</div>
-        </main>
+          <main className="page__content">
+            <div className="page__inner">{children}</div>
+          </main>
 
-        <Footer />
-        <CookieBanner />
+          <Footer />
+          <CookieBanner />
+        </div>
       </div>
     </ReactLenis>
   );

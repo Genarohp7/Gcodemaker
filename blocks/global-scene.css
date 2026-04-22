@@ -3,7 +3,7 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.42;
+  opacity: 0;
   filter: saturate(1.02);
   mask-image: radial-gradient(
     circle at center,
@@ -12,6 +12,25 @@
     rgba(0, 0, 0, 0.18) 78%,
     transparent 100%
   );
+  animation: globalSceneFadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: opacity, transform, filter;
+}
+
+.global-scene-background::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(77, 163, 255, 0.08), transparent 28%),
+    radial-gradient(circle at 66% 62%, rgba(255, 203, 78, 0.05), transparent 22%),
+    linear-gradient(
+      180deg,
+      rgba(7, 17, 31, 0.28),
+      rgba(7, 17, 31, 0.08) 35%,
+      rgba(7, 17, 31, 0.34)
+    );
+  pointer-events: none;
+  z-index: 0;
 }
 
 .global-scene-background::after {
@@ -22,21 +41,91 @@
     radial-gradient(circle at 50% 40%, rgba(77, 163, 255, 0.1), transparent 30%),
     radial-gradient(circle at 65% 60%, rgba(255, 203, 78, 0.06), transparent 24%);
   pointer-events: none;
+  z-index: 2;
 }
 
 .global-scene-background canvas {
+  position: relative;
+  z-index: 1;
   width: 100% !important;
   height: 100% !important;
   display: block;
   transform: scale(1.08);
+  opacity: 0.96;
+}
+
+.global-scene-background--fallback {
+  opacity: 0;
+  animation: globalSceneFallbackFadeIn 0.65s ease forwards;
+}
+
+.global-scene-background--fallback::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(77, 163, 255, 0.09), transparent 24%),
+    radial-gradient(circle at 66% 62%, rgba(255, 203, 78, 0.05), transparent 18%),
+    linear-gradient(
+      180deg,
+      rgba(7, 17, 31, 0.18),
+      rgba(7, 17, 31, 0.06) 35%,
+      rgba(7, 17, 31, 0.24)
+    );
+  pointer-events: none;
+}
+
+@keyframes globalSceneFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(1.04);
+    filter: blur(16px) saturate(1);
+  }
+  100% {
+    opacity: 0.42;
+    transform: scale(1);
+    filter: blur(0) saturate(1.02);
+  }
+}
+
+@keyframes globalSceneFallbackFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.2;
+  }
 }
 
 @media (max-width: 768px) {
-  .global-scene-background {
-    opacity: 0.3;
+  .global-scene-background canvas {
+    transform: scale(1.14);
+  }
+
+  @keyframes globalSceneFadeIn {
+    0% {
+      opacity: 0;
+      transform: scale(1.05);
+      filter: blur(16px) saturate(1);
+    }
+    100% {
+      opacity: 0.3;
+      transform: scale(1);
+      filter: blur(0) saturate(1.02);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .global-scene-background,
+  .global-scene-background--fallback {
+    animation: none !important;
+    opacity: 0.32;
+    transform: none !important;
+    filter: saturate(1.02) !important;
   }
 
   .global-scene-background canvas {
-    transform: scale(1.14);
+    transform: none !important;
   }
 }
