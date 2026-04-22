@@ -1,4 +1,27 @@
+import { Link } from "react-router";
+import { motion as Motion } from "motion/react";
+import { trackEvent } from "../../lib/analytics";
+
+const WHATSAPP_HREF =
+  "https://wa.me/525567359470?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20una%20p%C3%A1gina%20web%20para%20mi%20negocio";
+
 function FinalCtaSection() {
+  function handleFinalWhatsappClick() {
+    trackEvent("whatsapp_click", {
+      click_origin: "final_cta_whatsapp",
+      section: "final_cta",
+      cta_name: "quiero_hablar_por_whatsapp",
+    });
+  }
+
+  function handleFinalPackagesClick() {
+    trackEvent("final_cta_click", {
+      cta_name: "ver_promocion_y_paquetes",
+      cta_location: "final_cta",
+      destination: "/promociones-paquetes",
+    });
+  }
+
   return (
     <section className="final-cta" aria-labelledby="final-cta-title">
       <div className="section__container">
@@ -7,24 +30,41 @@ function FinalCtaSection() {
             <p className="final-cta__eyebrow">Da el siguiente paso</p>
 
             <h2 id="final-cta-title" className="final-cta__title">
-              Si quieres una página web que ayude a tu negocio a verse mejor y conseguir más clientes, este es el momento de empezar
+              Si tu negocio necesita verse más profesional y empezar a generar
+              más oportunidades, este es un buen momento para arrancar
             </h2>
 
             <p className="final-cta__text">
-              Una buena página no solo sirve para estar en internet. Sirve para
-              dar confianza, explicar mejor lo que haces y facilitar que una
-              persona interesada te contacte.
+              Podemos empezar con una promoción de arranque o revisar una opción
+              más completa según tu negocio. Lo importante es que tu página
+              deje de ser una idea pendiente y se convierta en una herramienta
+              real para vender mejor.
             </p>
           </div>
 
           <div className="final-cta__actions">
-            <a href="#contacto" className="button button--primary">
-              Solicitar mi página
-            </a>
+            <Motion.a
+              href={WHATSAPP_HREF}
+              target="_blank"
+              rel="noreferrer"
+              className="button button--primary"
+              whileHover={{ y: -3, scale: 1.01 }}
+              whileTap={{ scale: 0.985 }}
+              onClick={handleFinalWhatsappClick}
+            >
+              Quiero hablar por WhatsApp
+            </Motion.a>
 
-            <a href="#proyectos" className="button button--secondary">
-              Ver ejemplos
-            </a>
+            <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
+              <Link
+                to="/promociones-paquetes"
+                viewTransition
+                className="button button--secondary"
+                onClick={handleFinalPackagesClick}
+              >
+                Ver promoción y paquetes
+              </Link>
+            </Motion.div>
           </div>
         </div>
       </div>

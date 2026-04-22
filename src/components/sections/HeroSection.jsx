@@ -59,6 +59,8 @@ function createHeroPreview() {
 }
 
 const heroPreview = createHeroPreview();
+const WHATSAPP_HREF =
+  "https://wa.me/525567359470?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20una%20p%C3%A1gina%20web%20para%20mi%20negocio";
 
 const containerVariants = {
   hidden: {},
@@ -98,47 +100,61 @@ const panelVariants = {
 
 function HeroSection() {
   const tags = [
+    "Sector salud",
     "Restaurantes",
-    "Clínicas y consultorios",
-    "Dentistas",
     "Negocios pequeños",
-    "Páginas para vender más",
+    "Promoción desde $2,500",
+    "WhatsApp directo",
   ];
 
   const metrics = [
     {
-      id: "claridad",
-      value: "Más claridad",
+      id: "promo",
+      value: "Desde $2,500 MXN",
       label:
-        "Para que tus clientes entiendan rápido qué ofreces y cómo contactarte.",
+        "Una promoción de arranque para negocios que necesitan salir rápido con una imagen más seria.",
+    },
+    {
+      id: "whatsapp",
+      value: "WhatsApp directo",
+      label:
+        "Menos vueltas y menos fricción: tu prospecto puede escribirte desde el primer pantallazo.",
     },
     {
       id: "presencia",
-      value: "Más confianza",
+      value: "Imagen más profesional",
       label:
-        "Para que tu negocio se vea profesional y no dependa solo de redes sociales.",
-    },
-    {
-      id: "resultado",
-      value: "Más oportunidades",
-      label:
-        "Una página bien hecha ayuda a atraer clientes y a convertir mejor las visitas.",
+        "Una mejor presentación ayuda a dar confianza y a que tu negocio se vea listo para vender.",
     },
   ];
 
-  function handlePrimaryCtaClick() {
+  function trackWhatsAppClick({ ctaName, clickOrigin }) {
     trackEvent("hero_cta_click", {
-      cta_name: "solicita_tu_pagina",
+      cta_name: ctaName,
       cta_location: "hero",
-      destination: "#contacto",
+      destination: "whatsapp",
+    });
+
+    trackEvent("whatsapp_click", {
+      click_origin: clickOrigin,
+      section: "hero",
+      cta_name: ctaName,
     });
   }
 
-  function handlePackagesCtaClick() {
+  function handlePrimaryWhatsappClick() {
+    trackWhatsAppClick({
+      ctaName: "quiero_mi_pagina_por_whatsapp",
+      clickOrigin: "hero_primary_whatsapp",
+    });
+  }
+
+  function handlePromoDetailsClick() {
     trackEvent("hero_cta_click", {
-      cta_name: "ver_promociones_y_paquetes",
+      cta_name: "ver_detalles_promocion_hero",
       cta_location: "hero",
       destination: "/promociones-paquetes",
+      offer_focus: "promocion_2500",
     });
   }
 
@@ -160,38 +176,59 @@ function HeroSection() {
           animate="visible"
         >
           <Motion.p className="hero__eyebrow" variants={itemVariants}>
-            Páginas web para negocios que quieren crecer
+            Páginas web para sector salud, restaurantes y pequeños negocios
           </Motion.p>
 
+          <Motion.div className="hero__promo" variants={itemVariants}>
+            <span className="hero__promo-badge">Promoción de arranque</span>
+            <p className="hero__promo-text">
+              Página web desde <strong>$2,500 MXN</strong> para negocios que
+              necesitan verse profesionales y empezar a moverse rápido.
+            </p>
+
+            <Link
+              to="/promociones-paquetes"
+              viewTransition
+              className="hero__promo-link"
+              onClick={handlePromoDetailsClick}
+            >
+              Ver qué incluye
+            </Link>
+          </Motion.div>
+
           <Motion.h1 className="hero__title" variants={itemVariants}>
-            Páginas web para negocios que quieren más clientes
+            Páginas web pensadas para que tu negocio se vea mejor y consiga más
+            clientes
           </Motion.h1>
 
           <Motion.p className="hero__description" variants={itemVariants}>
-            Si tu negocio no tiene página web, se ve poco profesional o depende
-            solo de redes sociales, estás dejando pasar oportunidades. En
-            GCodemaker creamos páginas pensadas para ayudarte a mostrar mejor tu
-            negocio y convertir visitas en contactos reales.
+            Si hoy te encuentran en Google o en redes y tu negocio no se ve
+            claro, profesional y fácil de contactar, estás perdiendo
+            oportunidades. En GCodemaker creamos páginas web que ayudan a dar
+            confianza, explicar mejor tu oferta y convertir visitas en
+            conversaciones reales.
           </Motion.p>
 
           <Motion.p
             className="hero__description hero__description--secondary"
             variants={itemVariants}
           >
-            También puedes revisar una promoción de entrada y paquetes pensados
-            para distintos momentos de tu negocio, desde una opción para empezar
-            rápido hasta soluciones más completas.
+            Tenemos una promoción de entrada para empezar rápido y opciones más
+            completas para negocios que quieren una presencia digital más seria,
+            más vendible y mejor preparada para crecer.
           </Motion.p>
 
           <Motion.div className="hero__actions" variants={itemVariants}>
             <Motion.a
-              href="#contacto"
+              href={WHATSAPP_HREF}
+              target="_blank"
+              rel="noreferrer"
               className="button button--primary"
               whileHover={{ y: -3, scale: 1.01 }}
               whileTap={{ scale: 0.985 }}
-              onClick={handlePrimaryCtaClick}
+              onClick={handlePrimaryWhatsappClick}
             >
-              Solicita tu página
+              Quiero mi página por WhatsApp
             </Motion.a>
 
             <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
@@ -199,9 +236,9 @@ function HeroSection() {
                 to="/promociones-paquetes"
                 viewTransition
                 className="button button--secondary"
-                onClick={handlePackagesCtaClick}
+                onClick={handlePromoDetailsClick}
               >
-                Ver promociones y paquetes
+                Ver promoción y paquetes
               </Link>
             </Motion.div>
 
@@ -212,7 +249,7 @@ function HeroSection() {
               whileTap={{ scale: 0.985 }}
               onClick={handleExamplesCtaClick}
             >
-              Ver ejemplos
+              Ver ejemplos reales
             </Motion.a>
           </Motion.div>
 
@@ -249,7 +286,7 @@ function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.28, duration: 0.55 }}
             >
-              Lo que debe lograr una buena página
+              Lo que debe sentir tu cliente al entrar
             </Motion.p>
 
             <Motion.div

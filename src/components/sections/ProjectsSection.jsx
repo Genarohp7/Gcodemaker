@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 import { motion as Motion } from "motion/react";
+import { trackEvent } from "../../lib/analytics";
 import projects from "../../data/projects";
+
+const WHATSAPP_HREF =
+  "https://wa.me/525567359470?text=Hola%2C%20quiero%20una%20p%C3%A1gina%20web%20con%20un%20nivel%20visual%20como%20los%20proyectos%20que%20vi%20en%20tu%20sitio";
 
 const containerVariants = {
   hidden: {},
@@ -64,6 +69,31 @@ function ProjectsSection() {
     setCurrentIndex(index);
   }
 
+  function handleProjectVisit(project) {
+    trackEvent("portfolio_project_click", {
+      project_id: project.id,
+      project_name: project.name,
+      project_category: project.category,
+      click_origin: "projects_carousel",
+    });
+  }
+
+  function handleProjectsWhatsappClick() {
+    trackEvent("whatsapp_click", {
+      click_origin: "projects_whatsapp",
+      section: "projects",
+      cta_name: "quiero_una_pagina_como_esta",
+    });
+  }
+
+  function handleProjectsPackagesClick() {
+    trackEvent("projects_cta_click", {
+      cta_name: "ver_promocion_y_paquetes",
+      cta_location: "projects",
+      destination: "/promociones-paquetes",
+    });
+  }
+
   if (!currentProject) return null;
 
   const projectNotes = currentProject.notes ?? [];
@@ -83,17 +113,18 @@ function ProjectsSection() {
           </Motion.p>
 
           <Motion.h2 className="section__title" variants={itemVariants}>
-            Proyectos reales, mejoras y soluciones en evolución
+            Ejemplos reales del nivel visual y comercial que puede tener tu
+            página
           </Motion.h2>
 
           <Motion.p
             className="section__text section__text--intro"
             variants={itemVariants}
           >
-            Aquí muestro proyectos de distintos tipos: algunos nacen desde cero y
-            otros demuestran cómo una idea o una presentación pueden mejorar mucho
-            cuando se trabaja con más claridad, mejor estructura y una imagen más
-            profesional.
+            Estos proyectos muestran cómo una página puede verse más sólida,
+            transmitir más confianza y presentar mejor un negocio. No se trata
+            solo de que se vea bien, sino de que se sienta profesional y lista
+            para vender.
           </Motion.p>
         </Motion.div>
 
@@ -104,7 +135,10 @@ function ProjectsSection() {
           viewport={{ once: true, amount: 0.12 }}
           variants={containerVariants}
         >
-          <Motion.div className="projects__carousel-header" variants={itemVariants}>
+          <Motion.div
+            className="projects__carousel-header"
+            variants={itemVariants}
+          >
             <div className="projects__carousel-copy">
               <h3 className="projects__carousel-title">{currentProject.name}</h3>
               <p className="projects__carousel-text">
@@ -257,6 +291,7 @@ function ProjectsSection() {
                     className="button button--primary"
                     whileHover={{ y: -3, scale: 1.01 }}
                     whileTap={{ scale: 0.985 }}
+                    onClick={() => handleProjectVisit(currentProject)}
                   >
                     {currentProject.cta}
                   </Motion.a>
@@ -313,6 +348,45 @@ function ProjectsSection() {
               />
             ))}
           </Motion.div>
+        </Motion.div>
+
+        <Motion.div
+          className="projects-section__actions"
+          initial={{ opacity: 0, y: 22 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <p className="projects-section__note">
+            Si te gusta este nivel visual y quieres algo así para tu negocio,
+            podemos aterrizarlo según tu giro, tu presupuesto y el momento en el
+            que estás.
+          </p>
+
+          <div className="projects-section__buttons">
+            <Motion.a
+              href={WHATSAPP_HREF}
+              target="_blank"
+              rel="noreferrer"
+              className="button button--primary"
+              whileHover={{ y: -3, scale: 1.01 }}
+              whileTap={{ scale: 0.985 }}
+              onClick={handleProjectsWhatsappClick}
+            >
+              Quiero una página así
+            </Motion.a>
+
+            <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
+              <Link
+                to="/promociones-paquetes"
+                viewTransition
+                className="button button--secondary"
+                onClick={handleProjectsPackagesClick}
+              >
+                Ver promoción y paquetes
+              </Link>
+            </Motion.div>
+          </div>
         </Motion.div>
       </div>
     </section>

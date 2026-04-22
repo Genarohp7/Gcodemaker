@@ -1,0 +1,147 @@
+.about-section {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.about-section__media,
+.about-section__content {
+  min-width: 0;
+}
+
+.about-section__visual {
+  position: relative;
+  padding: 1rem;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.about-section__visual::after {
+  content: "";
+  position: absolute;
+  inset: auto -10% -20% auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  background: rgba(255, 203, 78, 0.14);
+  filter: blur(45px);
+  pointer-events: none;
+}
+
+.about-section__image {
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+}
+
+.about-section__stats {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1rem;
+}
+
+.about-section__stat {
+  padding: 1rem 1.05rem;
+  border-radius: 18px;
+}
+
+.about-section__stat-value {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.about-section__principles {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.about-section__principle {
+  padding: 1rem 1.05rem;
+  border-radius: 18px;
+}
+
+.about-section__principle-title {
+  margin: 0 0 0.55rem;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.about-section__principle-text {
+  margin: 0;
+}
+
+.about-section__footer {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.about-section__stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.about-section__stack-item {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(173, 202, 238, 0.12);
+  color: #d9ebff;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.about-section__signature {
+  padding: 1rem 1.05rem;
+  border-radius: 18px;
+}
+
+.about-section__signature-label {
+  display: inline-block;
+  margin-bottom: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-primary);
+}
+
+.about-section__signature-text {
+  margin: 0;
+}
+
+.about-section__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 980px) {
+  .about-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-section__visual {
+    padding: 1.25rem;
+  }
+
+  .about-section__actions {
+    flex-direction: column;
+  }
+
+  .about-section__actions .button {
+    width: 100%;
+  }
+}

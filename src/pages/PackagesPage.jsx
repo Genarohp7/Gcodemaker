@@ -37,23 +37,28 @@ const cardVariants = {
   },
 };
 
+function buildWhatsAppHref(message) {
+  return `https://wa.me/525567359470?text=${encodeURIComponent(message)}`;
+}
+
 function PackagesPage() {
   const promo = {
+    id: "pagina-arranque",
     title: "Página de Arranque",
-    price: "$2,500 MXN",
-    subtitle: "Una promoción pensada para empezar rápido",
+    price: "Desde $2,500 MXN",
+    subtitle: "La forma más rápida de empezar con una presencia digital más seria",
     description:
-      "Ideal para negocios que necesitan salir a internet con una imagen clara y profesional sin hacer una inversión grande al inicio.",
+      "Pensada para negocios que necesitan dejar de verse improvisados y empezar a presentarse mejor en internet sin hacer una inversión grande al inicio.",
     includes: [
-      "Una página de presentación",
+      "Una página de presentación clara y profesional",
       "Información principal del negocio",
-      "Botón de contacto directo",
+      "Botón directo de contacto",
       "Diseño adaptable a celular",
-      "Imagen profesional para empezar a mostrarse mejor",
+      "Base ideal para empezar a moverte mejor en internet",
     ],
     excludes: [
       "Funciones especiales o sistemas personalizados",
-      "Varias páginas o secciones avanzadas",
+      "Secciones avanzadas o flujos complejos",
       "Procesos internos como citas, reservas o administración",
       "Cambios ilimitados",
       "Costos de dominio, hospedaje o herramientas externas que cobren por uso",
@@ -65,9 +70,9 @@ function PackagesPage() {
       id: "presencia-profesional",
       name: "Presencia Profesional",
       price: "Desde $4,900 MXN",
-      audience: "Para negocios que quieren una página completa y profesional",
+      audience: "Para negocios que ya quieren verse formales y dar más confianza",
       benefit:
-        "Ayuda a que tu negocio se vea formal, genere más confianza y tenga una presencia digital sólida.",
+        "Te ayuda a presentar mejor tu negocio, explicar tus servicios con claridad y dar una imagen mucho más profesional.",
       includes: [
         "Sitio web profesional con varias secciones",
         "Presentación clara del negocio",
@@ -88,10 +93,9 @@ function PackagesPage() {
       id: "impulso-comercial",
       name: "Impulso Comercial",
       price: "Desde $8,900 MXN",
-      audience:
-        "Para negocios que quieren una página enfocada en conseguir clientes",
+      audience: "Para negocios que quieren una página pensada para conseguir clientes",
       benefit:
-        "Ayuda a que tu página no solo se vea bien, sino que también trabaje mejor para atraer y convertir clientes.",
+        "Es la opción más equilibrada si quieres una página con mejor estructura comercial, más confianza y mejores oportunidades de contacto.",
       includes: [
         "Todo lo del paquete anterior",
         "Mejor estructura para guiar al cliente",
@@ -110,14 +114,15 @@ function PackagesPage() {
         "Costos de dominio, hospedaje, licencias o herramientas externas que cobren por uso",
       ],
       highlighted: true,
+      badge: "La opción más recomendada",
     },
     {
       id: "sistema-de-crecimiento",
       name: "Sistema de Crecimiento",
       price: "Desde $24,900 MXN",
-      audience: "Para negocios que necesitan una solución más completa",
+      audience: "Para negocios que necesitan una solución más completa y personalizada",
       benefit:
-        "Convierte tu página en una herramienta de trabajo real para organizar mejor la atención, ahorrar tiempo y crecer.",
+        "Convierte tu página en una herramienta de trabajo real para organizar mejor la atención, ahorrar tiempo y crecer con una solución más robusta.",
       includes: [
         "Todo lo del paquete anterior",
         "Funciones personalizadas según tu negocio",
@@ -140,177 +145,179 @@ function PackagesPage() {
     trackEvent("packages_cta_click", params);
   }
 
-  function handleTopWhatsappClick() {
+  function trackWhatsappCta(params) {
     trackPackagesCta({
-      cta_name: "quiero_solicitar_informacion",
-      cta_location: "packages_hero",
+      ...params,
       destination: "whatsapp",
+    });
+
+    const whatsappPayload = {
+      click_origin: params.click_origin,
+      section: "packages_page",
+      cta_name: params.cta_name,
+    };
+
+    if (params.offer_type) {
+      whatsappPayload.offer_type = params.offer_type;
+    }
+
+    if (params.offer_name) {
+      whatsappPayload.offer_name = params.offer_name;
+    }
+
+    if (params.package_id) {
+      whatsappPayload.package_id = params.package_id;
+    }
+
+    if (params.package_name) {
+      whatsappPayload.package_name = params.package_name;
+    }
+
+    trackEvent("whatsapp_click", whatsappPayload);
+  }
+
+  function handleHeroWhatsappClick() {
+    trackWhatsappCta({
+      cta_name: "quiero_informacion_por_whatsapp",
+      cta_location: "packages_hero",
+      click_origin: "packages_hero_whatsapp",
+    });
+  }
+
+  function handleComparePackagesClick() {
+    trackPackagesCta({
+      cta_name: "comparar_paquetes",
+      cta_location: "packages_hero",
+      destination: "#packages-grid",
     });
   }
 
   function handlePromoClick() {
-    trackPackagesCta({
+    trackWhatsappCta({
       cta_name: "quiero_esta_promocion",
       cta_location: "packages_promo",
-      destination: "whatsapp",
+      click_origin: "packages_promo_whatsapp",
       offer_type: "promo",
       offer_name: promo.title,
-      offer_price: promo.price,
     });
   }
 
   function handlePackageClick(pkg) {
-    trackPackagesCta({
+    trackWhatsappCta({
       cta_name: "solicitar_este_paquete",
       cta_location: "packages_grid",
-      destination: "whatsapp",
+      click_origin: `package_${pkg.id}_whatsapp`,
       offer_type: "package",
       package_id: pkg.id,
       package_name: pkg.name,
-      package_price: pkg.price,
-      package_highlighted: pkg.highlighted ? "true" : "false",
     });
   }
 
   function handleAdviceClick() {
-    trackPackagesCta({
+    trackWhatsappCta({
       cta_name: "quiero_asesoria",
       cta_location: "packages_final_cta",
-      destination: "whatsapp",
+      click_origin: "packages_final_whatsapp",
     });
   }
 
-  function handleContactClick() {
+  function handleExamplesClick() {
     trackPackagesCta({
-      cta_name: "ir_al_contacto",
+      cta_name: "ver_ejemplos_reales",
       cta_location: "packages_final_cta",
-      destination: "/#contacto",
+      destination: "/#proyectos",
     });
   }
 
   return (
     <>
-      <section className="hero">
-        <div className="hero__container">
+      <section className="section packages-page__hero">
+        <div className="section__container">
           <Motion.div
-            className="section__container--narrow"
+            className="packages-page__hero-grid"
             initial="hidden"
             animate="visible"
             variants={containerVariants}
           >
-            <Motion.p className="hero__eyebrow" variants={itemVariants}>
-              Promociones y paquetes
-            </Motion.p>
+            <Motion.div className="packages-page__hero-copy" variants={itemVariants}>
+              <p className="section__eyebrow">Promociones y paquetes</p>
 
-            <Motion.h1 className="hero__title" variants={itemVariants}>
-              Opciones claras para crear o mejorar la página web de tu negocio
-            </Motion.h1>
+              <span className="packages-page__hero-badge">
+                Promoción de arranque visible desde el inicio
+              </span>
 
-            <Motion.p className="hero__description" variants={itemVariants}>
-              Aquí puedes ver una promoción de entrada para empezar rápido y los
-              paquetes principales para negocios que buscan una solución más
-              completa, más profesional y más útil para conseguir clientes.
-            </Motion.p>
+              <h1 className="packages-page__hero-title">
+                Elige la mejor forma de llevar tu negocio a internet sin adivinar
+                cuánto necesitas
+              </h1>
 
-            <Motion.div className="hero__actions" variants={itemVariants}>
-              <Motion.a
-                href="https://wa.me/525567359470"
-                target="_blank"
-                rel="noreferrer"
-                className="button button--primary"
-                whileHover={{ y: -3, scale: 1.01 }}
-                whileTap={{ scale: 0.985 }}
-                onClick={handleTopWhatsappClick}
-              >
-                Quiero solicitar información
-              </Motion.a>
-
-              <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
-                <Link
-                  to="/"
-                  viewTransition
-                  className="button button--secondary"
-                >
-                  Volver al inicio
-                </Link>
-              </Motion.div>
-            </Motion.div>
-          </Motion.div>
-        </div>
-      </section>
-
-      <section className="section section--alt">
-        <div className="section__container">
-          <Motion.div
-            className="services-section__header"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={containerVariants}
-          >
-            <Motion.div
-              className="services-section__copy"
-              variants={itemVariants}
-            >
-              <p className="section__eyebrow">Promoción de entrada</p>
-              <h2 className="section__title">
-                {promo.title} — {promo.price}
-              </h2>
-              <p className="section__text section__text--intro">
-                {promo.subtitle}
+              <p className="packages-page__hero-text">
+                Aquí no vas a encontrar paquetes inflados ni explicaciones raras.
+                Vas a encontrar una promoción clara para empezar rápido y opciones
+                más completas para negocios que quieren verse mejor, dar más
+                confianza y conseguir más clientes.
               </p>
-              <p className="section__text">{promo.description}</p>
+
+              <div className="packages-page__hero-actions">
+                <Motion.a
+                  href={buildWhatsAppHref(
+                    "Hola, quiero información sobre una página web para mi negocio"
+                  )}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="button button--primary"
+                  whileHover={{ y: -3, scale: 1.01 }}
+                  whileTap={{ scale: 0.985 }}
+                  onClick={handleHeroWhatsappClick}
+                >
+                  Quiero información por WhatsApp
+                </Motion.a>
+
+                <Motion.a
+                  href="#packages-grid"
+                  className="button button--secondary"
+                  whileHover={{ y: -3 }}
+                  whileTap={{ scale: 0.985 }}
+                  onClick={handleComparePackagesClick}
+                >
+                  Comparar paquetes
+                </Motion.a>
+              </div>
             </Motion.div>
 
-            <Motion.aside
-              className="services-section__panel"
-              variants={containerVariants}
-            >
-              <Motion.div
-                className="services-section__panel-box"
-                variants={itemVariants}
-                whileHover={{ y: -3 }}
-              >
-                <span className="services-section__panel-label">Ideal para</span>
-                <p className="services-section__panel-text">
-                  Negocios que quieren empezar con buena imagen, contacto claro y
-                  una inversión más ligera.
+            <Motion.aside className="packages-page__hero-panel" variants={cardVariants}>
+              <div className="packages-page__offer-card">
+                <span className="packages-page__offer-label">
+                  Oferta de entrada
+                </span>
+
+                <h2 className="packages-page__offer-title">
+                  {promo.title}
+                </h2>
+
+                <p className="packages-page__offer-price">{promo.price}</p>
+
+                <p className="packages-page__offer-text">
+                  Ideal si necesitas salir rápido con una imagen más profesional y
+                  una base clara para empezar a mostrar tu negocio mejor.
                 </p>
-              </Motion.div>
 
-              <Motion.div
-                className="services-section__panel-box"
-                variants={itemVariants}
-                whileHover={{ y: -3 }}
-              >
-                <span className="services-section__panel-label">Importante</span>
-                <p className="services-section__panel-text">
-                  Esta promoción funciona como puerta de entrada para después
-                  crecer hacia una solución más completa si tu negocio lo
-                  necesita.
-                </p>
-              </Motion.div>
-            </Motion.aside>
-          </Motion.div>
+                <ul className="packages-page__offer-list">
+                  <li className="packages-page__offer-item">
+                    Presencia profesional de arranque
+                  </li>
+                  <li className="packages-page__offer-item">
+                    Contacto directo y claro
+                  </li>
+                  <li className="packages-page__offer-item">
+                    Base ideal para después crecer
+                  </li>
+                </ul>
 
-          <Motion.div
-            className="projects__featured projects__featured--primary"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.12 }}
-            variants={cardVariants}
-            whileHover={{ y: -4 }}
-          >
-            <div className="projects__featured-content">
-              <p className="projects__featured-label">Promoción activa</p>
-              <p className="projects__featured-status">Precio de arranque</p>
-              <h3 className="projects__featured-title">{promo.title}</h3>
-              <p className="projects__featured-highlight">{promo.price}</p>
-              <p className="projects__featured-summary">{promo.description}</p>
-
-              <div className="projects__actions">
                 <Motion.a
-                  href="https://wa.me/525567359470"
+                  href={buildWhatsAppHref(
+                    "Hola, quiero la promoción de Página de Arranque desde $2,500 MXN"
+                  )}
                   target="_blank"
                   rel="noreferrer"
                   className="button button--primary"
@@ -321,18 +328,53 @@ function PackagesPage() {
                   Quiero esta promoción
                 </Motion.a>
               </div>
-            </div>
+            </Motion.aside>
+          </Motion.div>
+        </div>
+      </section>
 
-            <div className="projects__featured-side">
-              <Motion.div
-                className="projects__featured-box"
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ y: -2 }}
+      <section className="section section--alt packages-page__promo-section">
+        <div className="section__container">
+          <Motion.div
+            className="packages-page__promo-grid"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={containerVariants}
+          >
+            <Motion.div className="packages-page__promo-copy" variants={itemVariants}>
+              <p className="section__eyebrow">Promoción de entrada</p>
+
+              <h2 className="section__title">
+                {promo.title} — {promo.price}
+              </h2>
+
+              <p className="section__text section__text--intro">
+                {promo.subtitle}
+              </p>
+
+              <p className="section__text">
+                {promo.description}
+              </p>
+
+              <div className="packages-page__promo-note">
+                <span className="packages-page__promo-note-label">
+                  Ideal para
+                </span>
+                <p className="packages-page__promo-note-text">
+                  Negocios que quieren dejar de verse improvisados y empezar a
+                  presentarse mejor sin saltar directo a una inversión más grande.
+                </p>
+              </div>
+            </Motion.div>
+
+            <Motion.div className="packages-page__promo-lists" variants={containerVariants}>
+              <Motion.article
+                className="packages-page__list-card"
+                variants={itemVariants}
+                whileHover={{ y: -3 }}
               >
-                <span className="projects__featured-box-label">Incluye</span>
+                <h3 className="packages-page__list-title">Incluye</h3>
                 <ul className="services__list">
                   {promo.includes.map((item) => (
                     <li key={item} className="services__item">
@@ -340,21 +382,14 @@ function PackagesPage() {
                     </li>
                   ))}
                 </ul>
-              </Motion.div>
+              </Motion.article>
 
-              <Motion.div
-                className="projects__featured-box"
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{
-                  duration: 0.5,
-                  delay: 0.08,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                whileHover={{ y: -2 }}
+              <Motion.article
+                className="packages-page__list-card"
+                variants={itemVariants}
+                whileHover={{ y: -3 }}
               >
-                <span className="projects__featured-box-label">No incluye</span>
+                <h3 className="packages-page__list-title">No incluye</h3>
                 <ul className="services__list">
                   {promo.excludes.map((item) => (
                     <li key={item} className="services__item">
@@ -362,13 +397,13 @@ function PackagesPage() {
                     </li>
                   ))}
                 </ul>
-              </Motion.div>
-            </div>
+              </Motion.article>
+            </Motion.div>
           </Motion.div>
         </div>
       </section>
 
-      <section className="section">
+      <section id="packages-grid" className="section packages-page__packages-section">
         <div className="section__container">
           <Motion.div
             initial="hidden"
@@ -388,14 +423,14 @@ function PackagesPage() {
               className="section__text section__text--intro"
               variants={itemVariants}
             >
-              Estos paquetes están pensados para que puedas empezar con una base
-              profesional y, si lo necesitas, crecer hacia una solución más
-              completa.
+              La idea no es venderte lo más caro por venderlo. La idea es que
+              tengas una opción clara según el punto en el que está tu negocio
+              hoy y lo que realmente necesitas resolver.
             </Motion.p>
           </Motion.div>
 
           <Motion.div
-            className="services services--enhanced"
+            className="packages-page__grid"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.12 }}
@@ -404,42 +439,32 @@ function PackagesPage() {
             {packages.map((pkg) => (
               <Motion.article
                 key={pkg.id}
-                className={`services__card services__card--enhanced ${
-                  pkg.highlighted ? "projects__featured--primary" : ""
+                className={`packages-page__card ${
+                  pkg.highlighted ? "packages-page__card--featured" : ""
                 }`}
                 variants={cardVariants}
                 whileHover={{ y: -4 }}
               >
-                <div className="services__top">
-                  <p className="services__label">{pkg.name}</p>
+                {pkg.badge ? (
+                  <span className="packages-page__card-badge">{pkg.badge}</span>
+                ) : null}
 
-                  <div className="services__icon" aria-hidden="true">
-                    <span className="services__icon-dot"></span>
-                    <span className="services__icon-line"></span>
-                  </div>
+                <div className="packages-page__card-head">
+                  <p className="packages-page__card-label">{pkg.name}</p>
+                  <h3 className="packages-page__card-price">{pkg.price}</h3>
                 </div>
 
-                <h3 className="services__title">{pkg.price}</h3>
-                <p className="services__text">
+                <p className="packages-page__card-audience">
                   <strong>Para quién es:</strong> {pkg.audience}
                 </p>
-                <p className="services__text">
+
+                <p className="packages-page__card-benefit">
                   <strong>Beneficio principal:</strong> {pkg.benefit}
                 </p>
 
-                <div className="about-section__principles">
-                  <Motion.article
-                    className="about-section__principle"
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.2 }}
-                    transition={{
-                      duration: 0.45,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                    whileHover={{ y: -2 }}
-                  >
-                    <h4 className="about-section__principle-title">Incluye</h4>
+                <div className="packages-page__card-columns">
+                  <div className="packages-page__card-column">
+                    <h4 className="packages-page__card-column-title">Incluye</h4>
                     <ul className="services__list">
                       {pkg.includes.map((item) => (
                         <li key={item} className="services__item">
@@ -447,21 +472,10 @@ function PackagesPage() {
                         </li>
                       ))}
                     </ul>
-                  </Motion.article>
+                  </div>
 
-                  <Motion.article
-                    className="about-section__principle"
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.2 }}
-                    transition={{
-                      duration: 0.45,
-                      delay: 0.06,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                    whileHover={{ y: -2 }}
-                  >
-                    <h4 className="about-section__principle-title">
+                  <div className="packages-page__card-column">
+                    <h4 className="packages-page__card-column-title">
                       No incluye
                     </h4>
                     <ul className="services__list">
@@ -471,12 +485,19 @@ function PackagesPage() {
                         </li>
                       ))}
                     </ul>
-                  </Motion.article>
+                  </div>
                 </div>
 
-                <div className="projects__actions">
+                <p className="packages-page__card-footnote">
+                  El precio final puede variar según el alcance real del proyecto
+                  y los servicios externos que se necesiten.
+                </p>
+
+                <div className="packages-page__card-actions">
                   <Motion.a
-                    href="https://wa.me/525567359470"
+                    href={buildWhatsAppHref(
+                      `Hola, quiero información sobre el paquete ${pkg.name}`
+                    )}
                     target="_blank"
                     rel="noreferrer"
                     className="button button--primary"
@@ -494,7 +515,7 @@ function PackagesPage() {
       </section>
 
       <section
-        className="final-cta"
+        className="final-cta packages-page__final-cta"
         aria-labelledby="packages-final-cta-title"
       >
         <div className="section__container">
@@ -509,18 +530,20 @@ function PackagesPage() {
             <div className="final-cta__content">
               <p className="final-cta__eyebrow">¿No sabes cuál elegir?</p>
               <h2 id="packages-final-cta-title" className="final-cta__title">
-                Te ayudo a elegir la mejor opción para tu negocio
+                Te ayudo a elegir la opción más conveniente para tu negocio
               </h2>
               <p className="final-cta__text">
-                Si todavía no tienes claro cuál promoción o paquete te conviene,
-                podemos revisar tu caso y definir la opción más adecuada según el
-                momento de tu negocio.
+                Si todavía no tienes claro si te conviene empezar con la promoción
+                o irte a un paquete más completo, lo revisamos juntos y te digo
+                qué tiene más sentido según tu negocio, tu momento y tu objetivo.
               </p>
             </div>
 
             <div className="final-cta__actions">
               <Motion.a
-                href="https://wa.me/525567359470"
+                href={buildWhatsAppHref(
+                  "Hola, quiero ayuda para elegir la mejor opción para mi negocio"
+                )}
                 target="_blank"
                 rel="noreferrer"
                 className="button button--primary"
@@ -533,12 +556,12 @@ function PackagesPage() {
 
               <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
                 <Link
-                  to="/#contacto"
+                  to="/#proyectos"
                   viewTransition
                   className="button button--secondary"
-                  onClick={handleContactClick}
+                  onClick={handleExamplesClick}
                 >
-                  Ir al contacto
+                  Ver ejemplos reales
                 </Link>
               </Motion.div>
             </div>

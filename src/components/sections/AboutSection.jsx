@@ -1,3 +1,10 @@
+import { Link } from "react-router";
+import { motion as Motion } from "motion/react";
+import { trackEvent } from "../../lib/analytics";
+
+const WHATSAPP_HREF =
+  "https://wa.me/525567359470?text=Hola%2C%20quiero%20una%20p%C3%A1gina%20web%20para%20mi%20negocio%20y%20me%20gustar%C3%ADa%20revisar%20la%20mejor%20opci%C3%B3n";
+
 function createAboutPreview() {
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" fill="none">
@@ -43,17 +50,39 @@ function createAboutPreview() {
 
 const aboutPreview = createAboutPreview();
 
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.08,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
+
 function AboutSection() {
   const principles = [
     {
       id: "claridad",
-      title: "Primero se entiende, luego se ve bonito",
-      text: "Una página útil debe dejar claro qué hace tu negocio, a quién ayuda y cómo puede contactarte una persona interesada.",
+      title: "Primero debe entenderse, luego impresionar",
+      text: "Una página útil no solo se ve bien. También deja claro qué hace tu negocio, a quién ayuda y cómo puede contactarte una persona interesada.",
     },
     {
       id: "confianza",
-      title: "La imagen también vende",
-      text: "Cuando un sitio se ve cuidado, ordenado y profesional, transmite más confianza y hace que el negocio se tome más en serio.",
+      title: "La imagen sí influye en la decisión",
+      text: "Cuando un sitio se ve cuidado, ordenado y profesional, transmite más confianza y hace que el negocio se perciba con más seriedad.",
     },
     {
       id: "mejora",
@@ -88,11 +117,33 @@ function AboutSection() {
     },
   ];
 
+  function handleAboutWhatsappClick() {
+    trackEvent("whatsapp_click", {
+      click_origin: "about_whatsapp",
+      section: "about",
+      cta_name: "hablemos_de_mi_proyecto",
+    });
+  }
+
+  function handleAboutPackagesClick() {
+    trackEvent("about_cta_click", {
+      cta_name: "ver_promocion_y_paquetes",
+      cta_location: "about",
+      destination: "/promociones-paquetes",
+    });
+  }
+
   return (
     <section id="sobre-mi" className="section">
       <div className="section__container">
-        <div className="about-section about-section--enhanced">
-          <div className="about-section__media">
+        <Motion.div
+          className="about-section about-section--enhanced"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.18 }}
+          variants={containerVariants}
+        >
+          <Motion.div className="about-section__media" variants={itemVariants}>
             <div className="about-section__visual">
               <img
                 src={aboutPreview}
@@ -104,31 +155,37 @@ function AboutSection() {
 
             <div className="about-section__stats">
               {stats.map((item) => (
-                <article key={item.id} className="about-section__stat">
+                <Motion.article
+                  key={item.id}
+                  className="about-section__stat"
+                  whileHover={{ y: -2 }}
+                >
                   <span className="about-section__stat-value">{item.value}</span>
                   <span className="about-section__stat-label">{item.label}</span>
-                </article>
+                </Motion.article>
               ))}
             </div>
-          </div>
+          </Motion.div>
 
-          <div className="about-section__content">
+          <Motion.div className="about-section__content" variants={itemVariants}>
             <p className="section__eyebrow">Quién trabajará tu página</p>
 
             <h2 className="section__title">
-              Trabajo para que tu negocio tenga una página clara, profesional y útil para vender mejor
+              Trabajo para que tu negocio tenga una página clara, profesional y
+              realmente útil para vender mejor
             </h2>
 
             <p className="section__text">
               Soy Genaro Hernández Piñeiro y me dedico a crear y mejorar páginas
-              web para negocios que necesitan verse mejor en internet y transmitir
-              más confianza desde el primer vistazo.
+              web para negocios que necesitan verse mejor en internet, transmitir
+              más confianza y presentar su oferta de una forma más clara.
             </p>
 
             <p className="section__text">
-              Mi enfoque no es llenar una página de cosas innecesarias. Lo
-              importante es que el sitio ayude a explicar bien tu negocio, se vea
-              profesional y facilite que una persona interesada te contacte.
+              Mi enfoque no es llenar una página de cosas innecesarias ni vender
+              puro adorno visual. Lo importante es que el sitio ayude a explicar
+              bien tu negocio, se vea profesional y facilite que una persona
+              interesada dé el siguiente paso.
             </p>
 
             <p className="section__text">
@@ -139,10 +196,14 @@ function AboutSection() {
 
             <div className="about-section__principles">
               {principles.map((item) => (
-                <article key={item.id} className="about-section__principle">
+                <Motion.article
+                  key={item.id}
+                  className="about-section__principle"
+                  whileHover={{ y: -3 }}
+                >
                   <h3 className="about-section__principle-title">{item.title}</h3>
                   <p className="about-section__principle-text">{item.text}</p>
-                </article>
+                </Motion.article>
               ))}
             </div>
 
@@ -158,12 +219,38 @@ function AboutSection() {
               <div className="about-section__signature">
                 <span className="about-section__signature-label">Enfoque</span>
                 <p className="about-section__signature-text">
-                  Hacer que una página se vea mejor, se entienda mejor y ayude más al negocio.
+                  Hacer que tu página se vea mejor, se entienda mejor y ayude más
+                  al negocio desde el primer vistazo.
                 </p>
               </div>
             </div>
-          </div>
-        </div>
+
+            <div className="about-section__actions">
+              <Motion.a
+                href={WHATSAPP_HREF}
+                target="_blank"
+                rel="noreferrer"
+                className="button button--primary"
+                whileHover={{ y: -3, scale: 1.01 }}
+                whileTap={{ scale: 0.985 }}
+                onClick={handleAboutWhatsappClick}
+              >
+                Hablemos de tu proyecto
+              </Motion.a>
+
+              <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
+                <Link
+                  to="/promociones-paquetes"
+                  viewTransition
+                  className="button button--secondary"
+                  onClick={handleAboutPackagesClick}
+                >
+                  Ver promoción y paquetes
+                </Link>
+              </Motion.div>
+            </div>
+          </Motion.div>
+        </Motion.div>
       </div>
     </section>
   );

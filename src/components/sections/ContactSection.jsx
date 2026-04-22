@@ -9,6 +9,21 @@ function ContactSection() {
         event_label: "Solicitar por WhatsApp",
         link_url: whatsappHref,
         contact_method: "whatsapp",
+        click_origin: "contact_section",
+        cta_name: "solicitar_por_whatsapp",
+      });
+    }
+  };
+
+  const handleEmailClick = () => {
+    if (typeof window !== "undefined" && typeof window.gtag === "function") {
+      window.gtag("event", "contact_email_click", {
+        event_category: "contacto",
+        event_label: "Solicitar por correo",
+        link_url: emailHref,
+        contact_method: "email",
+        click_origin: "contact_section",
+        cta_name: "solicitar_por_correo",
       });
     }
   };
@@ -20,7 +35,8 @@ function ContactSection() {
           <p className="section__eyebrow">Contacto</p>
 
           <h2 className="section__title">
-            Solicita tu página web y empieza a darle a tu negocio una presencia más profesional
+            Si quieres una página que haga ver mejor tu negocio y te ayude a
+            conseguir más clientes, hablemos
           </h2>
 
           <p className="section__text">
@@ -30,10 +46,32 @@ function ContactSection() {
           </p>
 
           <p className="section__text">
-            Puedo ayudarte a crear una página pensada para que tus clientes
-            entiendan rápido lo que ofreces, confíen más en tu negocio y puedan
-            contactarte con facilidad.
+            La idea no es solo entregarte una página bonita, sino una página que
+            ayude a explicar mejor lo que ofreces, dé confianza y facilite que
+            tus clientes te contacten.
           </p>
+
+          <div className="contact-section__highlights">
+            <div className="contact-section__highlight">
+              <span className="contact-section__highlight-label">
+                Respuesta directa
+              </span>
+              <p className="contact-section__highlight-text">
+                Podemos empezar por WhatsApp para revisar qué necesita tu negocio
+                y decirte cuál opción te conviene más.
+              </p>
+            </div>
+
+            <div className="contact-section__highlight">
+              <span className="contact-section__highlight-label">
+                Enfoque realista
+              </span>
+              <p className="contact-section__highlight-text">
+                Si necesitas algo sencillo para arrancar o una solución más
+                completa, lo aterrizamos según tu giro y tu momento actual.
+              </p>
+            </div>
+          </div>
 
           <div className="contact-section__actions">
             <a
@@ -49,16 +87,18 @@ function ContactSection() {
             <a
               href={emailHref}
               className="button button--secondary"
+              onClick={handleEmailClick}
             >
               Solicitar por correo
             </a>
           </div>
 
           <div className="contact-section__note">
-            <span className="contact-section__note-label">Importante</span>
+            <span className="contact-section__note-label">Ideal para</span>
             <p className="contact-section__note-text">
-              Reemplaza <strong>+52 55 22737432</strong> y <strong>gehernandez@gcodemaker.com.mx</strong>
-              {" "}por tus datos reales para dejar esta sección lista para conversión.
+              Negocios que quieren empezar con una página más profesional o
+              mejorar la que ya tienen para transmitir más confianza y vender
+              mejor.
             </p>
           </div>
         </div>

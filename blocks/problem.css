@@ -1,0 +1,43 @@
+.problem-section__grid {
+  margin-top: 2rem;
+}
+
+.problem-section__cta {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1.15rem 1.25rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.04)
+    ),
+    rgba(12, 24, 42, 0.62);
+  border: 1px solid rgba(173, 202, 238, 0.12);
+  box-shadow: var(--shadow-card), var(--shadow-glow);
+  backdrop-filter: blur(16px);
+}
+
+.problem-section__cta-text {
+  margin: 0;
+  color: var(--color-text-soft);
+  line-height: 1.7;
+}
+
+.problem-section__cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .problem-section__cta-actions {
+    flex-direction: column;
+  }
+
+  .problem-section__cta-actions .button {
+    width: 100%;
+  }
+}
