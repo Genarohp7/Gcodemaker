@@ -2,11 +2,11 @@ import { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-function generateParticlePositions(total = 140) {
+function generateParticlePositions(total = 180) {
   const points = [];
 
   for (let i = 0; i < total; i += 1) {
-    const radius = 2.1 + Math.random() * 0.65;
+    const radius = 2 + Math.random() * 0.75;
     const theta = Math.random() * Math.PI * 2;
     const phi = Math.acos(2 * Math.random() - 1);
 
@@ -24,16 +24,17 @@ const PARTICLE_POSITIONS = generateParticlePositions();
 
 function CoreOrb() {
   const groupRef = useRef(null);
-  const outerRef = useRef(null);
-  const middleRef = useRef(null);
+  const shellRef = useRef(null);
+  const coreRef = useRef(null);
   const ringPrimaryRef = useRef(null);
   const ringSecondaryRef = useRef(null);
+  const haloRef = useRef(null);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
 
-    const targetX = state.pointer.y * 0.22;
-    const targetY = state.pointer.x * 0.38;
+    const targetX = state.pointer.y * 0.28;
+    const targetY = state.pointer.x * 0.45;
 
     groupRef.current.rotation.x = THREE.MathUtils.lerp(
       groupRef.current.rotation.x,
@@ -47,30 +48,35 @@ function CoreOrb() {
       0.05
     );
 
-    groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.85) * 0.08;
+    groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.9) * 0.08;
 
-    if (outerRef.current) {
-      outerRef.current.rotation.x += delta * 0.08;
-      outerRef.current.rotation.y += delta * 0.16;
+    if (shellRef.current) {
+      shellRef.current.rotation.x += delta * 0.12;
+      shellRef.current.rotation.y += delta * 0.18;
     }
 
-    if (middleRef.current) {
-      middleRef.current.rotation.y -= delta * 0.22;
-      middleRef.current.rotation.z += delta * 0.06;
+    if (coreRef.current) {
+      coreRef.current.rotation.y -= delta * 0.26;
+      coreRef.current.rotation.z += delta * 0.08;
     }
 
     if (ringPrimaryRef.current) {
-      ringPrimaryRef.current.rotation.z += delta * 0.18;
+      ringPrimaryRef.current.rotation.z += delta * 0.22;
     }
 
     if (ringSecondaryRef.current) {
-      ringSecondaryRef.current.rotation.x -= delta * 0.14;
-      ringSecondaryRef.current.rotation.y += delta * 0.08;
+      ringSecondaryRef.current.rotation.x -= delta * 0.16;
+      ringSecondaryRef.current.rotation.y += delta * 0.1;
+    }
+
+    if (haloRef.current) {
+      const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.4) * 0.035;
+      haloRef.current.scale.setScalar(pulse);
     }
   });
 
   return (
-    <group ref={groupRef} scale={1.02}>
+    <group ref={groupRef} scale={1.04}>
       <points>
         <bufferGeometry>
           <bufferAttribute
@@ -81,71 +87,80 @@ function CoreOrb() {
           />
         </bufferGeometry>
         <pointsMaterial
-          color="#9fd8ff"
-          size={0.03}
+          color="#bfe4ff"
+          size={0.032}
           transparent
-          opacity={0.72}
+          opacity={0.8}
           sizeAttenuation
           depthWrite={false}
         />
       </points>
 
-      <mesh ref={outerRef}>
+      <mesh ref={haloRef} scale={1.1}>
+        <sphereGeometry args={[1.35, 48, 48]} />
+        <meshBasicMaterial
+          color="#4da3ff"
+          transparent
+          opacity={0.05}
+        />
+      </mesh>
+
+      <mesh ref={shellRef}>
         <icosahedronGeometry args={[1.72, 1]} />
         <meshBasicMaterial
           color="#4da3ff"
           wireframe
           transparent
-          opacity={0.28}
+          opacity={0.32}
         />
       </mesh>
 
       <mesh ref={ringPrimaryRef} rotation={[Math.PI / 6, 0, 0]}>
-        <torusGeometry args={[2.08, 0.028, 20, 180]} />
+        <torusGeometry args={[2.04, 0.028, 20, 200]} />
         <meshStandardMaterial
           color="#4da3ff"
           emissive="#4da3ff"
-          emissiveIntensity={0.3}
-          metalness={0.45}
-          roughness={0.18}
+          emissiveIntensity={0.42}
+          metalness={0.5}
+          roughness={0.16}
         />
       </mesh>
 
       <mesh ref={ringSecondaryRef} rotation={[-Math.PI / 4.8, 0, Math.PI / 8]}>
-        <torusGeometry args={[1.36, 0.04, 20, 180]} />
+        <torusGeometry args={[1.34, 0.04, 20, 180]} />
         <meshStandardMaterial
           color="#ffcb4e"
           emissive="#ffcb4e"
-          emissiveIntensity={0.22}
+          emissiveIntensity={0.28}
           metalness={0.35}
-          roughness={0.24}
+          roughness={0.22}
         />
       </mesh>
 
-      <mesh ref={middleRef}>
-        <icosahedronGeometry args={[0.96, 3]} />
+      <mesh ref={coreRef}>
+        <icosahedronGeometry args={[0.98, 3]} />
         <meshPhysicalMaterial
-          color="#b9deff"
+          color="#d8eeff"
           emissive="#4da3ff"
-          emissiveIntensity={0.2}
-          roughness={0.08}
+          emissiveIntensity={0.24}
+          roughness={0.06}
           metalness={0.08}
-          transmission={0.96}
+          transmission={0.98}
           transparent
-          opacity={0.9}
-          thickness={1.4}
-          ior={1.2}
+          opacity={0.94}
+          thickness={1.6}
+          ior={1.22}
         />
       </mesh>
 
-      <mesh scale={0.52}>
+      <mesh scale={0.5}>
         <icosahedronGeometry args={[0.96, 2]} />
         <meshStandardMaterial
           color="#ffffff"
           emissive="#4da3ff"
-          emissiveIntensity={0.55}
-          roughness={0.15}
-          metalness={0.15}
+          emissiveIntensity={0.72}
+          roughness={0.14}
+          metalness={0.14}
         />
       </mesh>
     </group>
@@ -155,10 +170,10 @@ function CoreOrb() {
 function SceneLights() {
   return (
     <>
-      <ambientLight intensity={0.85} />
-      <directionalLight position={[3.5, 2.6, 4]} intensity={1.8} color="#d9ebff" />
-      <pointLight position={[-2.5, -2.2, 2.4]} intensity={1.2} color="#ffcb4e" />
-      <pointLight position={[2.8, 1.8, 2.8]} intensity={1.4} color="#4da3ff" />
+      <ambientLight intensity={0.95} />
+      <directionalLight position={[3.6, 2.8, 4]} intensity={2} color="#e4f2ff" />
+      <pointLight position={[-2.6, -2.1, 2.5]} intensity={1.25} color="#ffcb4e" />
+      <pointLight position={[2.8, 1.9, 2.9]} intensity={1.6} color="#4da3ff" />
     </>
   );
 }
@@ -168,7 +183,7 @@ function HeroScene() {
     <div className="hero-scene" aria-hidden="true">
       <Canvas
         dpr={[1, 1.5]}
-        camera={{ position: [0, 0, 5.4], fov: 42 }}
+        camera={{ position: [0, 0, 5.2], fov: 42 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
         <SceneLights />

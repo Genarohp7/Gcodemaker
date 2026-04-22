@@ -5,6 +5,7 @@ import "lenis/dist/lenis.css";
 
 import { initAnalytics, trackPageView } from "../../lib/analytics";
 import CookieBanner from "../common/CookieBanner";
+import GlobalSceneBackground from "./GlobalSceneBackground";
 import Header from "./Header";
 import Footer from "./Footer";
 
@@ -40,6 +41,7 @@ function Layout({ children }) {
     >
       <div className="page">
         <div className="page__ambient" aria-hidden="true">
+          <GlobalSceneBackground />
           <span className="page__glow page__glow--1"></span>
           <span className="page__glow page__glow--2"></span>
           <span className="page__glow page__glow--3"></span>

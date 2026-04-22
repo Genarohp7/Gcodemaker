@@ -8,6 +8,7 @@
 @import "../blocks/final-cta.css";
 @import "../blocks/packages-page.css";
 @import "../blocks/process.css";
+@import "../blocks/global-scene.css";
 
 :root {
   --color-bg: #07111f;
@@ -104,6 +105,25 @@ img {
 .page__inner {
   position: relative;
   z-index: 1;
+}
+
+.page__shell {
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(18px) scale(0.992);
+  filter: blur(14px);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform, filter;
+}
+
+.page__shell--ready {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
 }
 
 .page__ambient {
@@ -876,5 +896,12 @@ img {
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none !important;
+  }
+
+    .page__shell {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
   }
 }

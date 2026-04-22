@@ -230,7 +230,7 @@ function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.28, duration: 0.55 }}
             >
-              Lo que debe sentir tu cliente al entrar
+             
             </Motion.p>
 
             <Motion.div

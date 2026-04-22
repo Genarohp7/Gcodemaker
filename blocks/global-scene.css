@@ -1,0 +1,42 @@
+.global-scene-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.42;
+  filter: saturate(1.02);
+  mask-image: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.65) 46%,
+    rgba(0, 0, 0, 0.18) 78%,
+    transparent 100%
+  );
+}
+
+.global-scene-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(77, 163, 255, 0.1), transparent 30%),
+    radial-gradient(circle at 65% 60%, rgba(255, 203, 78, 0.06), transparent 24%);
+  pointer-events: none;
+}
+
+.global-scene-background canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  transform: scale(1.08);
+}
+
+@media (max-width: 768px) {
+  .global-scene-background {
+    opacity: 0.3;
+  }
+
+  .global-scene-background canvas {
+    transform: scale(1.14);
+  }
+}
