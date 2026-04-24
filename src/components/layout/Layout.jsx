@@ -83,8 +83,9 @@ function Layout({ children }) {
           </main>
 
           <Footer />
-          <CookieBanner />
         </div>
+
+        <CookieBanner />
       </div>
     </ReactLenis>
   );
