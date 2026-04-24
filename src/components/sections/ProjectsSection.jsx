@@ -5,7 +5,7 @@ import { trackEvent } from "../../lib/analytics";
 import projects from "../../data/projects";
 
 const WHATSAPP_HREF =
-  "https://wa.me/525567359470?text=Hola%2C%20quiero%20una%20p%C3%A1gina%20web%20con%20un%20nivel%20visual%20como%20los%20proyectos%20que%20vi%20en%20tu%20sitio";
+  "https://wa.me/525522737432?text=Hola%2C%20quiero%20una%20p%C3%A1gina%20web%20con%20un%20nivel%20visual%20como%20los%20proyectos%20que%20vi%20en%20tu%20sitio";
 
 const containerVariants = {
   hidden: {},

@@ -38,7 +38,7 @@ const cardVariants = {
 };
 
 function buildWhatsAppHref(message) {
-  return `https://wa.me/525567359470?text=${encodeURIComponent(message)}`;
+  return `https://wa.me/525522737432?text=${encodeURIComponent(message)}`;
 }
 
 function PackagesPage() {

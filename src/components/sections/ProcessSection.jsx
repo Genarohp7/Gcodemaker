@@ -3,7 +3,7 @@ import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
 
 const WHATSAPP_HREF =
-  "https://wa.me/525567359470?text=Hola%2C%20quiero%20revisar%20el%20proceso%20para%20crear%20la%20p%C3%A1gina%20web%20de%20mi%20negocio";
+  "https://wa.me/525522737432?text=Hola%2C%20quiero%20revisar%20el%20proceso%20para%20crear%20la%20p%C3%A1gina%20web%20de%20mi%20negocio";
 
 const containerVariants = {
   hidden: {},

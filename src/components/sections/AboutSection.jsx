@@ -3,7 +3,7 @@ import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
 
 const WHATSAPP_HREF =
-  "https://wa.me/525567359470?text=Hola%2C%20quiero%20una%20p%C3%A1gina%20web%20para%20mi%20negocio%20y%20me%20gustar%C3%ADa%20revisar%20la%20mejor%20opci%C3%B3n";
+  "https://wa.me/525522737432?text=Hola%2C%20quiero%20una%20p%C3%A1gina%20web%20para%20mi%20negocio%20y%20me%20gustar%C3%ADa%20revisar%20la%20mejor%20opci%C3%B3n";
 
 function createAboutPreview() {
   const svg = `
