@@ -5,7 +5,7 @@ import { trackEvent } from "../../lib/analytics";
 import projects from "../../data/projects";
 
 const WHATSAPP_HREF =
-  "https://wa.me/525522737432?text=Hola%2C%20quiero%20una%20p%C3%A1gina%20web%20con%20un%20nivel%20visual%20como%20los%20proyectos%20que%20vi%20en%20tu%20sitio";
+  "https://wa.me/525522737432?text=Hola%2C%20quiero%20una%20soluci%C3%B3n%20web%20profesional%20con%20un%20nivel%20visual%20y%20comercial%20como%20los%20proyectos%20que%20vi%20en%20tu%20sitio";
 
 const containerVariants = {
   hidden: {},
@@ -82,7 +82,7 @@ function ProjectsSection() {
     trackEvent("whatsapp_click", {
       click_origin: "projects_whatsapp",
       section: "projects",
-      cta_name: "quiero_una_pagina_como_esta",
+      cta_name: "quiero_una_solucion_web_como_esta",
     });
   }
 
@@ -113,18 +113,19 @@ function ProjectsSection() {
           </Motion.p>
 
           <Motion.h2 className="section__title" variants={itemVariants}>
-            Ejemplos reales del nivel visual y comercial que puede tener tu
-            página
+            Ejemplos reales de cómo una solución web puede elevar la presencia
+            digital de un proyecto
           </Motion.h2>
 
           <Motion.p
             className="section__text section__text--intro"
             variants={itemVariants}
           >
-            Estos proyectos muestran cómo una página puede verse más sólida,
-            transmitir más confianza y presentar mejor un negocio. No se trata
-            solo de que se vea bien, sino de que se sienta profesional y lista
-            para vender.
+            Estos proyectos muestran cómo una presencia digital puede verse más
+            sólida, transmitir más confianza y presentar mejor una marca,
+            negocio o proyecto. No se trata solo de que se vea bien, sino de que
+            tenga claridad, intención comercial y una experiencia lista para
+            convertir.
           </Motion.p>
         </Motion.div>
 
@@ -359,8 +360,8 @@ function ProjectsSection() {
         >
           <p className="projects-section__note">
             Si te gusta este nivel visual y quieres algo así para tu negocio,
-            podemos aterrizarlo según tu giro, tu presupuesto y el momento en el
-            que estás.
+            marca o proyecto digital, podemos aterrizarlo según tu objetivo, tu
+            presupuesto y el momento en el que estás.
           </p>
 
           <div className="projects-section__buttons">
@@ -373,7 +374,7 @@ function ProjectsSection() {
               whileTap={{ scale: 0.985 }}
               onClick={handleProjectsWhatsappClick}
             >
-              Quiero una página así
+              Quiero una solución así
             </Motion.a>
 
             <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>

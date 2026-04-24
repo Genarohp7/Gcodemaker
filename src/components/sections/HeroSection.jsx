@@ -6,7 +6,7 @@ import { trackEvent } from "../../lib/analytics";
 const HeroScene = lazy(() => import("./HeroScene"));
 
 const WHATSAPP_HREF =
-  "https://wa.me/525522737432?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20una%20p%C3%A1gina%20web%20para%20mi%20negocio";
+  "https://wa.me/525522737432?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20una%20p%C3%A1gina%20web%20o%20soluci%C3%B3n%20digital%20para%20mi%20negocio";
 
 const containerVariants = {
   hidden: {},
@@ -58,10 +58,10 @@ function HeroSceneFallback() {
 
 function HeroSection() {
   const tags = [
-    "Sector salud",
-    "Restaurantes",
-    "Negocios pequeños",
-    "Promoción desde $2,500",
+    "Desarrollo web para negocios",
+    "SEO e indexación en Google",
+    "Landing pages comerciales",
+    "Preparado para Google Ads",
     "WhatsApp directo",
   ];
 
@@ -70,19 +70,19 @@ function HeroSection() {
       id: "promo",
       value: "Desde $2,500 MXN",
       label:
-        "Una promoción de arranque para negocios que necesitan salir rápido con una imagen más seria.",
+        "Una promoción de arranque para negocios que necesitan presencia digital profesional sin complicarse.",
     },
     {
-      id: "whatsapp",
-      value: "WhatsApp directo",
+      id: "google",
+      value: "Base lista para Google",
       label:
-        "Menos vueltas y menos fricción: tu prospecto puede escribirte desde el primer pantallazo.",
+        "Estructura, contenido y configuración pensados para que tu sitio pueda indexarse y trabajar mejor con SEO y campañas.",
     },
     {
-      id: "presencia",
-      value: "Imagen más profesional",
+      id: "conversion",
+      value: "Contacto real",
       label:
-        "Una mejor presentación ayuda a dar confianza y a que tu negocio se vea listo para vender.",
+        "Diseñamos la experiencia para que tus visitantes entiendan tu oferta y puedan escribirte sin dar mil vueltas.",
     },
   ];
 
@@ -102,7 +102,7 @@ function HeroSection() {
 
   function handlePrimaryWhatsappClick() {
     trackWhatsAppClick({
-      ctaName: "quiero_mi_pagina_por_whatsapp",
+      ctaName: "quiero_mi_sitio_web_por_whatsapp",
       clickOrigin: "hero_primary_whatsapp",
     });
   }
@@ -134,14 +134,15 @@ function HeroSection() {
           animate="visible"
         >
           <Motion.p className="hero__eyebrow" variants={itemVariants}>
-            Páginas web para sector salud, restaurantes y pequeños negocios
+            Desarrollo web profesional para negocios y proyectos digitales
           </Motion.p>
 
           <Motion.div className="hero__promo" variants={itemVariants}>
             <span className="hero__promo-badge">Promoción de arranque</span>
             <p className="hero__promo-text">
               Página web desde <strong>$2,500 MXN</strong> para negocios que
-              necesitan verse profesionales y empezar a moverse rápido.
+              necesitan una presencia digital seria, clara y lista para empezar
+              a generar confianza.
             </p>
 
             <Link
@@ -155,25 +156,24 @@ function HeroSection() {
           </Motion.div>
 
           <Motion.h1 className="hero__title" variants={itemVariants}>
-            Páginas web pensadas para que tu negocio se vea mejor y consiga más
-            clientes
+            Páginas web y soluciones digitales pensadas para que tu negocio
+            venda mejor
           </Motion.h1>
 
           <Motion.p className="hero__description" variants={itemVariants}>
-            Si hoy te encuentran en Google o en redes y tu negocio no se ve
-            claro, profesional y fácil de contactar, estás perdiendo
-            oportunidades. En GCodemaker creamos páginas web que ayudan a dar
-            confianza, explicar mejor tu oferta y convertir visitas en
-            conversaciones reales.
+            No importa si estás iniciando, profesionalizando tu marca o
+            preparando una campaña: en GCodemaker creamos sitios web que ayudan
+            a explicar mejor tu oferta, generar confianza y convertir visitas en
+            contactos reales.
           </Motion.p>
 
           <Motion.p
             className="hero__description hero__description--secondary"
             variants={itemVariants}
           >
-            Tenemos una promoción de entrada para empezar rápido y opciones más
-            completas para negocios que quieren una presencia digital más seria,
-            más vendible y mejor preparada para crecer.
+            Te ayudamos desde el armado de la página hasta la base técnica para
+            Google: estructura clara, SEO inicial, indexación y una experiencia
+            preparada para campañas, WhatsApp y crecimiento digital.
           </Motion.p>
 
           <Motion.div className="hero__actions" variants={itemVariants}>
@@ -186,7 +186,7 @@ function HeroSection() {
               whileTap={{ scale: 0.985 }}
               onClick={handlePrimaryWhatsappClick}
             >
-              Quiero mi página por WhatsApp
+              Quiero mi sitio web por WhatsApp
             </Motion.a>
 
             <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>

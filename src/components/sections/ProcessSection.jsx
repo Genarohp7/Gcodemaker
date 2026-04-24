@@ -3,7 +3,7 @@ import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
 
 const WHATSAPP_HREF =
-  "https://wa.me/525522737432?text=Hola%2C%20quiero%20revisar%20el%20proceso%20para%20crear%20la%20p%C3%A1gina%20web%20de%20mi%20negocio";
+  "https://wa.me/525522737432?text=Hola%2C%20quiero%20revisar%20una%20soluci%C3%B3n%20web%20profesional%20para%20mi%20negocio%20o%20proyecto%20digital";
 
 const containerVariants = {
   hidden: {},
@@ -30,22 +30,22 @@ const itemVariants = {
 function ProcessSection() {
   const steps = [
     {
-      id: "contacto",
+      id: "diagnostico",
       number: "01",
-      title: "Me cuentas qué necesita tu negocio",
-      text: "Primero revisamos qué quieres lograr, qué tipo de negocio tienes y cuál es la meta principal: verte mejor, generar confianza o conseguir más contactos.",
+      title: "Revisamos qué necesita tu negocio o proyecto",
+      text: "Primero entendemos qué quieres lograr: presentar mejor tu negocio, conseguir más contactos, preparar una campaña, aparecer en Google o crear una solución web más completa.",
     },
     {
-      id: "propuesta",
+      id: "ruta",
       number: "02",
-      title: "Definimos la mejor opción para ti",
-      text: "Después aterrizamos la mejor ruta según tu momento, tu presupuesto y el tipo de página que más sentido tenga para ayudarte a vender mejor.",
+      title: "Definimos la mejor ruta para avanzar",
+      text: "No todos necesitan lo mismo. Aterrizamos si conviene una landing page, un sitio profesional, una mejora sobre tu página actual o una solución más robusta según tu etapa y presupuesto.",
     },
     {
       id: "desarrollo",
       number: "03",
-      title: "Desarrollo, ajusto y dejamos todo listo",
-      text: "Construyo la página, hacemos los ajustes necesarios y la dejamos preparada para que tu negocio tenga una presencia digital más clara, más seria y más útil.",
+      title: "Desarrollo, optimización y publicación",
+      text: "Construimos la solución, hacemos ajustes y dejamos una base profesional con estructura clara, contacto directo, SEO inicial e indexación preparada para Google y futuras campañas.",
     },
   ];
 
@@ -79,16 +79,17 @@ function ProcessSection() {
           </Motion.p>
 
           <Motion.h2 className="section__title" variants={itemVariants}>
-            Un proceso claro para que tu página avance sin complicaciones raras
+            Un proceso claro para convertir tu idea en una solución web funcional
           </Motion.h2>
 
           <Motion.p
             className="section__text section__text--intro"
             variants={itemVariants}
           >
-            La idea es que todo sea claro desde el principio: entender qué
-            necesita tu negocio, definir la mejor solución y construir una página
-            que se vea mejor, se entienda mejor y ayude más al negocio.
+            La idea es que avances sin enredos técnicos: revisamos qué necesita
+            tu negocio, definimos la solución correcta y construimos una
+            presencia digital clara, profesional y preparada para generar más
+            oportunidades.
           </Motion.p>
         </Motion.div>
 
@@ -122,8 +123,8 @@ function ProcessSection() {
         >
           <p className="process-section__cta-text">
             No necesitas llegar con todo resuelto ni saber términos técnicos.
-            Podemos empezar revisando qué necesita tu negocio y cuál opción te
-            conviene más.
+            Podemos empezar revisando tu caso y definir si necesitas una página,
+            una landing, una mejora sobre tu sitio actual o algo más completo.
           </p>
 
           <div className="process-section__cta-actions">

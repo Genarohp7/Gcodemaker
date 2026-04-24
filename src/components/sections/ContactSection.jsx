@@ -1,16 +1,17 @@
 function ContactSection() {
   const emailHref = "mailto:gehernandez@gcodemaker.com";
-  const whatsappHref = "https://wa.me/525522737432";
+  const whatsappHref =
+    "https://wa.me/525522737432?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20una%20soluci%C3%B3n%20web%20profesional%20para%20mi%20negocio%20o%20proyecto";
 
   const handleWhatsAppClick = () => {
     if (typeof window !== "undefined" && typeof window.gtag === "function") {
       window.gtag("event", "whatsapp_click", {
         event_category: "contacto",
-        event_label: "Solicitar por WhatsApp",
+        event_label: "Solicitar solución web por WhatsApp",
         link_url: whatsappHref,
         contact_method: "whatsapp",
         click_origin: "contact_section",
-        cta_name: "solicitar_por_whatsapp",
+        cta_name: "solicitar_solucion_web_por_whatsapp",
       });
     }
   };
@@ -19,11 +20,11 @@ function ContactSection() {
     if (typeof window !== "undefined" && typeof window.gtag === "function") {
       window.gtag("event", "contact_email_click", {
         event_category: "contacto",
-        event_label: "Solicitar por correo",
+        event_label: "Solicitar información por correo",
         link_url: emailHref,
         contact_method: "email",
         click_origin: "contact_section",
-        cta_name: "solicitar_por_correo",
+        cta_name: "solicitar_informacion_por_correo",
       });
     }
   };
@@ -35,40 +36,42 @@ function ContactSection() {
           <p className="section__eyebrow">Contacto</p>
 
           <h2 className="section__title">
-            Si quieres una página que haga ver mejor tu negocio y te ayude a
-            conseguir más clientes, hablemos
+            Si tu negocio necesita una presencia digital más profesional,
+            hablemos
           </h2>
 
           <p className="section__text">
-            Si tu negocio necesita una página nueva o una mejora para verse más
-            claro, más confiable y más profesional, este es un buen momento para
-            dar el siguiente paso.
+            Podemos ayudarte a crear una página web, una landing comercial o una
+            solución digital más completa según el tamaño de tu proyecto, tu
+            objetivo y la etapa en la que se encuentra tu negocio.
           </p>
 
           <p className="section__text">
-            La idea no es solo entregarte una página bonita, sino una página que
-            ayude a explicar mejor lo que ofreces, dé confianza y facilite que
-            tus clientes te contacten.
+            La idea no es solo entregarte algo que se vea bien, sino construir
+            una base digital clara, confiable y preparada para Google, SEO
+            inicial, campañas y contacto real con tus clientes.
           </p>
 
           <div className="contact-section__highlights">
             <div className="contact-section__highlight">
               <span className="contact-section__highlight-label">
-                Respuesta directa
+                Diagnóstico directo
               </span>
               <p className="contact-section__highlight-text">
-                Podemos empezar por WhatsApp para revisar qué necesita tu negocio
-                y decirte cuál opción te conviene más.
+                Podemos empezar por WhatsApp para revisar qué necesitas y
+                definir si te conviene una página, una landing, una mejora sobre
+                tu sitio actual o una solución más completa.
               </p>
             </div>
 
             <div className="contact-section__highlight">
               <span className="contact-section__highlight-label">
-                Enfoque realista
+                Enfoque profesional
               </span>
               <p className="contact-section__highlight-text">
-                Si necesitas algo sencillo para arrancar o una solución más
-                completa, lo aterrizamos según tu giro y tu momento actual.
+                Aterrizamos la solución según tu negocio, tu presupuesto y lo que
+                realmente necesitas lograr: presencia, confianza, visibilidad o
+                más oportunidades de contacto.
               </p>
             </div>
           </div>
@@ -96,9 +99,9 @@ function ContactSection() {
           <div className="contact-section__note">
             <span className="contact-section__note-label">Ideal para</span>
             <p className="contact-section__note-text">
-              Negocios que quieren empezar con una página más profesional o
-              mejorar la que ya tienen para transmitir más confianza y vender
-              mejor.
+              Negocios, marcas o proyectos digitales que quieren verse más
+              profesionales, explicar mejor su oferta, aparecer mejor preparados
+              en Google y convertir visitas en contactos reales.
             </p>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
 
 const WHATSAPP_HREF =
-  "https://wa.me/525522737432?text=Hola%2C%20quiero%20una%20p%C3%A1gina%20web%20para%20mi%20negocio%20y%20me%20gustar%C3%ADa%20revisar%20la%20mejor%20opci%C3%B3n";
+  "https://wa.me/525522737432?text=Hola%2C%20quiero%20una%20soluci%C3%B3n%20web%20profesional%20para%20mi%20negocio%20o%20proyecto%20digital";
 
 function createAboutPreview() {
   const svg = `
@@ -40,7 +40,7 @@ function createAboutPreview() {
       <rect x="586" y="706" width="120" height="14" rx="7" fill="rgba(255,255,255,0.14)"/>
 
       <text x="450" y="790" text-anchor="middle" fill="#EAF3FF" font-family="Montserrat, Arial, sans-serif" font-size="34" font-weight="700">
-        Claridad. Confianza. Resultado.
+        Claridad. Google. Conversión.
       </text>
     </svg>
   `;
@@ -77,43 +77,44 @@ function AboutSection() {
     {
       id: "claridad",
       title: "Primero debe entenderse, luego impresionar",
-      text: "Una página útil no solo se ve bien. También deja claro qué hace tu negocio, a quién ayuda y cómo puede contactarte una persona interesada.",
+      text: "Una solución web útil no solo se ve bien. También deja claro qué hace tu negocio, a quién ayuda, por qué confiar y cómo puede contactarte una persona interesada.",
     },
     {
-      id: "confianza",
-      title: "La imagen sí influye en la decisión",
-      text: "Cuando un sitio se ve cuidado, ordenado y profesional, transmite más confianza y hace que el negocio se perciba con más seriedad.",
+      id: "google",
+      title: "La página debe estar preparada para Google",
+      text: "Trabajo la estructura, el contenido y la base técnica para que tu sitio pueda indexarse mejor y servir como apoyo para SEO, medición y campañas digitales.",
     },
     {
       id: "mejora",
       title: "No todo tiene que empezar desde cero",
-      text: "También puedo trabajar sobre una página que ya existe para mejorar su imagen, su estructura y la forma en la que presenta tu negocio.",
+      text: "También puedo trabajar sobre una página que ya existe para mejorar su imagen, su estructura, su mensaje y la forma en la que presenta tu negocio.",
     },
   ];
 
   const stack = [
-    "Páginas para negocios",
+    "Desarrollo web",
     "Landing pages",
+    "SEO inicial",
+    "Indexación en Google",
+    "Google Ads",
     "Mejora de sitios",
-    "Diseño claro",
-    "Presencia profesional",
   ];
 
   const stats = [
     {
       id: "focus",
       value: "Más claridad",
-      label: "Para que tu negocio se entienda rápido",
+      label: "Para que tu negocio o proyecto se entienda rápido",
     },
     {
-      id: "trust",
-      value: "Más confianza",
-      label: "Para que tu página se vea más profesional",
+      id: "google",
+      value: "Mejor base",
+      label: "Para Google, SEO inicial y campañas digitales",
     },
     {
       id: "action",
       value: "Más oportunidad",
-      label: "Para convertir visitas en contactos",
+      label: "Para convertir visitas en contactos reales",
     },
   ];
 
@@ -147,7 +148,7 @@ function AboutSection() {
             <div className="about-section__visual">
               <img
                 src={aboutPreview}
-                alt="Vista conceptual de una presencia digital profesional"
+                alt="Vista conceptual de una solución web profesional preparada para Google"
                 className="about-section__image"
                 loading="lazy"
               />
@@ -168,30 +169,30 @@ function AboutSection() {
           </Motion.div>
 
           <Motion.div className="about-section__content" variants={itemVariants}>
-            <p className="section__eyebrow">Quién trabajará tu página</p>
+            <p className="section__eyebrow">Quién desarrollará tu solución</p>
 
             <h2 className="section__title">
-              Trabajo para que tu negocio tenga una página clara, profesional y
-              realmente útil para vender mejor
+              Desarrollo páginas web y soluciones digitales para negocios que
+              necesitan verse mejor, aparecer en Google y convertir más
             </h2>
 
             <p className="section__text">
-              Soy Genaro Hernández Piñeiro y me dedico a crear y mejorar páginas
-              web para negocios que necesitan verse mejor en internet, transmitir
-              más confianza y presentar su oferta de una forma más clara.
+              Soy Genaro Hernández Piñeiro y trabajo en GCodemaker creando y
+              mejorando sitios web para negocios, marcas y proyectos digitales
+              que necesitan una presencia más profesional, clara y funcional.
             </p>
 
             <p className="section__text">
-              Mi enfoque no es llenar una página de cosas innecesarias ni vender
-              puro adorno visual. Lo importante es que el sitio ayude a explicar
-              bien tu negocio, se vea profesional y facilite que una persona
-              interesada dé el siguiente paso.
+              Mi enfoque no es llenar una página de efectos ni vender puro adorno
+              visual. Lo importante es que el sitio explique bien tu oferta,
+              transmita confianza, esté preparado para Google y facilite que una
+              persona interesada dé el siguiente paso.
             </p>
 
             <p className="section__text">
-              Trabajo tanto en proyectos nuevos como en sitios que ya existen y
-              necesitan una actualización para verse más actuales, más claros y
-              mejor organizados.
+              Puedo ayudarte desde una landing page comercial hasta una solución
+              web más completa, según el tamaño de tu proyecto, la etapa de tu
+              negocio y lo que realmente necesitas lograr.
             </p>
 
             <div className="about-section__principles">
@@ -219,8 +220,9 @@ function AboutSection() {
               <div className="about-section__signature">
                 <span className="about-section__signature-label">Enfoque</span>
                 <p className="about-section__signature-text">
-                  Hacer que tu página se vea mejor, se entienda mejor y ayude más
-                  al negocio desde el primer vistazo.
+                  Crear una presencia digital clara, profesional y preparada para
+                  ayudar a tu negocio a generar más confianza, más visibilidad y
+                  más oportunidades reales.
                 </p>
               </div>
             </div>

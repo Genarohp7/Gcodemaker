@@ -67,13 +67,13 @@ const projects = [
     category: "Plataforma web",
     status: "Proyecto destacado",
     description:
-      "Sitio pensado para ayudar a las parejas a encontrar proveedores para su boda de una forma clara, ordenada y agradable de usar.",
+      "Plataforma web creada para organizar información, conectar usuarios con proveedores y sostener un flujo digital más completo que una página informativa tradicional.",
     summary:
-      "Es el proyecto más completo del portafolio porque demuestra organización de información, crecimiento del producto y visión a largo plazo.",
+      "Es el proyecto más completo del portafolio porque demuestra capacidad para construir una solución web escalable, con lógica de producto, backend, base de datos y evolución continua.",
     notes: [
       "Proyecto real en línea y en evolución constante",
-      "Organiza mucha información sin perder claridad",
-      "Muestra capacidad para construir y mejorar una solución viva",
+      "Ejemplo de solución web completa con crecimiento progresivo",
+      "Muestra capacidad para desarrollar plataformas, no solo páginas informativas",
     ],
     stack: ["React", "Vite", "Node", "PostgreSQL"],
     url: "https://kelom.com.mx/",
@@ -83,7 +83,7 @@ const projects = [
     logoAlt: "Logo de Kelom",
     imageSrc: createProjectPreview({
       title: "Kelom",
-      subtitle: "Plataforma web para el sector de bodas",
+      subtitle: "Plataforma web escalable",
       accent: "#4da3ff",
       accent2: "#ffcb4e",
       dark: "#07111f",
@@ -96,13 +96,13 @@ const projects = [
     category: "Sitio comercial",
     status: "Proyecto publicado",
     description:
-      "Página orientada a presentar servicios de marketing y diseño de una forma más visual, directa y profesional.",
+      "Sitio web orientado a presentar servicios de forma clara, visual y profesional, con una estructura pensada para comunicar valor desde el primer vistazo.",
     summary:
-      "Ayuda a mostrar una propuesta comercial con más claridad y con una presentación que se siente actual.",
+      "Demuestra cómo una marca de servicios puede usar su página para explicar mejor su propuesta, transmitir confianza y facilitar que un posible cliente entienda qué ofrece.",
     notes: [
       "Proyecto real disponible en línea",
       "Enfoque fuerte en presentación comercial",
-      "Pensado para comunicar valor desde el primer vistazo",
+      "Ejemplo de sitio profesional para vender servicios con mayor claridad",
     ],
     stack: ["React", "CSS", "JavaScript"],
     url: "https://marketingmakers.com.mx/",
@@ -112,7 +112,7 @@ const projects = [
     logoAlt: "Logo de Marketing Makers",
     imageSrc: createProjectPreview({
       title: "Marketing Makers",
-      subtitle: "Sitio comercial para marketing y diseño",
+      subtitle: "Sitio comercial para servicios",
       accent: "#7bb8ff",
       accent2: "#f6b94d",
       dark: "#0a1627",
@@ -125,13 +125,13 @@ const projects = [
     category: "Landing page",
     status: "Proyecto terminado",
     description:
-      "Landing page para una pizzería, pensada para mostrar productos, promociones y facilitar el contacto de forma rápida y visual.",
+      "Landing page enfocada en mostrar productos, promociones y contacto rápido mediante una experiencia visual directa, atractiva y fácil de recorrer.",
     summary:
-      "Es un proyecto terminado que demuestra cómo construir una página atractiva para un negocio local, aunque no se haya publicado oficialmente para el cliente.",
+      "Funciona como ejemplo de una landing comercial para negocios que necesitan presentar una oferta concreta, provocar interés y guiar al visitante hacia una acción.",
     notes: [
       "Proyecto finalizado y funcional",
-      "Diseñado para generar antojo visual y acción rápida",
-      "Ejemplo claro de página de negocio enfocada en conversión",
+      "Diseñado para generar interés visual y acción rápida",
+      "Ejemplo de landing page enfocada en conversión",
     ],
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://genarohp7.github.io/pizza/",
@@ -141,7 +141,7 @@ const projects = [
     logoAlt: "Logo del proyecto Pizza",
     imageSrc: createProjectPreview({
       title: "Pizza",
-      subtitle: "Landing page para una pizzería",
+      subtitle: "Landing page comercial",
       accent: "#ff8a5b",
       accent2: "#ffd166",
       dark: "#1a0f10",
@@ -151,16 +151,16 @@ const projects = [
   {
     id: "gcodemaker",
     name: "GCodemaker",
-    category: "Portafolio personal",
+    category: "Landing comercial",
     status: "Proyecto publicado",
     description:
-      "Mi portafolio personal en reconstrucción, enfocado en presentar mejor mi trabajo, mis servicios y la forma en la que desarrollo proyectos web.",
+      "Sitio propio de GCodemaker, enfocado en presentar servicios de desarrollo web, SEO inicial, presencia digital y soluciones para negocios o proyectos digitales.",
     summary:
-      "Aquí no solo muestro proyectos; también demuestro cómo puedo mejorar una presentación digital para hacerla más clara y memorable.",
+      "Además de mostrar proyectos, funciona como ejemplo vivo de mejora continua: mensaje comercial, estructura para conversión, analítica, SEO, rendimiento y evolución visual.",
     notes: [
       "Proyecto real disponible en línea",
-      "Ejemplo directo de rediseño y evolución visual",
-      "Muestra que también trabajo sobre sitios ya existentes",
+      "Ejemplo directo de rediseño, estrategia comercial y mejora continua",
+      "Muestra que también se pueden optimizar sitios existentes para vender mejor",
     ],
     stack: ["React", "Vite", "CSS"],
     url: "https://gcodemaker.com.mx/",
@@ -170,12 +170,12 @@ const projects = [
     logoAlt: "Logo de GCodemaker",
     imageSrc: createProjectPreview({
       title: "GCodemaker",
-      subtitle: "Portafolio personal en evolución",
+      subtitle: "Landing comercial optimizada",
       accent: "#58a6ff",
       accent2: "#ffd166",
       dark: "#08121f",
     }),
-    imageAlt: "Vista conceptual del portafolio GCodemaker",
+    imageAlt: "Vista conceptual del sitio GCodemaker",
   },
 ];
 

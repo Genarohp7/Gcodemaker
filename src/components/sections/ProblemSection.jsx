@@ -3,7 +3,7 @@ import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
 
 const WHATSAPP_HREF =
-  "https://wa.me/525522737432?text=Hola%2C%20quiero%20mejorar%20la%20presencia%20digital%20de%20mi%20negocio";
+  "https://wa.me/525522737432?text=Hola%2C%20quiero%20mejorar%20la%20presencia%20digital%20de%20mi%20negocio%20o%20proyecto";
 
 const containerVariants = {
   hidden: {},
@@ -30,50 +30,50 @@ const itemVariants = {
 function ProblemSection() {
   const problems = [
     {
-      id: "sin-pagina",
+      id: "sin-presencia-profesional",
       label: "Problema común",
-      title: "Tu negocio no tiene una página web que lo respalde",
+      title: "Tu negocio no tiene una presencia digital que lo respalde",
       description:
-        "Si una persona te busca y no encuentra una página clara y profesional, es más fácil que termine confiando en otra opción que sí se ve más seria.",
+        "Si una persona te busca y no encuentra una página clara, profesional y fácil de entender, es más probable que termine confiando en otra opción mejor presentada.",
       includes: [
         "Pierdes oportunidades de contacto",
-        "Tu negocio se percibe menos formal",
-        "Dependes demasiado de otros medios para que te encuentren",
+        "Tu negocio puede verse menos formal de lo que realmente es",
+        "Dependes demasiado de recomendaciones, redes o medios que no controlas",
       ],
     },
     {
       id: "solo-redes",
       label: "Problema común",
-      title: "Dependes solo de redes sociales para vender",
+      title: "Dependes solo de redes sociales para explicar lo que haces",
       description:
-        "Las redes ayudan, pero no deberían cargar todo el peso de tu presencia digital. La información se pierde, cambia rápido y no siempre transmite confianza.",
+        "Las redes ayudan, pero no siempre son suficientes para presentar bien tu oferta, ordenar tu información y generar confianza cuando alguien quiere decidir rápido.",
       includes: [
-        "La información se pierde entre publicaciones",
-        "No siempre se encuentran rápido horarios, servicios o contacto",
-        "Tu presencia digital depende de una plataforma ajena",
+        "La información importante se pierde entre publicaciones",
+        "No siempre se encuentran rápido servicios, precios, ubicación o contacto",
+        "Tu presencia digital depende de plataformas ajenas",
       ],
     },
     {
-      id: "poca-confianza",
+      id: "google-seo",
       label: "Problema común",
-      title: "Tu negocio puede estar dando menos confianza de la que merece",
+      title: "Tu negocio no está preparado para trabajar bien en Google",
       description:
-        "Aunque ofrezcas un buen servicio, una presencia digital débil puede hacer que la gente dude antes de escribirte, llamarte o pedir información.",
+        "Tener presencia digital no es solo verse bonito. También necesitas una base correcta para que Google pueda entender tu sitio, indexarlo y usarlo como apoyo para SEO o campañas.",
       includes: [
-        "La imagen del negocio se ve poco profesional",
-        "Cuesta más generar seguridad en clientes nuevos",
-        "Una mala primera impresión puede alejar ventas",
+        "Google puede entender poco o mal tu página",
+        "Tu sitio no tiene una estructura clara para SEO inicial",
+        "Las campañas pueden perder fuerza si la página no comunica bien",
       ],
     },
     {
-      id: "clientes-perdidos",
+      id: "conversion",
       label: "Problema común",
-      title: "Estás perdiendo clientes sin notarlo",
+      title: "Recibes visitas, pero no las conviertes en contactos reales",
       description:
-        "Muchas veces el problema no es lo que vendes, sino que la gente no entiende rápido qué haces, dónde estás o cómo puede contactarte.",
+        "Muchas veces el problema no es el servicio, sino que la gente no entiende rápido qué ofreces, por qué confiar en ti o cómo contactarte sin complicarse.",
       includes: [
         "La información importante no está clara",
-        "El cliente no encuentra un camino fácil para contactarte",
+        "El cliente no encuentra un camino fácil para escribirte",
         "Cada duda no resuelta puede convertirse en una venta perdida",
       ],
     },
@@ -109,14 +109,15 @@ function ProblemSection() {
             <p className="section__eyebrow">El problema</p>
 
             <h2 className="section__title">
-              Muchos negocios no venden menos por su servicio, sino por cómo se
-              presentan en internet
+              Muchos negocios no pierden oportunidades por lo que venden, sino
+              por cómo se presentan en internet
             </h2>
 
             <p className="section__text section__text--intro">
-              Cuando un negocio no se ve claro, profesional y fácil de
-              contactar, pierde confianza, clics y oportunidades. Y eso termina
-              pegándole directo a los mensajes, las llamadas y las ventas.
+              Hoy una página web no solo debe verse bien. Debe explicar tu
+              oferta, generar confianza, ayudar a que Google entienda tu negocio
+              y llevar al visitante hacia una acción clara: escribirte, pedir
+              información o comprar.
             </p>
           </Motion.div>
 
@@ -133,8 +134,8 @@ function ProblemSection() {
                 Lo que suele pasar
               </span>
               <p className="services-section__panel-text">
-                El negocio sí funciona, pero su presencia digital no ayuda lo
-                suficiente a convencer, explicar ni convertir visitas en
+                El negocio sí tiene valor, pero su presencia digital no ayuda lo
+                suficiente a explicar, convencer ni convertir visitas en
                 clientes.
               </p>
             </Motion.div>
@@ -149,7 +150,8 @@ function ProblemSection() {
               </span>
               <p className="services-section__panel-text">
                 Cada persona que entra, no entiende rápido y se va, es una
-                oportunidad que otro negocio sí puede aprovechar.
+                oportunidad que otro negocio mejor presentado sí puede
+                aprovechar.
               </p>
             </Motion.div>
           </Motion.aside>
@@ -200,8 +202,8 @@ function ProblemSection() {
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         >
           <p className="problem-section__cta-text">
-            Si sientes que tu negocio ya hace bien su trabajo pero su presencia
-            digital no está ayudando a vender, podemos corregirlo.
+            Si tu negocio ya tiene algo valioso que ofrecer, pero tu presencia
+            digital no lo está comunicando con claridad, podemos corregirlo.
           </p>
 
           <div className="problem-section__cta-actions">

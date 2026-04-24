@@ -3,7 +3,7 @@ import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
 
 const WHATSAPP_HREF =
-  "https://wa.me/525522737432?text=Hola%2C%20quiero%20una%20p%C3%A1gina%20web%20que%20me%20ayude%20a%20generar%20m%C3%A1s%20clientes";
+  "https://wa.me/525522737432?text=Hola%2C%20quiero%20una%20soluci%C3%B3n%20web%20profesional%20para%20mi%20negocio%20o%20proyecto";
 
 const containerVariants = {
   hidden: {},
@@ -30,39 +30,51 @@ const itemVariants = {
 function SolutionSection() {
   const solutions = [
     {
-      id: "presentacion",
-      label: "Qué resuelve",
-      title: "Una mejor presentación para tu negocio",
+      id: "estrategia",
+      label: "Qué resolvemos",
+      title: "Una presencia digital pensada para tu tipo de proyecto",
       description:
-        "Una página bien hecha ayuda a que una persona entienda rápido qué ofreces, cómo ayudas y por qué debería confiar en ti desde el primer vistazo.",
+        "No todos los negocios necesitan lo mismo. Por eso aterrizamos una solución web según tu etapa, tu oferta, tu mercado y la acción que quieres que haga tu cliente.",
       includes: [
-        "Información clara desde el inicio",
-        "Imagen más profesional para generar confianza",
-        "Una presencia digital que ayuda a vender mejor",
+        "Mensaje claro según tu negocio",
+        "Estructura adaptada a tus objetivos",
+        "Experiencia pensada para generar confianza",
       ],
     },
     {
-      id: "orden",
-      label: "Qué resuelve",
-      title: "Orden y claridad en tu información",
+      id: "google-seo",
+      label: "Qué resolvemos",
+      title: "Una base preparada para Google, SEO y campañas",
       description:
-        "Cuando la información está bien organizada, el cliente encuentra más fácil lo que necesita y tiene menos dudas antes de escribirte o pedir informes.",
+        "Tu sitio debe verse bien, pero también necesita una estructura que Google pueda entender y que sirva como punto de partida para indexación, SEO inicial y campañas digitales.",
       includes: [
-        "Servicios, horarios y contacto más fáciles de encontrar",
-        "Menos fricción antes del contacto",
-        "Un recorrido más claro dentro de tu página",
+        "Estructura clara para buscadores",
+        "Base técnica para indexación en Google",
+        "Contenido preparado para apoyar SEO y anuncios",
       ],
     },
     {
-      id: "resultado",
-      label: "Qué resuelve",
-      title: "Una herramienta útil para conseguir contactos",
+      id: "conversion",
+      label: "Qué resolvemos",
+      title: "Un recorrido más claro para convertir visitas en contactos",
       description:
-        "La idea no es solo tener una página bonita, sino una página que ayude a tu negocio a recibir más preguntas, más mensajes y más oportunidades reales.",
+        "La idea no es solo tener una página bonita. Diseñamos el recorrido para que las personas entiendan tu oferta, encuentren lo importante y sepan cómo contactarte.",
       includes: [
-        "Botones y llamadas a la acción mejor ubicados",
-        "Camino más directo para que te contacten",
-        "Presencia digital pensada para generar resultados",
+        "Llamadas a la acción mejor ubicadas",
+        "Contacto directo por WhatsApp o formulario",
+        "Menos fricción antes de pedir información",
+      ],
+    },
+    {
+      id: "crecimiento",
+      label: "Qué resolvemos",
+      title: "Una solución que puede crecer contigo",
+      description:
+        "Podemos empezar con una landing page profesional o avanzar hacia una solución más completa si tu negocio necesita más secciones, funcionalidades o una estructura escalable.",
+      includes: [
+        "Opciones para proyectos pequeños o más completos",
+        "Sitios informativos, comerciales o personalizados",
+        "Base flexible para futuras mejoras",
       ],
     },
   ];
@@ -71,7 +83,7 @@ function SolutionSection() {
     trackEvent("whatsapp_click", {
       click_origin: "solution_whatsapp",
       section: "solution",
-      cta_name: "quiero_una_pagina_que_me_ayude_a_vender",
+      cta_name: "quiero_una_solucion_web_profesional",
     });
   }
 
@@ -97,13 +109,15 @@ function SolutionSection() {
             <p className="section__eyebrow">La solución</p>
 
             <h2 className="section__title">
-              Una página web clara y profesional puede ayudarte a vender mejor
+              Una solución web profesional puede ayudar a que tu negocio se vea
+              mejor, se entienda más rápido y convierta más
             </h2>
 
             <p className="section__text section__text--intro">
               La diferencia no está solo en “tener una página”, sino en tener
-              una página que explique bien tu negocio, dé confianza y facilite
-              que una persona pase de mirar a escribirte.
+              una presencia digital bien estructurada: clara para tus clientes,
+              preparada para Google y diseñada para llevar al visitante hacia el
+              contacto.
             </p>
           </Motion.div>
 
@@ -120,8 +134,9 @@ function SolutionSection() {
                 Qué buscamos
               </span>
               <p className="services-section__panel-text">
-                Que tu negocio se vea profesional, se entienda rápido y tenga
-                una presencia digital que sí ayude a generar oportunidades.
+                Que tu negocio o proyecto tenga una base digital seria, clara y
+                funcional para presentarse mejor, captar interés y generar más
+                oportunidades.
               </p>
             </Motion.div>
 
@@ -134,8 +149,9 @@ function SolutionSection() {
                 Qué cambia cuando está bien hecho
               </span>
               <p className="services-section__panel-text">
-                Menos confusión, más confianza y un camino mucho más claro para
-                que el cliente avance hacia el contacto.
+                Menos confusión, más confianza, mejor estructura para Google y
+                un camino mucho más directo para que el cliente avance hacia el
+                contacto.
               </p>
             </Motion.div>
           </Motion.aside>
@@ -186,9 +202,9 @@ function SolutionSection() {
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         >
           <p className="solution-section__cta-text">
-            Si quieres que tu negocio se vea más serio, se entienda mejor y
-            tenga una página que sí ayude a generar clientes, podemos aterrizar
-            la mejor opción para ti.
+            Si tu negocio necesita una página web, una landing para vender mejor
+            o una solución digital más completa, podemos definir el camino
+            correcto sin hacer algo genérico.
           </p>
 
           <div className="solution-section__cta-actions">
@@ -201,7 +217,7 @@ function SolutionSection() {
               whileTap={{ scale: 0.985 }}
               onClick={handleSolutionWhatsappClick}
             >
-              Quiero una página que me ayude a vender
+              Quiero una solución web profesional
             </Motion.a>
 
             <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>

@@ -43,23 +43,26 @@ function buildWhatsAppHref(message) {
 
 function PackagesPage() {
   const promo = {
-    id: "pagina-arranque",
-    title: "Página de Arranque",
+    id: "presencia-digital-arranque",
+    title: "Presencia Digital de Arranque",
     price: "Desde $2,500 MXN",
-    subtitle: "La forma más rápida de empezar con una presencia digital más seria",
+    subtitle:
+      "La forma más rápida de empezar con una página clara, profesional y lista para presentar mejor tu proyecto",
     description:
-      "Pensada para negocios que necesitan dejar de verse improvisados y empezar a presentarse mejor en internet sin hacer una inversión grande al inicio.",
+      "Pensada para negocios, marcas o proyectos que necesitan dejar de verse improvisados y empezar a tener una base digital seria sin hacer una inversión grande al inicio.",
     includes: [
       "Una página de presentación clara y profesional",
-      "Información principal del negocio",
+      "Información principal de tu negocio, servicio o proyecto",
       "Botón directo de contacto",
       "Diseño adaptable a celular",
-      "Base ideal para empezar a moverte mejor en internet",
+      "Base inicial para indexación en Google",
+      "Estructura ideal para empezar a moverte mejor en internet",
     ],
     excludes: [
       "Funciones especiales o sistemas personalizados",
       "Secciones avanzadas o flujos complejos",
       "Procesos internos como citas, reservas o administración",
+      "Estrategia SEO avanzada o campañas publicitarias administradas",
       "Cambios ilimitados",
       "Costos de dominio, hospedaje o herramientas externas que cobren por uso",
     ],
@@ -70,22 +73,25 @@ function PackagesPage() {
       id: "presencia-profesional",
       name: "Presencia Profesional",
       price: "Desde $4,900 MXN",
-      audience: "Para negocios que ya quieren verse formales y dar más confianza",
+      audience:
+        "Para negocios, marcas o profesionistas que quieren verse formales y generar más confianza",
       benefit:
-        "Te ayuda a presentar mejor tu negocio, explicar tus servicios con claridad y dar una imagen mucho más profesional.",
+        "Te ayuda a presentar mejor lo que haces, ordenar tu información, explicar tus servicios con claridad y tener una imagen mucho más profesional.",
       includes: [
         "Sitio web profesional con varias secciones",
-        "Presentación clara del negocio",
-        "Sección de servicios",
+        "Presentación clara del negocio, marca o proyecto",
+        "Sección de servicios o propuesta principal",
         "Información de contacto visible",
         "Botones para facilitar el contacto",
         "Diseño adaptable a celular",
-        "Optimización básica para ayudarte a aparecer mejor en Google",
+        "SEO inicial en estructura y contenido básico",
+        "Base preparada para indexación en Google",
       ],
       excludes: [
         "Funciones especiales hechas a la medida",
         "Sistemas para citas, reservas o administración",
         "Integraciones avanzadas",
+        "Gestión mensual de SEO o campañas publicitarias",
         "Costos de dominio, hospedaje, licencias o herramientas externas que cobren por uso",
       ],
     },
@@ -93,24 +99,27 @@ function PackagesPage() {
       id: "impulso-comercial",
       name: "Impulso Comercial",
       price: "Desde $8,900 MXN",
-      audience: "Para negocios que quieren una página pensada para conseguir clientes",
+      audience:
+        "Para proyectos que necesitan una página más completa, más comercial y mejor preparada para captar clientes",
       benefit:
-        "Es la opción más equilibrada si quieres una página con mejor estructura comercial, más confianza y mejores oportunidades de contacto.",
+        "Es la opción más equilibrada si quieres una presencia digital con mejor estructura comercial, más confianza, medición y mejores oportunidades de contacto.",
       includes: [
         "Todo lo del paquete anterior",
         "Mejor estructura para guiar al cliente",
-        "Más secciones para explicar mejor el negocio",
-        "Espacios para generar más confianza",
+        "Más secciones para explicar mejor tu oferta",
+        "Espacios para generar confianza y resolver dudas",
         "Presentación más completa y comercial",
         "Enfoque más claro en captar contactos",
         "Formularios sencillos para facilitar el contacto",
-        "Optimización más completa para ayudarte a aparecer mejor en Google",
+        "Optimización más completa para SEO inicial",
+        "Base preparada para campañas de Google Ads",
         "Medición conectada con Google Analytics para revisar visitas y acciones importantes",
       ],
       excludes: [
         "Sistemas personalizados complejos",
         "Procesos internos avanzados",
         "Funciones especiales fuera del alcance del paquete",
+        "Administración activa de campañas publicitarias",
         "Costos de dominio, hospedaje, licencias o herramientas externas que cobren por uso",
       ],
       highlighted: true,
@@ -120,21 +129,25 @@ function PackagesPage() {
       id: "sistema-de-crecimiento",
       name: "Sistema de Crecimiento",
       price: "Desde $24,900 MXN",
-      audience: "Para negocios que necesitan una solución más completa y personalizada",
+      audience:
+        "Para negocios o proyectos que necesitan una solución web más completa, personalizada y escalable",
       benefit:
-        "Convierte tu página en una herramienta de trabajo real para organizar mejor la atención, ahorrar tiempo y crecer con una solución más robusta.",
+        "Convierte tu presencia digital en una herramienta de trabajo real para organizar mejor la atención, ahorrar tiempo, captar información y crecer con una solución más robusta.",
       includes: [
         "Todo lo del paquete anterior",
-        "Funciones personalizadas según tu negocio",
-        "Agenda de citas o reservas",
+        "Funciones personalizadas según tu proyecto",
+        "Agenda de citas, reservas o solicitudes",
         "Panel para administrar información",
         "Formularios más completos",
         "Herramientas para ordenar procesos y atención",
+        "Estructura preparada para crecimiento futuro",
+        "Base técnica más robusta según el alcance del proyecto",
       ],
       excludes: [
         "Precio único para todos los casos",
         "Funciones ilimitadas sin revisión previa",
         "Alcance indefinido",
+        "Administración mensual de operación, SEO o campañas si no se contrata aparte",
         "Costos de dominio, hospedaje, licencias o herramientas externas que cobren por uso",
         "Costos variables de servidor, servicios de envío de correos u otras plataformas que se cobran según el uso",
       ],
@@ -243,25 +256,26 @@ function PackagesPage() {
               <p className="section__eyebrow">Promociones y paquetes</p>
 
               <span className="packages-page__hero-badge">
-                Promoción de arranque visible desde el inicio
+                Opciones para distintos tamaños de proyecto
               </span>
 
               <h1 className="packages-page__hero-title">
-                Elige la mejor forma de llevar tu negocio a internet sin adivinar
-                cuánto necesitas
+                Elige la mejor forma de construir una presencia digital
+                profesional sin adivinar cuánto necesitas
               </h1>
 
               <p className="packages-page__hero-text">
                 Aquí no vas a encontrar paquetes inflados ni explicaciones raras.
-                Vas a encontrar una promoción clara para empezar rápido y opciones
-                más completas para negocios que quieren verse mejor, dar más
-                confianza y conseguir más clientes.
+                Vas a encontrar una promoción clara para empezar rápido y
+                opciones más completas para negocios, marcas o proyectos que
+                necesitan verse mejor, aparecer mejor preparados en Google y
+                convertir más visitas en contactos reales.
               </p>
 
               <div className="packages-page__hero-actions">
                 <Motion.a
                   href={buildWhatsAppHref(
-                    "Hola, quiero información sobre una página web para mi negocio"
+                    "Hola, quiero información sobre una solución web profesional para mi negocio o proyecto"
                   )}
                   target="_blank"
                   rel="noreferrer"
@@ -298,8 +312,9 @@ function PackagesPage() {
                 <p className="packages-page__offer-price">{promo.price}</p>
 
                 <p className="packages-page__offer-text">
-                  Ideal si necesitas salir rápido con una imagen más profesional y
-                  una base clara para empezar a mostrar tu negocio mejor.
+                  Ideal si necesitas salir rápido con una imagen más profesional,
+                  contacto directo y una base clara para empezar a mostrar tu
+                  negocio o proyecto de mejor manera.
                 </p>
 
                 <ul className="packages-page__offer-list">
@@ -310,13 +325,13 @@ function PackagesPage() {
                     Contacto directo y claro
                   </li>
                   <li className="packages-page__offer-item">
-                    Base ideal para después crecer
+                    Base inicial para Google
                   </li>
                 </ul>
 
                 <Motion.a
                   href={buildWhatsAppHref(
-                    "Hola, quiero la promoción de Página de Arranque desde $2,500 MXN"
+                    "Hola, quiero la promoción de Presencia Digital de Arranque desde $2,500 MXN"
                   )}
                   target="_blank"
                   rel="noreferrer"
@@ -362,8 +377,9 @@ function PackagesPage() {
                   Ideal para
                 </span>
                 <p className="packages-page__promo-note-text">
-                  Negocios que quieren dejar de verse improvisados y empezar a
-                  presentarse mejor sin saltar directo a una inversión más grande.
+                  Negocios, marcas personales o proyectos que quieren dejar de
+                  verse improvisados y empezar a presentarse mejor sin saltar
+                  directo a una inversión más grande.
                 </p>
               </div>
             </Motion.div>
@@ -416,7 +432,8 @@ function PackagesPage() {
             </Motion.p>
 
             <Motion.h2 className="section__title" variants={itemVariants}>
-              Elige la opción que mejor se adapte al momento de tu negocio
+              Elige la opción que mejor se adapte al momento de tu negocio o
+              proyecto
             </Motion.h2>
 
             <Motion.p
@@ -424,8 +441,9 @@ function PackagesPage() {
               variants={itemVariants}
             >
               La idea no es venderte lo más caro por venderlo. La idea es que
-              tengas una opción clara según el punto en el que está tu negocio
-              hoy y lo que realmente necesitas resolver.
+              tengas una opción clara según lo que necesitas resolver hoy:
+              presencia, confianza, visibilidad, campañas, contacto o una
+              solución más completa.
             </Motion.p>
           </Motion.div>
 
@@ -530,19 +548,21 @@ function PackagesPage() {
             <div className="final-cta__content">
               <p className="final-cta__eyebrow">¿No sabes cuál elegir?</p>
               <h2 id="packages-final-cta-title" className="final-cta__title">
-                Te ayudo a elegir la opción más conveniente para tu negocio
+                Te ayudo a elegir la opción más conveniente para tu negocio o
+                proyecto
               </h2>
               <p className="final-cta__text">
-                Si todavía no tienes claro si te conviene empezar con la promoción
-                o irte a un paquete más completo, lo revisamos juntos y te digo
-                qué tiene más sentido según tu negocio, tu momento y tu objetivo.
+                Si todavía no tienes claro si te conviene empezar con la
+                promoción, mejorar una página existente o irte a una solución más
+                completa, lo revisamos juntos y definimos qué tiene más sentido
+                según tu etapa, objetivo y presupuesto.
               </p>
             </div>
 
             <div className="final-cta__actions">
               <Motion.a
                 href={buildWhatsAppHref(
-                  "Hola, quiero ayuda para elegir la mejor opción para mi negocio"
+                  "Hola, quiero ayuda para elegir la mejor solución web para mi negocio o proyecto"
                 )}
                 target="_blank"
                 rel="noreferrer"
