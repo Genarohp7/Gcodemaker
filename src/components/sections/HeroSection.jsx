@@ -105,7 +105,7 @@ function HeroSection() {
 
   function handlePrimaryWhatsappClick() {
     trackWhatsAppClick({
-      ctaName: "cotizar_mi_pagina_por_whatsapp",
+      ctaName: "recibir_cotizacion_por_whatsapp",
       clickOrigin: "hero_primary_whatsapp",
     });
   }
@@ -150,23 +150,25 @@ function HeroSection() {
           </Motion.div>
 
           <Motion.h1 className="hero__title" variants={itemVariants}>
-            Tu negocio puede verse más profesional y recibir más contactos desde
-            una página web clara
+            Tu negocio puede dejar de verse improvisado y empezar a recibir más
+            contactos desde una página clara
           </Motion.h1>
 
           <Motion.p className="hero__description" variants={itemVariants}>
-            Creamos páginas web y soluciones digitales para negocios que quieren
-            explicar mejor lo que ofrecen, verse confiables y convertir visitas
-            en conversaciones reales por WhatsApp.
+            Creamos páginas web para negocios que hoy dependen solo de redes
+            sociales o recomendaciones y necesitan una forma más profesional de
+            explicar lo que hacen, generar confianza y facilitar que sus clientes
+            los contacten.
           </Motion.p>
 
           <Motion.p
             className="hero__description hero__description--secondary"
             variants={itemVariants}
           >
-            Te ayudamos con el armado de la página, estructura inicial para
-            Google, SEO base y una experiencia pensada para que tu cliente sepa
-            qué haces y cómo contactarte.
+            Si tu página actual no comunica bien, tarda en cargar o simplemente
+            no existe, estás perdiendo oportunidades. Te ayudamos a construir
+            una base clara, adaptable a celular, preparada para Google y enfocada
+            en llevar al visitante hacia WhatsApp.
           </Motion.p>
 
           <Motion.div className="hero__actions" variants={itemVariants}>
@@ -179,7 +181,7 @@ function HeroSection() {
               whileTap={{ scale: 0.985 }}
               onClick={handlePrimaryWhatsappClick}
             >
-              Cotizar mi página por WhatsApp
+              Recibir cotización por WhatsApp
             </Motion.a>
 
             <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
@@ -221,7 +223,14 @@ function HeroSection() {
           animate="visible"
         >
           <div className="hero__panel-card">
-            
+            <Motion.p
+              className="hero__panel-label"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.28, duration: 0.55 }}
+            >
+              Lo que debes de tomar en cuenta
+            </Motion.p>
 
             <Motion.div
               className="hero__preview"
