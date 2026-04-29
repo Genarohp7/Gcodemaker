@@ -3,10 +3,12 @@ import { Link } from "react-router";
 import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
 
-const HeroScene = lazy(() => import("./HeroScene"));
+const WHATSAPP_MESSAGE =
+  "Hola, quiero cotizar una página web para mi negocio. Vi la promoción desde $2,500 MXN.";
 
-const WHATSAPP_HREF =
-  "https://wa.me/525522737432?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20una%20p%C3%A1gina%20web%20o%20soluci%C3%B3n%20digital%20para%20mi%20negocio";
+const WHATSAPP_HREF = `https://wa.me/525522737432?text=${encodeURIComponent(
+  WHATSAPP_MESSAGE
+)}`;
 
 const containerVariants = {
   hidden: {},
@@ -44,6 +46,8 @@ const panelVariants = {
   },
 };
 
+const HeroScene = lazy(() => import("./HeroScene"));
+
 function HeroSceneFallback() {
   return (
     <div className="hero__preview-fallback" aria-hidden="true">
@@ -58,11 +62,10 @@ function HeroSceneFallback() {
 
 function HeroSection() {
   const tags = [
-    "Desarrollo web para negocios",
-    "SEO e indexación en Google",
-    "Landing pages comerciales",
-    "Preparado para Google Ads",
-    "WhatsApp directo",
+    "Página clara y profesional",
+    "WhatsApp visible",
+    "Base para Google",
+    "Desde $2,500 MXN",
   ];
 
   const metrics = [
@@ -70,19 +73,19 @@ function HeroSection() {
       id: "promo",
       value: "Desde $2,500 MXN",
       label:
-        "Una promoción de arranque para negocios que necesitan presencia digital profesional sin complicarse.",
+        "Una opción de arranque para dejar de verte improvisado y empezar con una página profesional.",
     },
     {
-      id: "google",
-      value: "Base lista para Google",
+      id: "trust",
+      value: "Más confianza",
       label:
-        "Estructura, contenido y configuración pensados para que tu sitio pueda indexarse y trabajar mejor con SEO y campañas.",
+        "Tu cliente entiende mejor qué ofreces, por qué elegirte y cómo contactarte.",
     },
     {
-      id: "conversion",
-      value: "Contacto real",
+      id: "contact",
+      value: "Más mensajes",
       label:
-        "Diseñamos la experiencia para que tus visitantes entiendan tu oferta y puedan escribirte sin dar mil vueltas.",
+        "La experiencia guía al visitante hacia WhatsApp con llamados claros y visibles.",
     },
   ];
 
@@ -102,25 +105,17 @@ function HeroSection() {
 
   function handlePrimaryWhatsappClick() {
     trackWhatsAppClick({
-      ctaName: "quiero_mi_sitio_web_por_whatsapp",
+      ctaName: "cotizar_mi_pagina_por_whatsapp",
       clickOrigin: "hero_primary_whatsapp",
     });
   }
 
   function handlePromoDetailsClick() {
     trackEvent("hero_cta_click", {
-      cta_name: "ver_detalles_promocion_hero",
+      cta_name: "ver_promocion_y_paquetes",
       cta_location: "hero",
       destination: "/promociones-paquetes",
       offer_focus: "promocion_2500",
-    });
-  }
-
-  function handleExamplesCtaClick() {
-    trackEvent("hero_cta_click", {
-      cta_name: "ver_ejemplos",
-      cta_location: "hero",
-      destination: "#proyectos",
     });
   }
 
@@ -134,15 +129,14 @@ function HeroSection() {
           animate="visible"
         >
           <Motion.p className="hero__eyebrow" variants={itemVariants}>
-            Desarrollo web profesional para negocios y proyectos digitales
+            Páginas web para negocios que necesitan verse profesionales
           </Motion.p>
 
           <Motion.div className="hero__promo" variants={itemVariants}>
             <span className="hero__promo-badge">Promoción de arranque</span>
             <p className="hero__promo-text">
-              Página web desde <strong>$2,500 MXN</strong> para negocios que
-              necesitan una presencia digital seria, clara y lista para empezar
-              a generar confianza.
+              Página web desde <strong>$2,500 MXN</strong> para presentar mejor
+              tu negocio, generar confianza y facilitar que te contacten.
             </p>
 
             <Link
@@ -151,29 +145,28 @@ function HeroSection() {
               className="hero__promo-link"
               onClick={handlePromoDetailsClick}
             >
-              Ver qué incluye
+              Ver detalles de la promoción
             </Link>
           </Motion.div>
 
           <Motion.h1 className="hero__title" variants={itemVariants}>
-            Páginas web y soluciones digitales pensadas para que tu negocio
-            venda mejor
+            Tu negocio puede verse más profesional y recibir más contactos desde
+            una página web clara
           </Motion.h1>
 
           <Motion.p className="hero__description" variants={itemVariants}>
-            No importa si estás iniciando, profesionalizando tu marca o
-            preparando una campaña: en GCodemaker creamos sitios web que ayudan
-            a explicar mejor tu oferta, generar confianza y convertir visitas en
-            contactos reales.
+            Creamos páginas web y soluciones digitales para negocios que quieren
+            explicar mejor lo que ofrecen, verse confiables y convertir visitas
+            en conversaciones reales por WhatsApp.
           </Motion.p>
 
           <Motion.p
             className="hero__description hero__description--secondary"
             variants={itemVariants}
           >
-            Te ayudamos desde el armado de la página hasta la base técnica para
-            Google: estructura clara, SEO inicial, indexación y una experiencia
-            preparada para campañas, WhatsApp y crecimiento digital.
+            Te ayudamos con el armado de la página, estructura inicial para
+            Google, SEO base y una experiencia pensada para que tu cliente sepa
+            qué haces y cómo contactarte.
           </Motion.p>
 
           <Motion.div className="hero__actions" variants={itemVariants}>
@@ -186,7 +179,7 @@ function HeroSection() {
               whileTap={{ scale: 0.985 }}
               onClick={handlePrimaryWhatsappClick}
             >
-              Quiero mi sitio web por WhatsApp
+              Cotizar mi página por WhatsApp
             </Motion.a>
 
             <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
@@ -199,16 +192,6 @@ function HeroSection() {
                 Ver promoción y paquetes
               </Link>
             </Motion.div>
-
-            <Motion.a
-              href="#proyectos"
-              className="button button--secondary"
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.985 }}
-              onClick={handleExamplesCtaClick}
-            >
-              Ver ejemplos reales
-            </Motion.a>
           </Motion.div>
 
           <Motion.ul className="hero__tags" variants={itemVariants}>
@@ -238,14 +221,7 @@ function HeroSection() {
           animate="visible"
         >
           <div className="hero__panel-card">
-            <Motion.p
-              className="hero__panel-label"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.28, duration: 0.55 }}
-            >
-              Lo que debe sentir tu cliente al entrar
-            </Motion.p>
+            
 
             <Motion.div
               className="hero__preview"
