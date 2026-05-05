@@ -3,7 +3,7 @@ import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
 
 const WHATSAPP_HREF =
-  "https://wa.me/525522737432?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20una%20p%C3%A1gina%20web%20o%20soluci%C3%B3n%20digital%20para%20mi%20negocio";
+  "https://wa.me/525522737432?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20una%20p%C3%A1gina%20web%20con%20IA%20integrada%20para%20mi%20negocio";
 
 const containerVariants = {
   hidden: {},
@@ -29,6 +29,19 @@ const itemVariants = {
 
 function ServicesSection() {
   const services = [
+    {
+      id: "asistente-ia-integrado",
+      label: "IA para negocios",
+      title: "Asistentes IA integrados a tu página web",
+      description:
+        "Integramos un asistente IA dentro de tu sitio para responder preguntas, orientar visitantes, capturar datos y llevar prospectos hacia WhatsApp o el siguiente paso comercial.",
+      includes: [
+        "Demo con captura de leads y límite de preguntas",
+        "Respuestas alineadas al tono y objetivo de tu negocio",
+        "Integración como servicio adicional a tu página web",
+      ],
+      featured: true,
+    },
     {
       id: "sitios-web-profesionales",
       label: "Presencia digital",
@@ -97,15 +110,15 @@ function ServicesSection() {
             <p className="section__eyebrow">Servicios</p>
 
             <h2 className="section__title">
-              Desarrollo web para negocios que necesitan verse mejor, aparecer
-              en Google y convertir más
+              Desarrollo web e IA integrada para negocios que quieren atender y
+              convertir mejor
             </h2>
 
             <p className="section__text section__text--intro">
               No trabajamos con una página genérica para todos. Creamos
               soluciones digitales según el momento de tu negocio, tu objetivo
               comercial y la forma en la que tus clientes necesitan encontrarte,
-              entenderte y contactarte.
+              entenderte, hacer preguntas y contactarte.
             </p>
           </Motion.div>
 
@@ -119,12 +132,12 @@ function ServicesSection() {
               whileHover={{ y: -3 }}
             >
               <span className="services-section__panel-label">
-                Para negocios de distintos giros y tamaños
+                IA integrada, no páginas hechas con IA
               </span>
               <p className="services-section__panel-text">
-                Podemos ayudarte si estás iniciando, si quieres profesionalizar
-                tu presencia digital o si necesitas una base más seria para
-                vender, anunciarte o crecer.
+                La IA se conecta a tu sitio como una herramienta de atención,
+                venta y captura de prospectos. Tu página sigue siendo una pieza
+                profesional hecha para tu negocio.
               </p>
             </Motion.div>
 
@@ -155,7 +168,9 @@ function ServicesSection() {
           {services.map((service) => (
             <Motion.article
               key={service.id}
-              className="services__card services__card--enhanced"
+              className={`services__card services__card--enhanced ${
+                service.featured ? "services__card--featured" : ""
+              }`}
               variants={itemVariants}
               whileHover={{ y: -4 }}
             >

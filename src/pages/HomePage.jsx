@@ -13,13 +13,13 @@ function HomePage() {
   return (
     <>
       <HeroSection />
+      <AiDemoSection />
       <ProblemSection />
       <SolutionSection />
       <ServicesSection />
       <ProjectsSection />
       <AboutSection />
       <ProcessSection />
-      <AiDemoSection />
       <ContactSection />
       <FinalCtaSection />
     </>

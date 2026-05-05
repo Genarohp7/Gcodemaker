@@ -4,7 +4,7 @@ import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
 
 const WHATSAPP_MESSAGE =
-  "Hola, quiero cotizar una página web para mi negocio. Vi la promoción desde $2,500 MXN.";
+  "Hola, quiero cotizar una página web con posibilidad de integrar un asistente IA para mi negocio.";
 
 const WHATSAPP_HREF = `https://wa.me/525522737432?text=${encodeURIComponent(
   WHATSAPP_MESSAGE
@@ -63,9 +63,9 @@ function HeroSceneFallback() {
 function HeroSection() {
   const tags = [
     "Página clara y profesional",
+    "Asistente IA opcional",
     "WhatsApp visible",
     "Base para Google",
-    "Desde $2,500 MXN",
   ];
 
   const metrics = [
@@ -129,46 +129,41 @@ function HeroSection() {
           animate="visible"
         >
           <Motion.p className="hero__eyebrow" variants={itemVariants}>
-            Páginas web para negocios que necesitan verse profesionales
+            Páginas web con asistentes IA integrados para negocios
           </Motion.p>
 
           <Motion.div className="hero__promo" variants={itemVariants}>
-            <span className="hero__promo-badge">Promoción de arranque</span>
+            <span className="hero__promo-badge">Nuevo servicio IA</span>
             <p className="hero__promo-text">
-              Página web desde <strong>$2,500 MXN</strong> para presentar mejor
-              tu negocio, generar confianza y facilitar que te contacten.
+              Integramos asistentes IA a tu página web para responder dudas,
+              captar prospectos y guiar clientes hacia WhatsApp. No es hacer tu
+              página con IA: es poner IA al servicio de tu negocio.
             </p>
 
-            <Link
-              to="/promociones-paquetes"
-              viewTransition
-              className="hero__promo-link"
-              onClick={handlePromoDetailsClick}
-            >
-              Ver detalles de la promoción
-            </Link>
+            <a href="#demo-ia" className="hero__promo-link">
+              Probar demo de asistente IA
+            </a>
           </Motion.div>
 
           <Motion.h1 className="hero__title" variants={itemVariants}>
-            Tu negocio puede dejar de verse improvisado y empezar a recibir más
-            contactos desde una página clara
+            Tu negocio puede tener una página profesional y un asistente IA que
+            atienda clientes desde tu web
           </Motion.h1>
 
           <Motion.p className="hero__description" variants={itemVariants}>
-            Creamos páginas web para negocios que hoy dependen solo de redes
-            sociales o recomendaciones y necesitan una forma más profesional de
-            explicar lo que hacen, generar confianza y facilitar que sus clientes
-            los contacten.
+            Creamos páginas web para negocios que necesitan verse profesionales,
+            explicar mejor lo que ofrecen y convertir visitas en contactos. Si
+            tu proyecto lo requiere, también podemos integrar un asistente IA
+            conectado a tus objetivos comerciales.
           </Motion.p>
 
           <Motion.p
             className="hero__description hero__description--secondary"
             variants={itemVariants}
           >
-            Si tu página actual no comunica bien, tarda en cargar o simplemente
-            no existe, estás perdiendo oportunidades. Te ayudamos a construir
-            una base clara, adaptable a celular, preparada para Google y enfocada
-            en llevar al visitante hacia WhatsApp.
+            La IA no reemplaza tu sitio: lo vuelve más útil. Puede responder
+            preguntas frecuentes, orientar al visitante, capturar datos y ayudarte
+            a atender mejor sin depender solo de mensajes manuales.
           </Motion.p>
 
           <Motion.div className="hero__actions" variants={itemVariants}>
@@ -181,7 +176,7 @@ function HeroSection() {
               whileTap={{ scale: 0.985 }}
               onClick={handlePrimaryWhatsappClick}
             >
-              Recibir cotización por WhatsApp
+              Cotizar web con IA integrada
             </Motion.a>
 
             <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
@@ -191,7 +186,7 @@ function HeroSection() {
                 className="button button--secondary"
                 onClick={handlePromoDetailsClick}
               >
-                Ver promoción y paquetes
+                Ver promoción web
               </Link>
             </Motion.div>
           </Motion.div>
@@ -229,7 +224,7 @@ function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.28, duration: 0.55 }}
             >
-              Lo que debes de tomar en cuenta
+              Servicio disponible
             </Motion.p>
 
             <Motion.div

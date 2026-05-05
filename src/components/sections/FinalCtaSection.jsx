@@ -3,7 +3,7 @@ import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
 
 const WHATSAPP_HREF =
-  "https://wa.me/525522737432?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20una%20soluci%C3%B3n%20web%20profesional%20para%20mi%20negocio%20o%20proyecto";
+  "https://wa.me/525522737432?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20una%20p%C3%A1gina%20web%20con%20asistente%20IA%20integrado%20para%20mi%20negocio";
 
 function FinalCtaSection() {
   function handleFinalWhatsappClick() {
@@ -30,17 +30,17 @@ function FinalCtaSection() {
             <p className="final-cta__eyebrow">Da el siguiente paso</p>
 
             <h2 id="final-cta-title" className="final-cta__title">
-              Si tu negocio necesita una presencia digital más profesional, este
-              es un buen momento para construirla bien
+              Si tu negocio necesita una web más profesional y atención más
+              inteligente, este es un buen momento para construirlo bien
             </h2>
 
             <p className="final-cta__text">
               Podemos empezar con una promoción de arranque, mejorar tu sitio
-              actual o definir una solución web más completa según tu proyecto.
-              Lo importante es que tu presencia digital deje de ser una idea
-              pendiente y se convierta en una herramienta real para generar
-              confianza, aparecer mejor preparado en Google y conseguir más
-              contactos.
+              actual, integrar un asistente IA o definir una solución web más
+              completa según tu proyecto. Lo importante es que tu presencia
+              digital deje de ser una idea pendiente y se convierta en una
+              herramienta real para generar confianza, aparecer mejor preparado
+              en Google y conseguir más contactos.
             </p>
           </div>
 
@@ -54,7 +54,7 @@ function FinalCtaSection() {
               whileTap={{ scale: 0.985 }}
               onClick={handleFinalWhatsappClick}
             >
-              Quiero hablar por WhatsApp
+              Hablar sobre web con IA
             </Motion.a>
 
             <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
