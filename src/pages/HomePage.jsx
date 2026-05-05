@@ -5,6 +5,7 @@ import AboutSection from "../components/sections/AboutSection";
 import ServicesSection from "../components/sections/ServicesSection";
 import ProjectsSection from "../components/sections/ProjectsSection";
 import ProcessSection from "../components/sections/ProcessSection";
+import AiDemoSection from "../components/sections/AiDemoSection";
 import ContactSection from "../components/sections/ContactSection";
 import FinalCtaSection from "../components/sections/FinalCtaSection";
 
@@ -18,6 +19,7 @@ function HomePage() {
       <ProjectsSection />
       <AboutSection />
       <ProcessSection />
+      <AiDemoSection />
       <ContactSection />
       <FinalCtaSection />
     </>

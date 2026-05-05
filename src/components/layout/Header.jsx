@@ -13,7 +13,14 @@ function Header() {
   useEffect(() => {
     if (!isHomePage) return undefined;
 
-    const sectionIds = ["inicio", "servicios", "proyectos", "sobre-mi", "contacto"];
+    const sectionIds = [
+      "inicio",
+      "servicios",
+      "proyectos",
+      "sobre-mi",
+      "demo-ia",
+      "contacto",
+    ];
 
     const sections = sectionIds
       .map((id) => document.getElementById(id))
@@ -211,6 +218,21 @@ function Header() {
           >
             Promociones y paquetes
           </NavLink>
+
+          <a
+            href={getSectionHref("#demo-ia")}
+            className={`header__link ${
+              isHomePage && currentActiveSection === "demo-ia"
+                ? "header__link--active"
+                : ""
+            }`}
+            onClick={handleCloseMenu}
+            aria-current={
+              isHomePage && currentActiveSection === "demo-ia" ? "true" : "false"
+            }
+          >
+            Demo IA
+          </a>
 
           {isHomePage ? (
             <a
