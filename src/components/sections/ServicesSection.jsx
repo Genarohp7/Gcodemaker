@@ -1,4 +1,3 @@
-import { Link } from "react-router";
 import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
 
@@ -88,11 +87,11 @@ function ServicesSection() {
     });
   }
 
-  function handleServicesPackagesClick() {
+  function handleServicesDemoClick() {
     trackEvent("services_cta_click", {
-      cta_name: "ver_promocion_y_paquetes",
+      cta_name: "quiero_probar_la_ia",
       cta_location: "services",
-      destination: "/promociones-paquetes",
+      destination: "#demo-ia",
     });
   }
 
@@ -217,14 +216,13 @@ function ServicesSection() {
           </Motion.a>
 
           <Motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }}>
-            <Link
-              to="/promociones-paquetes"
-              viewTransition
+            <a
+              href="#demo-ia"
               className="button button--secondary services-section__cta"
-              onClick={handleServicesPackagesClick}
+              onClick={handleServicesDemoClick}
             >
-              Ver promoción y paquetes
-            </Link>
+              Quiero probar la IA
+            </a>
           </Motion.div>
         </Motion.div>
       </div>

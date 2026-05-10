@@ -141,7 +141,7 @@ function HeroSection() {
             </p>
 
             <a href="#demo-ia" className="hero__promo-link">
-              Probar demo de asistente IA
+              Quiero probar la IA
             </a>
           </Motion.div>
 
