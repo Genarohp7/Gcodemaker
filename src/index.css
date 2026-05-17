@@ -100,7 +100,6 @@ img {
 .page__content {
   position: relative;
   z-index: 1;
-  padding-top: var(--header-height);
 }
 
 .page__inner {
@@ -370,7 +369,7 @@ img {
 ========================= */
 
 .header {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   width: 100%;
@@ -379,6 +378,16 @@ img {
   backdrop-filter: blur(var(--backdrop-blur));
   border-bottom: 1px solid rgba(173, 202, 238, 0.1);
   z-index: 1000;
+  transition:
+    background-color 0.24s ease,
+    border-color 0.24s ease,
+    box-shadow 0.24s ease;
+}
+
+.header--scrolled {
+  background: rgba(7, 17, 31, 0.82);
+  border-bottom-color: rgba(173, 202, 238, 0.16);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.24);
 }
 
 .header::after {
@@ -465,6 +474,12 @@ img {
 
 .header__link--active {
   color: #ffffff;
+}
+
+.button--header-active {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 16px 34px rgba(35, 139, 255, 0.34);
 }
 
 .header__link--active::after {

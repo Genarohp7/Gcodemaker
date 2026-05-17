@@ -1,9 +1,33 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 
+function getNavSectionId(sectionId) {
+  const sectionMap = {
+    problema: "servicios",
+    solucion: "servicios",
+    servicios: "servicios",
+    proceso: "servicios",
+  };
+
+  return sectionMap[sectionId] || sectionId;
+}
+
+const homeSectionIds = [
+  "inicio",
+  "problema",
+  "solucion",
+  "servicios",
+  "proyectos",
+  "sobre-mi",
+  "proceso",
+  "demo-ia",
+  "contacto",
+];
+
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("inicio");
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const { pathname, hash } = useLocation();
 
@@ -13,43 +37,49 @@ function Header() {
   useEffect(() => {
     if (!isHomePage) return undefined;
 
-    const sectionIds = [
-      "inicio",
-      "servicios",
-      "proyectos",
-      "sobre-mi",
-      "demo-ia",
-      "contacto",
-    ];
-
-    const sections = sectionIds
+    const sections = homeSectionIds
       .map((id) => document.getElementById(id))
       .filter(Boolean);
 
     if (!sections.length) return undefined;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleEntries = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+    function updateHeaderState() {
+      const headerOffset = 120;
+      const currentSection =
+        sections
+          .map((section) => ({
+            id: section.id,
+            distance: section.getBoundingClientRect().top - headerOffset,
+          }))
+          .filter((section) => section.distance <= 0)
+          .sort((a, b) => b.distance - a.distance)[0] || sections[0];
 
-        if (visibleEntries.length > 0) {
-          setActiveSection(visibleEntries[0].target.id);
-        }
-      },
-      {
-        root: null,
-        rootMargin: "-35% 0px -45% 0px",
-        threshold: [0.2, 0.35, 0.5, 0.7],
-      }
-    );
+      setActiveSection(getNavSectionId(currentSection.id));
+      setIsScrolled(window.scrollY > 12);
+    }
 
-    sections.forEach((section) => observer.observe(section));
+    updateHeaderState();
+    window.addEventListener("scroll", updateHeaderState, { passive: true });
+    window.addEventListener("resize", updateHeaderState);
 
     return () => {
-      sections.forEach((section) => observer.unobserve(section));
-      observer.disconnect();
+      window.removeEventListener("scroll", updateHeaderState);
+      window.removeEventListener("resize", updateHeaderState);
+    };
+  }, [isHomePage]);
+
+  useEffect(() => {
+    if (isHomePage) return undefined;
+
+    function handleScroll() {
+      setIsScrolled(window.scrollY > 12);
+    }
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
     };
   }, [isHomePage]);
 
@@ -62,6 +92,7 @@ function Header() {
     if (!targetElement) return;
 
     requestAnimationFrame(() => {
+      setActiveSection(getNavSectionId(targetId));
       targetElement.scrollIntoView({
         behavior: "smooth",
         block: "start",
@@ -73,7 +104,11 @@ function Header() {
     setIsMenuOpen((prev) => !prev);
   }
 
-  function handleCloseMenu() {
+  function handleCloseMenu(sectionId) {
+    if (sectionId) {
+      setActiveSection(getNavSectionId(sectionId));
+    }
+
     setIsMenuOpen(false);
   }
 
@@ -83,15 +118,17 @@ function Header() {
 
   const currentActiveSection = isPackagesPage
     ? "promociones-paquetes"
-    : isHomePage && hash
-      ? hash.replace("#", "")
-      : activeSection;
+    : activeSection;
 
   return (
-    <header className="header">
+    <header className={`header ${isScrolled ? "header--scrolled" : ""}`}>
       <div className="header__container">
         {isHomePage ? (
-          <a href="#inicio" className="header__brand" onClick={handleCloseMenu}>
+          <a
+            href="#inicio"
+            className="header__brand"
+            onClick={() => handleCloseMenu("inicio")}
+          >
             <img
               src="/logo-gcodemaker.png"
               alt="Logo de GCodemaker"
@@ -108,7 +145,7 @@ function Header() {
             to="/"
             viewTransition
             className="header__brand"
-            onClick={handleCloseMenu}
+            onClick={() => handleCloseMenu("inicio")}
           >
             <img
               src="/logo-gcodemaker.png"
@@ -149,7 +186,7 @@ function Header() {
                 ? "header__link--active"
                 : ""
             }`}
-            onClick={handleCloseMenu}
+            onClick={() => handleCloseMenu("inicio")}
             aria-current={
               isHomePage && currentActiveSection === "inicio" ? "true" : "false"
             }
@@ -164,7 +201,7 @@ function Header() {
                 ? "header__link--active"
                 : ""
             }`}
-            onClick={handleCloseMenu}
+            onClick={() => handleCloseMenu("servicios")}
             aria-current={
               isHomePage && currentActiveSection === "servicios"
                 ? "true"
@@ -181,7 +218,7 @@ function Header() {
                 ? "header__link--active"
                 : ""
             }`}
-            onClick={handleCloseMenu}
+            onClick={() => handleCloseMenu("proyectos")}
             aria-current={
               isHomePage && currentActiveSection === "proyectos"
                 ? "true"
@@ -198,7 +235,7 @@ function Header() {
                 ? "header__link--active"
                 : ""
             }`}
-            onClick={handleCloseMenu}
+            onClick={() => handleCloseMenu("sobre-mi")}
             aria-current={
               isHomePage && currentActiveSection === "sobre-mi"
                 ? "true"
@@ -214,7 +251,7 @@ function Header() {
             className={({ isActive }) =>
               `header__link ${isActive ? "header__link--active" : ""}`
             }
-            onClick={handleCloseMenu}
+            onClick={() => handleCloseMenu("promociones-paquetes")}
           >
             Promociones y paquetes
           </NavLink>
@@ -226,7 +263,7 @@ function Header() {
                 ? "header__link--active"
                 : ""
             }`}
-            onClick={handleCloseMenu}
+            onClick={() => handleCloseMenu("demo-ia")}
             aria-current={
               isHomePage && currentActiveSection === "demo-ia" ? "true" : "false"
             }
@@ -237,8 +274,10 @@ function Header() {
           {isHomePage ? (
             <a
               href="#contacto"
-              className="button button--primary button--header"
-              onClick={handleCloseMenu}
+              className={`button button--primary button--header ${
+                currentActiveSection === "contacto" ? "button--header-active" : ""
+              }`}
+              onClick={() => handleCloseMenu("contacto")}
             >
               Contactar
             </a>
@@ -247,7 +286,7 @@ function Header() {
               to="/#contacto"
               viewTransition
               className="button button--primary button--header"
-              onClick={handleCloseMenu}
+              onClick={() => handleCloseMenu("contacto")}
             >
               Contactar
             </Link>
@@ -259,3 +298,4 @@ function Header() {
 }
 
 export default Header;
+
