@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router";
 import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
@@ -28,6 +29,8 @@ const itemVariants = {
 };
 
 function SolutionSection() {
+  const [activeSolutionIndex, setActiveSolutionIndex] = useState(0);
+
   const solutions = [
     {
       id: "estrategia",
@@ -95,8 +98,22 @@ function SolutionSection() {
     });
   }
 
+  function handlePreviousSolution() {
+    setActiveSolutionIndex((current) =>
+      current === 0 ? solutions.length - 1 : current - 1
+    );
+  }
+
+  function handleNextSolution() {
+    setActiveSolutionIndex((current) =>
+      current === solutions.length - 1 ? 0 : current + 1
+    );
+  }
+
+  const activeSolution = solutions[activeSolutionIndex];
+
   return (
-    <section id="solucion" className="section">
+    <section id="solucion" className="section solution-section">
       <div className="section__container">
         <Motion.div
           className="services-section__header"
@@ -158,40 +175,77 @@ function SolutionSection() {
         </Motion.div>
 
         <Motion.div
-          className="solution-section__grid services services--enhanced"
+          className="solution-section__carousel"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.12 }}
           variants={containerVariants}
         >
-          {solutions.map((solution) => (
-            <Motion.article
-              key={solution.id}
-              className="services__card services__card--enhanced"
-              variants={itemVariants}
-              whileHover={{ y: -4 }}
-            >
-              <div className="services__top">
-                <p className="services__label">{solution.label}</p>
+          <Motion.article
+            key={activeSolution.id}
+            className="services__card services__card--enhanced solution-section__active-card"
+            variants={itemVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover={{ y: -4 }}
+          >
+            <div className="services__top">
+              <p className="services__label">{activeSolution.label}</p>
 
-                <div className="services__icon" aria-hidden="true">
-                  <span className="services__icon-dot"></span>
-                  <span className="services__icon-line"></span>
-                </div>
+              <div className="services__icon" aria-hidden="true">
+                <span className="services__icon-dot"></span>
+                <span className="services__icon-line"></span>
               </div>
+            </div>
 
-              <h3 className="services__title">{solution.title}</h3>
-              <p className="services__text">{solution.description}</p>
+            <h3 className="services__title">{activeSolution.title}</h3>
+            <p className="services__text">{activeSolution.description}</p>
 
-              <ul className="services__list">
-                {solution.includes.map((item) => (
-                  <li key={item} className="services__item">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </Motion.article>
-          ))}
+            <ul className="services__list">
+              {activeSolution.includes.map((item) => (
+                <li key={item} className="services__item">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </Motion.article>
+
+          <div className="solution-section__carousel-controls">
+            <button
+              type="button"
+              className="solution-section__carousel-btn"
+              aria-label="Ver solución anterior"
+              onClick={handlePreviousSolution}
+            >
+              ‹
+            </button>
+
+            <div className="solution-section__carousel-dots">
+              {solutions.map((solution, index) => (
+                <button
+                  key={solution.id}
+                  type="button"
+                  className={`solution-section__carousel-dot ${
+                    index === activeSolutionIndex
+                      ? "solution-section__carousel-dot--active"
+                      : ""
+                  }`}
+                  aria-label={`Ver solución ${index + 1}`}
+                  aria-current={index === activeSolutionIndex}
+                  onClick={() => setActiveSolutionIndex(index)}
+                />
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="solution-section__carousel-btn"
+              aria-label="Ver solución siguiente"
+              onClick={handleNextSolution}
+            >
+              ›
+            </button>
+          </div>
         </Motion.div>
 
         <Motion.div

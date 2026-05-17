@@ -1,14 +1,14 @@
 .process {
   display: grid;
-  gap: 1.25rem;
-  margin-top: 2rem;
+  gap: 1rem;
+  margin-top: 1.5rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .process__step {
   position: relative;
-  padding: 1.5rem;
-  border-radius: 20px;
+  padding: 1.1rem;
+  border-radius: 18px;
   transition:
     transform 0.24s ease,
     border-color 0.24s ease,
@@ -27,9 +27,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
-  margin-bottom: 1rem;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 0.75rem;
   border-radius: 16px;
   background: linear-gradient(
     135deg,
@@ -44,23 +44,25 @@
 }
 
 .process__title {
-  margin: 0 0 0.75rem;
-  font-size: 1.15rem;
+  margin: 0 0 0.6rem;
+  font-size: 1.02rem;
+  line-height: 1.22;
   color: #ffffff;
 }
 
 .process__text {
   margin: 0;
   color: var(--color-text-soft);
-  line-height: 1.75;
+  font-size: 0.92rem;
+  line-height: 1.55;
 }
 
 .process-section__cta {
   display: grid;
-  gap: 1rem;
-  margin-top: 2rem;
-  padding: 1.15rem 1.25rem;
-  border-radius: 20px;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+  padding: 1rem 1.1rem;
+  border-radius: 18px;
   background:
     linear-gradient(
       180deg,
@@ -76,7 +78,7 @@
 .process-section__cta-text {
   margin: 0;
   color: var(--color-text-soft);
-  line-height: 1.7;
+  line-height: 1.55;
 }
 
 .process-section__cta-actions {
