@@ -61,13 +61,6 @@ function HeroSceneFallback() {
 }
 
 function HeroSection() {
-  const tags = [
-    "Página clara y profesional",
-    "Asistente IA opcional",
-    "WhatsApp visible",
-    "Base para Google",
-  ];
-
   const metrics = [
     {
       id: "promo",
@@ -190,25 +183,6 @@ function HeroSection() {
               </Link>
             </Motion.div>
           </Motion.div>
-
-          <Motion.ul className="hero__tags" variants={itemVariants}>
-            {tags.map((item, index) => (
-              <Motion.li
-                key={item}
-                className="hero__tag"
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.45,
-                  delay: 0.45 + index * 0.06,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                whileHover={{ y: -2 }}
-              >
-                {item}
-              </Motion.li>
-            ))}
-          </Motion.ul>
         </Motion.div>
 
         <Motion.aside
@@ -269,3 +243,4 @@ function HeroSection() {
 }
 
 export default HeroSection;
+
