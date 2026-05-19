@@ -2,7 +2,7 @@
 <html lang="es-MX">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="%BASE_URL%favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>GCodemaker | Desarrollo web con IA integrada para negocios</title>
@@ -70,6 +70,25 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      (function restoreGitHubPagesRoute(location) {
+        if (location.search[1] !== "/") return;
+
+        var decodedPath = location.search
+          .slice(1)
+          .split("&")
+          .map(function restoreAmpersands(value) {
+            return value.replace(/~and~/g, "&");
+          })
+          .join("?");
+
+        window.history.replaceState(
+          null,
+          null,
+          location.pathname.slice(0, -1) + decodedPath + location.hash
+        );
+      })(window.location);
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

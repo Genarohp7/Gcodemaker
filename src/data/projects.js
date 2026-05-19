@@ -60,6 +60,8 @@ function createProjectPreview({
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
+const publicAssetPath = (path) => `${import.meta.env.BASE_URL}${path}`;
+
 const projects = [
   {
     id: "kelom",
@@ -79,7 +81,7 @@ const projects = [
     url: "https://kelom.com.mx/",
     cta: "Ver proyecto",
     featured: true,
-    logoSrc: "/marcas/Kelom.png",
+    logoSrc: publicAssetPath("marcas/Kelom.png"),
     logoAlt: "Logo de Kelom",
     imageSrc: createProjectPreview({
       title: "Kelom",
@@ -108,7 +110,7 @@ const projects = [
     url: "https://marketingmakers.com.mx/",
     cta: "Ver proyecto",
     featured: false,
-    logoSrc: "/marcas/MMakers.png",
+    logoSrc: publicAssetPath("marcas/MMakers.png"),
     logoAlt: "Logo de Marketing Makers",
     imageSrc: createProjectPreview({
       title: "Marketing Makers",
@@ -137,7 +139,7 @@ const projects = [
     url: "https://genarohp7.github.io/pizza/",
     cta: "Ver proyecto",
     featured: false,
-    logoSrc: "/marcas/Pizza.png",
+    logoSrc: publicAssetPath("marcas/Pizza.png"),
     logoAlt: "Logo del proyecto Pizza",
     imageSrc: createProjectPreview({
       title: "Pizza",
@@ -166,7 +168,7 @@ const projects = [
     url: "https://gcodemaker.com.mx/",
     cta: "Ver proyecto",
     featured: false,
-    logoSrc: "/marcas/gcodemaker.png",
+    logoSrc: publicAssetPath("marcas/gcodemaker.png"),
     logoAlt: "Logo de GCodemaker",
     imageSrc: createProjectPreview({
       title: "GCodemaker",

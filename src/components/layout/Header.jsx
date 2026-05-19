@@ -30,6 +30,7 @@ function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("inicio");
   const [isScrolled, setIsScrolled] = useState(false);
+  const logoSrc = `${import.meta.env.BASE_URL}logo-gcodemaker.png`;
 
   const { pathname, hash } = useLocation();
 
@@ -163,7 +164,7 @@ function Header() {
             onClick={(event) => handleSectionClick(event, "inicio")}
           >
             <img
-              src="/logo-gcodemaker.png"
+              src={logoSrc}
               alt="Logo de GCodemaker"
               className="header__logo-image"
             />
@@ -181,7 +182,7 @@ function Header() {
             onClick={() => handleCloseMenu("inicio")}
           >
             <img
-              src="/logo-gcodemaker.png"
+              src={logoSrc}
               alt="Logo de GCodemaker"
               className="header__logo-image"
             />
