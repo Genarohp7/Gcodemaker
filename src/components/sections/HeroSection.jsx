@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import { Link } from "react-router";
 import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
@@ -61,6 +61,8 @@ function HeroSceneFallback() {
 }
 
 function HeroSection() {
+  const heroRef = useRef(null);
+
   const metrics = [
     {
       id: "promo",
@@ -112,8 +114,83 @@ function HeroSection() {
     });
   }
 
+  useEffect(() => {
+    const heroElement = heroRef.current;
+    if (!heroElement) return undefined;
+
+    const clamp = (value, min = 0, max = 1) =>
+      Math.min(Math.max(value, min), max);
+
+    const smoothStep = (start, end, value) => {
+      const progress = clamp((value - start) / (end - start));
+      return progress * progress * (3 - 2 * progress);
+    };
+
+    let frameId = 0;
+
+    function updateHeroProgress() {
+      if (window.innerWidth <= 980) {
+        [
+          "--hero-intro-progress",
+          "--hero-promo-progress",
+          "--hero-title-progress",
+          "--hero-copy-progress",
+          "--hero-actions-progress",
+          "--hero-panel-progress",
+        ].forEach((property) => {
+          heroElement.style.setProperty(property, "1");
+        });
+        return;
+      }
+
+      const rect = heroElement.getBoundingClientRect();
+      const scrollDistance = Math.max(
+        heroElement.offsetHeight - window.innerHeight,
+        window.innerHeight
+      );
+      const progress = clamp(-rect.top / scrollDistance);
+
+      heroElement.style.setProperty("--hero-intro-progress", progress.toFixed(4));
+      heroElement.style.setProperty(
+        "--hero-promo-progress",
+        smoothStep(0.22, 0.44, progress).toFixed(4)
+      );
+      heroElement.style.setProperty(
+        "--hero-title-progress",
+        smoothStep(0.34, 0.58, progress).toFixed(4)
+      );
+      heroElement.style.setProperty(
+        "--hero-copy-progress",
+        smoothStep(0.48, 0.72, progress).toFixed(4)
+      );
+      heroElement.style.setProperty(
+        "--hero-actions-progress",
+        smoothStep(0.58, 0.82, progress).toFixed(4)
+      );
+      heroElement.style.setProperty(
+        "--hero-panel-progress",
+        smoothStep(0.68, 0.92, progress).toFixed(4)
+      );
+    }
+
+    function requestUpdate() {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(updateHeroProgress);
+    }
+
+    updateHeroProgress();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+    };
+  }, []);
+
   return (
-    <section id="inicio" className="hero">
+    <section id="inicio" className="hero hero--cinematic" ref={heroRef}>
       <div className="hero__container hero__container--grid">
         <Motion.div
           className="hero__main"

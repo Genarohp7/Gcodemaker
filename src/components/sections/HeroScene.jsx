@@ -76,7 +76,7 @@ function CoreOrb() {
   });
 
   return (
-    <group ref={groupRef} scale={1.04}>
+    <group ref={groupRef} scale={0.84}>
       <points>
         <bufferGeometry>
           <bufferAttribute

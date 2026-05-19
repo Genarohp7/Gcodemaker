@@ -47,47 +47,49 @@ function Layout({ children }) {
   }, [pathname, search]);
 
   return (
-    <ReactLenis
-      root
-      options={{
-        duration: 1.05,
-        smoothWheel: true,
-        smoothTouch: false,
-        wheelMultiplier: 0.95,
-        touchMultiplier: 1,
-      }}
-    >
-      <div className="page">
-        <div className="page__ambient" aria-hidden="true">
-          <Suspense
-            fallback={
-              <div className="global-scene-background global-scene-background--fallback" />
-            }
+    <>
+      <Header />
+
+      <ReactLenis
+        root
+        options={{
+          duration: 1.05,
+          smoothWheel: true,
+          smoothTouch: false,
+          wheelMultiplier: 0.95,
+          touchMultiplier: 1,
+        }}
+      >
+        <div className="page">
+          <div className="page__ambient" aria-hidden="true">
+            <Suspense
+              fallback={
+                <div className="global-scene-background global-scene-background--fallback" />
+              }
+            >
+              <GlobalSceneBackground />
+            </Suspense>
+
+            <span className="page__glow page__glow--1"></span>
+            <span className="page__glow page__glow--2"></span>
+            <span className="page__glow page__glow--3"></span>
+            <span className="page__grid"></span>
+          </div>
+
+          <div
+            className={`page__shell ${isPageReady ? "page__shell--ready" : ""}`}
           >
-            <GlobalSceneBackground />
-          </Suspense>
+            <main className="page__content">
+              <div className="page__inner">{children}</div>
+            </main>
 
-          <span className="page__glow page__glow--1"></span>
-          <span className="page__glow page__glow--2"></span>
-          <span className="page__glow page__glow--3"></span>
-          <span className="page__grid"></span>
+            <Footer />
+          </div>
+
+          <CookieBanner />
         </div>
-
-        <div
-          className={`page__shell ${isPageReady ? "page__shell--ready" : ""}`}
-        >
-          <Header />
-
-          <main className="page__content">
-            <div className="page__inner">{children}</div>
-          </main>
-
-          <Footer />
-        </div>
-
-        <CookieBanner />
-      </div>
-    </ReactLenis>
+      </ReactLenis>
+    </>
   );
 }
 

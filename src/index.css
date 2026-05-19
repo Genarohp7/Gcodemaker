@@ -100,6 +100,7 @@ img {
 .page__content {
   position: relative;
   z-index: 1;
+  padding-top: var(--header-height);
 }
 
 .page__inner {
@@ -122,8 +123,8 @@ img {
 
 .page__shell--ready {
   opacity: 1;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
+  transform: none;
+  filter: none;
 }
 
 .page__ambient {
@@ -369,7 +370,7 @@ img {
 ========================= */
 
 .header {
-  position: sticky;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -381,7 +382,9 @@ img {
   transition:
     background-color 0.24s ease,
     border-color 0.24s ease,
-    box-shadow 0.24s ease;
+    box-shadow 0.24s ease,
+    opacity 0.28s ease,
+    transform 0.28s ease;
 }
 
 .header--scrolled {
