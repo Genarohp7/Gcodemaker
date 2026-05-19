@@ -24,6 +24,8 @@ const homeSectionIds = [
   "contacto",
 ];
 
+const HEADER_SECTION_OFFSET = 24;
+
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("inicio");
@@ -33,6 +35,23 @@ function Header() {
 
   const isHomePage = pathname === "/";
   const isPackagesPage = pathname === "/promociones-paquetes";
+
+  function scrollToHomeSection(targetElement, sectionId) {
+    const headerHeight =
+      document.querySelector(".header")?.getBoundingClientRect().height || 0;
+    const targetTop =
+      sectionId === "inicio"
+        ? 0
+        : window.scrollY +
+          targetElement.getBoundingClientRect().top -
+          headerHeight -
+          HEADER_SECTION_OFFSET;
+
+    window.scrollTo({
+      top: Math.max(0, targetTop),
+      behavior: "smooth",
+    });
+  }
 
   useEffect(() => {
     if (!isHomePage) return undefined;
@@ -44,7 +63,10 @@ function Header() {
     if (!sections.length) return undefined;
 
     function updateHeaderState() {
-      const headerOffset = 120;
+      const headerOffset =
+        window.innerHeight <= 760
+          ? window.innerHeight * 0.32
+          : window.innerHeight * 0.28;
       const currentSection =
         sections
           .map((section) => ({
@@ -93,12 +115,23 @@ function Header() {
 
     requestAnimationFrame(() => {
       setActiveSection(getNavSectionId(targetId));
-      targetElement.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+      scrollToHomeSection(targetElement, targetId);
     });
   }, [isHomePage, hash]);
+
+  function handleSectionClick(event, sectionId) {
+    handleCloseMenu(sectionId);
+
+    if (!isHomePage) return;
+
+    const targetElement = document.getElementById(sectionId);
+    if (!targetElement) return;
+
+    event.preventDefault();
+    window.history.pushState(null, "", `#${sectionId}`);
+    setActiveSection(getNavSectionId(sectionId));
+    scrollToHomeSection(targetElement, sectionId);
+  }
 
   function handleToggleMenu() {
     setIsMenuOpen((prev) => !prev);
@@ -127,7 +160,7 @@ function Header() {
           <a
             href="#inicio"
             className="header__brand"
-            onClick={() => handleCloseMenu("inicio")}
+            onClick={(event) => handleSectionClick(event, "inicio")}
           >
             <img
               src="/logo-gcodemaker.png"
@@ -186,7 +219,7 @@ function Header() {
                 ? "header__link--active"
                 : ""
             }`}
-            onClick={() => handleCloseMenu("inicio")}
+            onClick={(event) => handleSectionClick(event, "inicio")}
             aria-current={
               isHomePage && currentActiveSection === "inicio" ? "true" : "false"
             }
@@ -195,13 +228,13 @@ function Header() {
           </a>
 
           <a
-            href={getSectionHref("#servicios")}
+            href={getSectionHref("#solucion")}
             className={`header__link ${
               isHomePage && currentActiveSection === "servicios"
                 ? "header__link--active"
                 : ""
             }`}
-            onClick={() => handleCloseMenu("servicios")}
+            onClick={(event) => handleSectionClick(event, "solucion")}
             aria-current={
               isHomePage && currentActiveSection === "servicios"
                 ? "true"
@@ -218,7 +251,7 @@ function Header() {
                 ? "header__link--active"
                 : ""
             }`}
-            onClick={() => handleCloseMenu("proyectos")}
+            onClick={(event) => handleSectionClick(event, "proyectos")}
             aria-current={
               isHomePage && currentActiveSection === "proyectos"
                 ? "true"
@@ -235,7 +268,7 @@ function Header() {
                 ? "header__link--active"
                 : ""
             }`}
-            onClick={() => handleCloseMenu("sobre-mi")}
+            onClick={(event) => handleSectionClick(event, "sobre-mi")}
             aria-current={
               isHomePage && currentActiveSection === "sobre-mi"
                 ? "true"
@@ -263,7 +296,7 @@ function Header() {
                 ? "header__link--active"
                 : ""
             }`}
-            onClick={() => handleCloseMenu("demo-ia")}
+            onClick={(event) => handleSectionClick(event, "demo-ia")}
             aria-current={
               isHomePage && currentActiveSection === "demo-ia" ? "true" : "false"
             }
@@ -277,7 +310,7 @@ function Header() {
               className={`button button--primary button--header ${
                 currentActiveSection === "contacto" ? "button--header-active" : ""
               }`}
-              onClick={() => handleCloseMenu("contacto")}
+              onClick={(event) => handleSectionClick(event, "contacto")}
             >
               Contactar
             </a>

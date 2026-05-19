@@ -137,8 +137,12 @@ function HeroSection() {
           "--hero-copy-progress",
           "--hero-actions-progress",
           "--hero-panel-progress",
+          "--hero-exit-progress",
         ].forEach((property) => {
-          heroElement.style.setProperty(property, "1");
+          heroElement.style.setProperty(
+            property,
+            property === "--hero-exit-progress" ? "0" : "1"
+          );
         });
         return;
       }
@@ -148,7 +152,8 @@ function HeroSection() {
         heroElement.offsetHeight - window.innerHeight,
         window.innerHeight
       );
-      const progress = clamp(-rect.top / scrollDistance);
+      const rawProgress = -rect.top / scrollDistance;
+      const progress = clamp(rawProgress);
 
       heroElement.style.setProperty("--hero-intro-progress", progress.toFixed(4));
       heroElement.style.setProperty(
@@ -170,6 +175,10 @@ function HeroSection() {
       heroElement.style.setProperty(
         "--hero-panel-progress",
         smoothStep(0.68, 0.92, progress).toFixed(4)
+      );
+      heroElement.style.setProperty(
+        "--hero-exit-progress",
+        smoothStep(1.02, 1.18, rawProgress).toFixed(4)
       );
     }
 

@@ -10,7 +10,8 @@
   --hero-copy-progress: 1;
   --hero-actions-progress: 1;
   --hero-panel-progress: 1;
-  min-height: 230svh;
+  --hero-exit-progress: 0;
+  min-height: 265svh;
   margin-top: calc(-1 * var(--header-height));
   padding: 0;
 }
@@ -28,15 +29,21 @@
 
 .hero--cinematic .hero__container--grid {
   position: sticky;
-  top: 0;
-  min-height: 100svh;
-  padding: calc(var(--header-height) + clamp(1.35rem, 2.4vw, 2rem)) 0
+  top: var(--header-height);
+  min-height: calc(100svh - var(--header-height));
+  padding: clamp(1.35rem, 2.4vw, 2rem) 0
     clamp(2.2rem, 3vw, 2.8rem);
 }
 
 .hero__main,
 .hero__panel {
   min-width: 0;
+}
+
+.hero--cinematic .hero__main,
+.hero--cinematic .hero__panel {
+  opacity: calc(1 - var(--hero-exit-progress)) !important;
+  will-change: opacity, transform;
 }
 
 .hero__main {
