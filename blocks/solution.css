@@ -11,7 +11,8 @@
   width: min(calc(100% - 3rem), 1500px);
   min-height: calc(100svh - var(--header-height) - 48px);
   display: grid;
-  align-content: space-between;
+  align-content: start;
+  row-gap: clamp(0.8rem, 1.8vh, 1.15rem);
 }
 
 .solution-section .services-section__header {
@@ -47,7 +48,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 1.05rem;
   align-items: center;
-  margin-top: clamp(0.75rem, 1.8vh, 1.1rem);
+  margin-top: 0;
 }
 
 .solution-section__active-card {
@@ -137,7 +138,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 1rem;
   align-items: center;
-  margin-top: clamp(0.8rem, 1.8vh, 1.15rem);
+  margin-top: 0;
   padding: 0.85rem 1rem;
   border-radius: 18px;
   background:
@@ -223,6 +224,7 @@
 
   .solution-section .section__container {
     min-height: calc(100svh - var(--header-height) - 28px);
+    row-gap: 0.58rem;
   }
 
   .solution-section .services-section__header {
@@ -266,7 +268,7 @@
   }
 
   .solution-section__carousel {
-    margin-top: 0.62rem;
+    margin-top: 0;
     gap: 0.72rem;
   }
 
@@ -325,7 +327,7 @@
   }
 
   .solution-section__cta {
-    margin-top: 0.62rem;
+    margin-top: 0;
     padding: 0.62rem 0.72rem;
     border-radius: 14px;
   }
