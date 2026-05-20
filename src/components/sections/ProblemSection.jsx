@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
@@ -28,6 +29,9 @@ const itemVariants = {
 };
 
 function ProblemSection() {
+  const sectionRef = useRef(null);
+  const [cardProgress, setCardProgress] = useState([0, 0, 0, 0]);
+
   const problems = [
     {
       id: "sin-presencia-profesional",
@@ -95,8 +99,82 @@ function ProblemSection() {
     });
   }
 
+  useEffect(() => {
+    const section = sectionRef.current;
+    let animationFrame = 0;
+    let lastProgressKey = "";
+
+    if (!section) {
+      return undefined;
+    }
+
+    const clamp = (value) => Math.min(Math.max(value, 0), 1);
+    const smoothStep = (start, end, value) => {
+      const progress = clamp((value - start) / (end - start));
+      return progress * progress * (3 - 2 * progress);
+    };
+    const revealSteps = [
+      [0.06, 0.26],
+      [0.24, 0.44],
+      [0.42, 0.62],
+      [0.6, 0.8],
+    ];
+
+    const setComplete = () => {
+      lastProgressKey = "1,1,1,1";
+      setCardProgress([1, 1, 1, 1]);
+    };
+
+    const updateScrollProgress = () => {
+      const isCompact = window.matchMedia("(max-width: 980px)").matches;
+
+      if (isCompact) {
+        setComplete();
+        return;
+      }
+
+      const headerHeight =
+        Number.parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            "--header-height",
+          ),
+        ) || 0;
+      const viewportHeight = window.innerHeight;
+      const revealStart = section.offsetTop - headerHeight - 24;
+      const revealDistance = Math.max(
+        section.offsetHeight - viewportHeight,
+        viewportHeight * 0.95,
+      );
+      const progress = clamp((window.scrollY - revealStart) / revealDistance);
+      const nextCardProgress = revealSteps.map(([start, end]) =>
+        Number(smoothStep(start, end, progress).toFixed(3)),
+      );
+      const nextProgressKey = nextCardProgress.join(",");
+
+      if (nextProgressKey !== lastProgressKey) {
+        lastProgressKey = nextProgressKey;
+        setCardProgress(nextCardProgress);
+      }
+    };
+
+    const scheduleUpdate = () => {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = window.requestAnimationFrame(updateScrollProgress);
+    };
+
+    updateScrollProgress();
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+    };
+  }, []);
+
   return (
-    <section id="problema" className="section section--alt">
+    <section id="problema" className="section section--alt" ref={sectionRef}>
       <div className="section__container">
         <Motion.div
           className="services-section__header"
@@ -159,17 +237,12 @@ function ProblemSection() {
 
         <Motion.div
           className="problem-section__grid services services--enhanced"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.12 }}
-          variants={containerVariants}
         >
-          {problems.map((problem) => (
+          {problems.map((problem, index) => (
             <Motion.article
               key={problem.id}
               className="services__card services__card--enhanced"
-              variants={itemVariants}
-              whileHover={{ y: -4 }}
+              style={{ "--problem-card-progress": cardProgress[index] }}
             >
               <div className="services__top">
                 <p className="services__label">{problem.label}</p>
