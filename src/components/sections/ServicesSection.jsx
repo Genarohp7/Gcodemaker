@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion as Motion } from "motion/react";
 import { trackEvent } from "../../lib/analytics";
 
@@ -27,6 +28,8 @@ const itemVariants = {
 };
 
 function ServicesSection() {
+  const [activeServiceIndex, setActiveServiceIndex] = useState(0);
+
   const services = [
     {
       id: "asistente-ia-integrado",
@@ -95,6 +98,15 @@ function ServicesSection() {
     });
   }
 
+  function handleServiceKeyDown(event, index) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setActiveServiceIndex(index);
+    }
+  }
+
+  const activeService = services[activeServiceIndex];
+
   return (
     <section id="servicios" className="section section--alt">
       <div className="section__container">
@@ -158,42 +170,54 @@ function ServicesSection() {
         </Motion.div>
 
         <Motion.div
-          className="services services--enhanced"
+          className="services-showcase"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.12 }}
           variants={containerVariants}
         >
-          {services.map((service) => (
-            <Motion.article
-              key={service.id}
-              className={`services__card services__card--enhanced ${
-                service.featured ? "services__card--featured" : ""
-              }`}
-              variants={itemVariants}
-              whileHover={{ y: -4 }}
-            >
-              <div className="services__top">
-                <p className="services__label">{service.label}</p>
+          <Motion.article
+            className="services__card services__card--enhanced services-showcase__detail"
+            variants={itemVariants}
+            animate="visible"
+          >
+            <p className="services__label">{activeService.label}</p>
+            <h3 className="services__title">{activeService.title}</h3>
+            <p className="services__text">{activeService.description}</p>
 
-                <div className="services__icon" aria-hidden="true">
-                  <span className="services__icon-dot"></span>
-                  <span className="services__icon-line"></span>
-                </div>
-              </div>
+            <ul className="services__list">
+              {activeService.includes.map((item) => (
+                <li key={item} className="services__item">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </Motion.article>
 
-              <h3 className="services__title">{service.title}</h3>
-              <p className="services__text">{service.description}</p>
+          {services.map((service, index) => {
+            const isActive = index === activeServiceIndex;
 
-              <ul className="services__list">
-                {service.includes.map((item) => (
-                  <li key={item} className="services__item">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </Motion.article>
-          ))}
+            return (
+              <Motion.button
+                key={service.id}
+                type="button"
+                className={`services-showcase__trigger services-showcase__trigger--${
+                  index + 1
+                } ${isActive ? "services-showcase__trigger--active" : ""}`}
+                variants={itemVariants}
+                aria-pressed={isActive}
+                onClick={() => setActiveServiceIndex(index)}
+                onFocus={() => setActiveServiceIndex(index)}
+                onKeyDown={(event) => handleServiceKeyDown(event, index)}
+                onMouseEnter={() => setActiveServiceIndex(index)}
+                onMouseOver={() => setActiveServiceIndex(index)}
+                onPointerEnter={() => setActiveServiceIndex(index)}
+                onPointerMove={() => setActiveServiceIndex(index)}
+              >
+                <span>{service.label}</span>
+              </Motion.button>
+            );
+          })}
         </Motion.div>
 
         <Motion.div
