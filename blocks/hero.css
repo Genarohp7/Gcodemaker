@@ -575,7 +575,7 @@
   .hero--cinematic {
     min-height: auto;
     margin-top: 0;
-    padding: clamp(3rem, 8vw, 5rem) 0 clamp(2.8rem, 7vw, 4rem);
+    padding: clamp(2rem, 6vw, 4rem) 0 clamp(2.8rem, 7vw, 4rem);
   }
 
   .hero--cinematic .hero__container--grid {
@@ -597,6 +597,18 @@
 
   .hero--cinematic .hero__panel {
     transform: none !important;
+  }
+
+  .hero--cinematic .hero__panel-card {
+    overflow: hidden;
+  }
+
+  .hero--cinematic .hero__preview {
+    overflow: hidden;
+  }
+
+  .hero--cinematic .hero-scene {
+    inset: 0;
   }
 
   .hero__container--grid {
@@ -630,8 +642,28 @@
 }
 
 @media (max-width: 768px) {
-  .hero {
-    padding-top: 5rem;
+  .hero--cinematic {
+    padding-top: 1.65rem;
+    padding-bottom: 2.6rem;
+  }
+
+  .hero .hero__container {
+    width: min(calc(100% - 2rem), 1640px);
+  }
+
+  .hero__eyebrow {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .hero__title {
+    font-size: clamp(2rem, 9vw, 2.65rem);
+    line-height: 1.06;
+  }
+
+  .hero__description {
+    font-size: 0.94rem;
+    line-height: 1.58;
   }
 
   .hero__promo {
@@ -668,8 +700,12 @@
   }
 
   .hero__preview {
-    min-height: 320px;
+    min-height: 260px;
     border-radius: 20px;
+  }
+
+  .hero-scene canvas {
+    transform: scale(0.94);
   }
 
   .hero__preview-fallback-ring--outer {
