@@ -15,11 +15,6 @@ const navigation = [
     href: "#proyectos",
   },
   {
-    id: "sobre-mi",
-    label: "Quién hará tu página",
-    href: "#sobre-mi",
-  },
-  {
     id: "contacto",
     label: "Contacto",
     href: "#contacto",

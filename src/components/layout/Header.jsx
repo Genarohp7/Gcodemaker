@@ -18,7 +18,6 @@ const homeSectionIds = [
   "solucion",
   "servicios",
   "proyectos",
-  "sobre-mi",
   "proceso",
   "demo-ia",
   "contacto",
@@ -260,23 +259,6 @@ function Header() {
             }
           >
             Ejemplos
-          </a>
-
-          <a
-            href={getSectionHref("#sobre-mi")}
-            className={`header__link ${
-              isHomePage && currentActiveSection === "sobre-mi"
-                ? "header__link--active"
-                : ""
-            }`}
-            onClick={(event) => handleSectionClick(event, "sobre-mi")}
-            aria-current={
-              isHomePage && currentActiveSection === "sobre-mi"
-                ? "true"
-                : "false"
-            }
-          >
-            Quién hará tu página
           </a>
 
           <NavLink

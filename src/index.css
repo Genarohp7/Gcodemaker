@@ -4,7 +4,6 @@
 @import "../blocks/problem.css";
 @import "../blocks/solution.css";
 @import "../blocks/contact.css";
-@import "../blocks/about.css";
 @import "../blocks/final-cta.css";
 @import "../blocks/packages-page.css";
 @import "../blocks/process.css";
@@ -293,10 +292,7 @@ img {
 .services-section__panel-text,
 .projects__secondary-text,
 .projects__card-summary,
-.projects__featured-summary,
-.about-section__principle-text,
-.about-section__signature-text,
-.about-section__stat-label {
+.projects__featured-summary {
   color: var(--color-text-soft);
   line-height: 1.75;
 }
@@ -553,10 +549,6 @@ img {
 ========================= */
 
 .hero__panel-card,
-.about-section__visual,
-.about-section__stat,
-.about-section__principle,
-.about-section__signature,
 .services-section__panel-box,
 .services__card--enhanced,
 .projects__card,
