@@ -14,6 +14,7 @@ const env = {
   aiMaxDemoQuestions: Number(process.env.AI_MAX_DEMO_QUESTIONS) || 3,
   aiDemoExpirationMinutes: Number(process.env.AI_DEMO_EXPIRATION_MINUTES) || 15,
   adminWhatsAppNumbers: process.env.ADMIN_WHATSAPP_NUMBERS || "",
+  gcAiAdminKey: process.env.GC_AI_ADMIN_KEY,
 
   whatsappAccessToken: process.env.WHATSAPP_ACCESS_TOKEN,
   whatsappPhoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,

@@ -103,6 +103,24 @@ numeros admin pueden activar, apagar o consultar demos. Durante una demo, las
 preguntas comerciales se responden como demostracion y consumen una pregunta en
 lugar de transferirse inmediatamente a humano.
 
+## Admin IA
+
+Las rutas `/admin/*` quedan protegidas con el header `x-admin-key`, que debe
+coincidir con `GC_AI_ADMIN_KEY`. Esta es la proteccion inicial para construir el
+panel privado sin dejar endpoints publicos.
+
+Endpoints iniciales:
+
+- `GET /admin/leads`
+- `GET /admin/leads/:id`
+- `PATCH /admin/leads/:id/status`
+- `GET /admin/conversations/:id/messages`
+- `POST /admin/demo/activate`
+- `POST /admin/demo/deactivate`
+- `GET /admin/metrics`
+- `GET /admin/settings`
+- `PATCH /admin/settings`
+
 ## Produccion
 
 El backend actual de produccion vive en la VM de Google Cloud. Antes de modificar produccion:
