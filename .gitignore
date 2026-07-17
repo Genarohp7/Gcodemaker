@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
+gc-broadcast-*.zip
+gc-broadcast-*.tar.gz
+tmp-*.cjs
 
 # Editor directories and files
 .vscode/*

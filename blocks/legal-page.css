@@ -1,0 +1,133 @@
+.legal-page {
+  position: relative;
+  padding: clamp(3rem, 6vw, 5rem) 0;
+}
+
+.legal-page__container {
+  width: min(calc(100% - 2rem), 920px);
+  margin: 0 auto;
+}
+
+.legal-page__header {
+  max-width: 760px;
+  margin-bottom: 2rem;
+}
+
+.legal-page__label {
+  margin: 0 0 0.75rem;
+  color: var(--color-primary);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.legal-page__title {
+  margin: 0 0 1rem;
+  color: #ffffff;
+  font-size: 2.35rem;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.legal-page__intro {
+  margin: 0;
+  color: var(--color-text-soft);
+  font-size: 1rem;
+  line-height: 1.75;
+  max-width: 70ch;
+}
+
+.legal-page__updated {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  margin: 1.2rem 0 0;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(173, 202, 238, 0.12);
+  color: #d9ebff;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.legal-page__content {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.legal-page__section,
+.legal-page__contact {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.04)
+    ),
+    rgba(12, 24, 42, 0.62);
+  border: 1px solid rgba(173, 202, 238, 0.12);
+  border-radius: 16px;
+  padding: 1.2rem;
+  box-shadow: 0 10px 28px rgba(7, 17, 31, 0.2);
+}
+
+.legal-page__section-title,
+.legal-page__contact-title {
+  margin: 0 0 0.65rem;
+  color: #ffffff;
+  font-size: 1.08rem;
+  line-height: 1.35;
+}
+
+.legal-page__text {
+  margin: 0;
+  color: var(--color-text-soft);
+  font-size: 0.96rem;
+  line-height: 1.72;
+}
+
+.legal-page__text + .legal-page__text {
+  margin-top: 0.7rem;
+}
+
+.legal-page__contact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.25rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.legal-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+@media (max-width: 760px) {
+  .legal-page {
+    padding: 2.4rem 0 3rem;
+  }
+
+  .legal-page__title {
+    font-size: 1.9rem;
+  }
+
+  .legal-page__section,
+  .legal-page__contact {
+    border-radius: 14px;
+    padding: 1rem;
+  }
+
+  .legal-page__contact {
+    grid-template-columns: 1fr;
+  }
+
+  .legal-page__actions {
+    justify-content: stretch;
+  }
+
+  .legal-page__actions .button {
+    width: 100%;
+  }
+}

@@ -60,9 +60,14 @@ function Footer() {
           <p className="footer__copy">
             © {currentYear} GCodemaker. Todos los derechos reservados.
           </p>
-          <p className="footer__signature">
-            Desarrollo web orientado a resultados para negocios reales.
-          </p>
+          <div className="footer__legal">
+            <a href="/privacy" className="footer__legal-link">
+              Aviso de privacidad
+            </a>
+            <a href="/terms" className="footer__legal-link">
+              Términos del servicio
+            </a>
+          </div>
         </div>
       </div>
     </footer>

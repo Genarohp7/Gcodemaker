@@ -6,9 +6,11 @@
 @import "../blocks/contact.css";
 @import "../blocks/final-cta.css";
 @import "../blocks/packages-page.css";
+@import "../blocks/legal-page.css";
 @import "../blocks/process.css";
 @import "../blocks/ai-demo.css";
 @import "../blocks/global-scene.css";
+@import "../blocks/gc-broadcast.css";
 
 :root {
   --color-bg: #07111f;
@@ -687,6 +689,24 @@ img {
   font-size: 0.95rem;
 }
 
+.footer__legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.8rem;
+}
+
+.footer__legal-link {
+  color: var(--color-text-soft);
+  font-size: 0.95rem;
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.footer__legal-link:hover {
+  color: #ffffff;
+}
+
 /* =========================
    COOKIE BANNER
 ========================= */
@@ -885,6 +905,10 @@ img {
     flex-direction: column;
   }
 
+  .footer__legal {
+    justify-content: flex-start;
+  }
+
   .footer__container--grid {
     padding: 2rem 0;
   }
@@ -914,5 +938,169 @@ img {
     transform: none !important;
     filter: none !important;
     transition: none !important;
+  }
+}
+
+/* =========================
+   GC BROADCAST DELIVERY RESULTS
+========================= */
+
+.delivery-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.delivery-package-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.delivery-package-card {
+  display: grid;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #d6e1f2;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0f1f35;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.delivery-package-card:hover,
+.delivery-package-card--active {
+  border-color: #2f8cff;
+  box-shadow: 0 12px 30px rgba(47, 140, 255, 0.14);
+  transform: translateY(-1px);
+}
+
+.delivery-package-card span,
+.delivery-package-card strong,
+.delivery-package-card small {
+  overflow-wrap: anywhere;
+}
+
+.delivery-detail-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #d6e1f2;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.delivery-detail-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.delivery-detail-card__header h2 {
+  margin: 0.45rem 0 0.25rem;
+  font-size: 1.45rem;
+  line-height: 1.2;
+}
+
+.delivery-detail-card__header p {
+  margin: 0;
+  color: #405477;
+}
+
+.delivery-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.delivery-summary-bar {
+  display: flex;
+  width: 100%;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf3fb;
+}
+
+.delivery-summary-bar--empty {
+  min-height: 10px;
+}
+
+.delivery-summary-bar__segment--read {
+  background: #0f6ddf;
+}
+
+.delivery-summary-bar__segment--delivered {
+  background: #16a36a;
+}
+
+.delivery-summary-bar__segment--sent {
+  background: #7aa7ff;
+}
+
+.delivery-summary-bar__segment--submitted {
+  background: #9aa9bd;
+}
+
+.delivery-summary-bar__segment--pending {
+  background: #d8dee8;
+}
+
+.delivery-summary-bar__segment--failed {
+  background: #d94848;
+}
+
+.delivery-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.86rem;
+}
+
+.delivery-status--read {
+  background: #e0eeff;
+  color: #0957ba;
+}
+
+.delivery-status--delivered {
+  background: #def7eb;
+  color: #047143;
+}
+
+.delivery-status--sent {
+  background: #e9f1ff;
+  color: #315caa;
+}
+
+.delivery-status--submitted,
+.delivery-status--pending {
+  background: #eef2f7;
+  color: #405477;
+}
+
+.delivery-status--failed {
+  background: #ffe2e2;
+  color: #ab2424;
+}
+
+@media (max-width: 980px) {
+  .delivery-layout,
+  .delivery-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .delivery-detail-card__header {
+    display: grid;
   }
 }
