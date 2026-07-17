@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const env = require("../config/env");
 const { pool } = require("../db");
 const aiAgentService = require("./ai-agent.service");
+const demoModeService = require("./demo-mode.service");
 const intentGuardService = require("./intent-guard.service");
 const whatsappService = require("./whatsapp.service");
 
@@ -297,6 +298,29 @@ async function processIncomingMessage(incoming) {
     };
   }
 
+  if (demoModeService.isDemoCommand(incoming.content)) {
+    const commandResult = await demoModeService.handleAdminCommand({
+      fromPhone: incoming.fromPhone,
+      message: incoming.content,
+    });
+    const sendResult = await sendAutoReply({
+      toPhone: incoming.fromPhone,
+      phoneNumberId: incoming.phoneNumberId,
+      content: commandResult.reply,
+    });
+
+    return {
+      processed: true,
+      command: true,
+      authorized: Boolean(commandResult.authorized),
+      autoReply: {
+        sent: Boolean(sendResult.sent),
+        status: sendResult.status || null,
+        reason: sendResult.reason || null,
+      },
+    };
+  }
+
   const lead = await findOrCreateLead({
     phone: incoming.fromPhone,
     name: incoming.contactName,
@@ -317,10 +341,107 @@ async function processIncomingMessage(incoming) {
     rawPayload: incoming.rawPayload,
   });
 
-  const decision = intentGuardService.decideNextAction({
+  if (conversation.demo_mode) {
+    if (demoModeService.isDemoExpired(conversation)) {
+      await demoModeService.finishDemo({
+        leadId: lead.id,
+        reason: "expired",
+      });
+
+      const replyContent =
+        "La demo ya expiro. Si quieres continuar, Genaro puede volver a activarla o darle seguimiento a tu caso.";
+      const sendResult = await sendAutoReply({
+        toPhone: incoming.fromPhone,
+        phoneNumberId: incoming.phoneNumberId,
+        content: replyContent,
+      });
+
+      await saveMessage({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        role: "ai",
+        direction: "outgoing",
+        content: replyContent,
+        messageType: "text",
+        externalMessageId: sendResult.whatsappMessageId || null,
+        rawPayload: {
+          autoReply: sendResult,
+          demo: {
+            finished: true,
+            reason: "expired",
+          },
+        },
+      });
+
+      return {
+        processed: true,
+        leadId: lead.id,
+        conversationId: conversation.id,
+        demo: {
+          active: false,
+          reason: "expired",
+        },
+      };
+    }
+
+    if (conversation.demo_remaining_questions <= 0) {
+      await demoModeService.finishDemo({
+        leadId: lead.id,
+        reason: "question_limit_reached",
+      });
+
+      const replyContent =
+        "La demo llego al limite de preguntas. Voy a dejar tu caso listo para seguimiento con Genaro.";
+      const sendResult = await sendAutoReply({
+        toPhone: incoming.fromPhone,
+        phoneNumberId: incoming.phoneNumberId,
+        content: replyContent,
+      });
+
+      await saveMessage({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        role: "ai",
+        direction: "outgoing",
+        content: replyContent,
+        messageType: "text",
+        externalMessageId: sendResult.whatsappMessageId || null,
+        rawPayload: {
+          autoReply: sendResult,
+          demo: {
+            finished: true,
+            reason: "question_limit_reached",
+          },
+        },
+      });
+
+      return {
+        processed: true,
+        leadId: lead.id,
+        conversationId: conversation.id,
+        demo: {
+          active: false,
+          reason: "question_limit_reached",
+        },
+      };
+    }
+  }
+
+  let decision = intentGuardService.decideNextAction({
     message: incoming.content,
     lead,
   });
+
+  if (conversation.demo_mode && decision.action === "transfer_to_human") {
+    decision = {
+      action: "use_ai_profiling",
+      shouldReply: true,
+      shouldUseAi: true,
+      leadStatus: "demo_active",
+      serviceInterest: decision.serviceInterest || null,
+      reason: "demo_commercial_question",
+    };
+  }
 
   await applyDecisionToLead({
     leadId: lead.id,
@@ -380,6 +501,12 @@ async function processIncomingMessage(incoming) {
     }
   }
 
+  if (conversation.demo_mode && decision.shouldReply) {
+    await demoModeService.consumeDemoQuestion({
+      conversationId: conversation.id,
+    });
+  }
+
   const sendResult = await sendAutoReply({
     toPhone: incoming.fromPhone,
     phoneNumberId: incoming.phoneNumberId,
@@ -418,6 +545,11 @@ async function processIncomingMessage(incoming) {
       humanTakeover: Boolean(aiResult?.shouldTransferToHuman || decision.humanTakeover),
       usedAi: Boolean(aiResult && !aiResult.skipped),
     },
+    demo: conversation.demo_mode
+      ? {
+          active: true,
+        }
+      : null,
   };
 }
 

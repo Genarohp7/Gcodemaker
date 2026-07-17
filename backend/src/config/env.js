@@ -11,6 +11,9 @@ const env = {
   openAiApiKey: process.env.OPENAI_API_KEY,
   openAiModel: process.env.OPENAI_MODEL || "gpt-4.1-mini",
   aiMaxResponsesPerLead: Number(process.env.AI_MAX_RESPONSES_PER_LEAD) || 3,
+  aiMaxDemoQuestions: Number(process.env.AI_MAX_DEMO_QUESTIONS) || 3,
+  aiDemoExpirationMinutes: Number(process.env.AI_DEMO_EXPIRATION_MINUTES) || 15,
+  adminWhatsAppNumbers: process.env.ADMIN_WHATSAPP_NUMBERS || "",
 
   whatsappAccessToken: process.env.WHATSAPP_ACCESS_TOKEN,
   whatsappPhoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,

@@ -89,6 +89,20 @@ La IA de perfilamiento vive en `ai-agent.service.js`. Usa `OPENAI_MODEL`,
 respuestas cortas, guarda uso en `gc_ai_usage_logs` y actualiza resumen en
 `gc_ai_lead_profiles`.
 
+## Modo Demo WhatsApp
+
+Los numeros autorizados se configuran en `ADMIN_WHATSAPP_NUMBERS` separados por
+coma. Comandos disponibles desde WhatsApp:
+
+- `/demo on 52155XXXXXXXX`
+- `/demo off 52155XXXXXXXX`
+- `/demo status 52155XXXXXXXX`
+
+El demo usa `AI_MAX_DEMO_QUESTIONS` y `AI_DEMO_EXPIRATION_MINUTES`. Solo los
+numeros admin pueden activar, apagar o consultar demos. Durante una demo, las
+preguntas comerciales se responden como demostracion y consumen una pregunta en
+lugar de transferirse inmediatamente a humano.
+
 ## Produccion
 
 El backend actual de produccion vive en la VM de Google Cloud. Antes de modificar produccion:
