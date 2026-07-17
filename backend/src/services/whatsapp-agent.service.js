@@ -2,6 +2,7 @@ const crypto = require("crypto");
 
 const env = require("../config/env");
 const { pool } = require("../db");
+const aiAgentService = require("./ai-agent.service");
 const intentGuardService = require("./intent-guard.service");
 const whatsappService = require("./whatsapp.service");
 
@@ -216,6 +217,43 @@ async function applyDecisionToLead({ leadId, conversationId, decision }) {
   }
 }
 
+async function applyAiResultToLead({ leadId, conversationId, aiResult }) {
+  await pool.query(
+    `
+      UPDATE gc_ai_leads
+      SET
+        status = COALESCE($2, status),
+        service_interest = COALESCE($3, service_interest),
+        ai_response_count = ai_response_count + CASE WHEN $4 THEN 0 ELSE 1 END,
+        ai_enabled = CASE WHEN $5 THEN FALSE ELSE ai_enabled END,
+        human_takeover = CASE WHEN $5 THEN TRUE ELSE human_takeover END,
+        updated_at = NOW()
+      WHERE id = $1
+    `,
+    [
+      leadId,
+      aiResult.leadStatus || null,
+      aiResult.serviceInterest || null,
+      Boolean(aiResult.skipped),
+      Boolean(aiResult.shouldTransferToHuman),
+    ]
+  );
+
+  if (aiResult.shouldTransferToHuman) {
+    await pool.query(
+      `
+        UPDATE gc_ai_conversations
+        SET
+          human_takeover = TRUE,
+          status = 'open',
+          updated_at = NOW()
+        WHERE id = $1
+      `,
+      [conversationId]
+    );
+  }
+}
+
 async function sendAutoReply({ toPhone, phoneNumberId, content }) {
   if (!env.whatsappAgentAutoReplyEnabled) {
     return {
@@ -306,7 +344,42 @@ async function processIncomingMessage(incoming) {
     };
   }
 
-  const replyContent = decision.reply;
+  let replyContent = decision.reply;
+  let aiResult = null;
+
+  if (decision.shouldUseAi) {
+    try {
+      aiResult = await aiAgentService.generateProfilingResponse({
+        lead,
+        conversation,
+        incomingMessage: incoming.content,
+        reason: decision.reason,
+      });
+      replyContent = aiResult.reply;
+
+      await applyAiResultToLead({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        aiResult,
+      });
+    } catch (error) {
+      replyContent =
+        "Gracias por contarme. En este momento voy a pasar tu caso con Genaro para que pueda orientarte mejor sin perder el contexto.";
+      aiResult = {
+        skipped: true,
+        skipReason: error.message || "ai_generation_failed",
+        shouldTransferToHuman: true,
+        leadStatus: "qualified_for_human",
+      };
+
+      await applyAiResultToLead({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        aiResult,
+      });
+    }
+  }
+
   const sendResult = await sendAutoReply({
     toPhone: incoming.fromPhone,
     phoneNumberId: incoming.phoneNumberId,
@@ -324,6 +397,7 @@ async function processIncomingMessage(incoming) {
     rawPayload: {
       autoReply: sendResult,
       decision,
+      aiResult,
     },
   });
 
@@ -340,8 +414,9 @@ async function processIncomingMessage(incoming) {
     decision: {
       action: decision.action,
       reason: decision.reason,
-      leadStatus: decision.leadStatus || null,
-      humanTakeover: Boolean(decision.humanTakeover),
+      leadStatus: aiResult?.leadStatus || decision.leadStatus || null,
+      humanTakeover: Boolean(aiResult?.shouldTransferToHuman || decision.humanTakeover),
+      usedAi: Boolean(aiResult && !aiResult.skipped),
     },
   };
 }

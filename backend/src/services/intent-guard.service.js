@@ -57,6 +57,27 @@ const COMMERCIAL_PATTERNS = [
   /ventas/i,
 ];
 
+const USEFUL_CONTEXT_PATTERNS = [
+  /tengo/i,
+  /tenemos/i,
+  /mi negocio/i,
+  /clinica/i,
+  /consultorio/i,
+  /restaurante/i,
+  /tienda/i,
+  /escuela/i,
+  /inmobiliaria/i,
+  /servicio/i,
+  /pacientes/i,
+  /clientes/i,
+  /ventas/i,
+  /citas/i,
+  /reservas/i,
+  /horarios/i,
+  /catalogo/i,
+  /productos/i,
+];
+
 function normalizeText(text) {
   return String(text || "").trim();
 }
@@ -142,6 +163,17 @@ function decideNextAction({ message, lead }) {
       humanTakeover: true,
       disableAi: true,
       reason: "commercial_intent",
+    };
+  }
+
+  if (matchesAny(lowerText, USEFUL_CONTEXT_PATTERNS)) {
+    return {
+      action: "use_ai_profiling",
+      shouldReply: true,
+      shouldUseAi: true,
+      leadStatus: "ai_profiling",
+      serviceInterest: detectServiceInterest(lowerText),
+      reason: "useful_business_context",
     };
   }
 

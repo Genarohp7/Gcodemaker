@@ -82,6 +82,12 @@ La decision inicial vive en `intent-guard.service.js`:
 - preguntas fuera de tema: respuesta educada, estado `off_topic` y apagado IA.
 - intencion comercial: transferencia a humano y estado `qualified_for_human`.
 - poco contexto: una pregunta breve de perfilamiento.
+- contexto util de negocio: perfilamiento con OpenAI, limitado por
+  `AI_MAX_RESPONSES_PER_LEAD`.
+
+La IA de perfilamiento vive en `ai-agent.service.js`. Usa `OPENAI_MODEL`,
+respuestas cortas, guarda uso en `gc_ai_usage_logs` y actualiza resumen en
+`gc_ai_lead_profiles`.
 
 ## Produccion
 
