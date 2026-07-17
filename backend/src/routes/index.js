@@ -2,6 +2,7 @@ const express = require("express");
 
 const demoRoutes = require("./demo.routes");
 const broadcastRoutes = require("./broadcast.routes");
+const whatsappAgentRoutes = require("./whatsapp-agent.routes");
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ router.get("/health", (req, res) => {
 });
 
 router.use("/", demoRoutes);
+router.use("/", whatsappAgentRoutes);
 router.use("/api", broadcastRoutes);
 
 module.exports = router;

@@ -40,8 +40,13 @@ npm run db:migrate
 - `GET /health`
 - `POST /demo-leads`
 - `POST /ai-demo`
+- `GET /webhooks/whatsapp`
+- `POST /webhooks/whatsapp`
 - `GET /api/webhooks/whatsapp`
 - `POST /api/webhooks/whatsapp`
+
+Las rutas `/webhooks/whatsapp` son para el agente IA comercial. Las rutas
+`/api/webhooks/whatsapp` pertenecen a GC Broadcast y se mantienen separadas.
 
 ## Modelo IA WhatsApp
 
@@ -57,6 +62,19 @@ La migracion `018_gc_ai_whatsapp_agent.sql` prepara tablas separadas para el age
 - `gc_ai_settings`
 
 Estas tablas no reemplazan `demo_leads` ni las tablas `gc_broadcast_*`; quedan listas para implementar el flujo de leads, conversaciones, modo demo, transferencia a humano y medicion de consumo IA.
+
+## Webhook IA WhatsApp
+
+El agente IA usa:
+
+- `GET /webhooks/whatsapp` para la verificacion de Meta.
+- `POST /webhooks/whatsapp` para recibir mensajes entrantes.
+
+Por ahora el webhook guarda el lead, la conversacion, el mensaje entrante y una
+respuesta fija en `gc_ai_messages`. La respuesta solo se envia a WhatsApp si
+`WHATSAPP_AGENT_AUTO_REPLY_ENABLED=true` y existen las variables de Meta
+necesarias. Esto evita respuestas reales accidentales durante pruebas o deploys
+incompletos.
 
 ## Produccion
 

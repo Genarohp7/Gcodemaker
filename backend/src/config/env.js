@@ -16,6 +16,9 @@ const env = {
   whatsappAppSecret: process.env.WHATSAPP_APP_SECRET,
   whatsappVerifyToken: process.env.WHATSAPP_VERIFY_TOKEN,
   whatsappApiVersion: process.env.WHATSAPP_API_VERSION || "v23.0",
+  whatsappAgentAutoReplyEnabled:
+    String(process.env.WHATSAPP_AGENT_AUTO_REPLY_ENABLED || "false").toLowerCase() ===
+    "true",
   gcBroadcastWebhookUrl: process.env.GC_BROADCAST_WEBHOOK_URL,
   gcBroadcastAdminKey: process.env.GC_BROADCAST_ADMIN_KEY,
 
