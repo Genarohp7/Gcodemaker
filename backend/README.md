@@ -43,6 +43,21 @@ npm run db:migrate
 - `GET /api/webhooks/whatsapp`
 - `POST /api/webhooks/whatsapp`
 
+## Modelo IA WhatsApp
+
+La migracion `018_gc_ai_whatsapp_agent.sql` prepara tablas separadas para el agente comercial de WhatsApp:
+
+- `gc_ai_users`
+- `gc_ai_leads`
+- `gc_ai_lead_profiles`
+- `gc_ai_conversations`
+- `gc_ai_messages`
+- `gc_ai_usage_logs`
+- `gc_ai_activity_logs`
+- `gc_ai_settings`
+
+Estas tablas no reemplazan `demo_leads` ni las tablas `gc_broadcast_*`; quedan listas para implementar el flujo de leads, conversaciones, modo demo, transferencia a humano y medicion de consumo IA.
+
 ## Produccion
 
 El backend actual de produccion vive en la VM de Google Cloud. Antes de modificar produccion:
