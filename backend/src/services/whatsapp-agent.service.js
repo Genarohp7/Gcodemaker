@@ -2,10 +2,8 @@ const crypto = require("crypto");
 
 const env = require("../config/env");
 const { pool } = require("../db");
+const intentGuardService = require("./intent-guard.service");
 const whatsappService = require("./whatsapp.service");
-
-const DEFAULT_REPLY =
-  "Hola, soy el asistente de GCodemaker. Puedo ayudarte a entender como una pagina web con IA integrada puede atender clientes, captar prospectos y llevarlos a WhatsApp. Cuentame que tipo de negocio tienes y que te gustaria automatizar.";
 
 function createId(prefix) {
   return `${prefix}-${crypto.randomUUID()}`;
@@ -146,11 +144,11 @@ async function saveMessage({
         lead_id,
         conversation_id,
         role,
-        direction,
         message_type,
         content,
-        external_message_id,
-        raw_payload
+        provider,
+        provider_message_id,
+        metadata
       )
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb)
       RETURNING *
@@ -160,15 +158,62 @@ async function saveMessage({
       leadId,
       conversationId,
       role,
-      direction,
       messageType,
       content,
+      direction === "outgoing" ? "whatsapp_cloud_api" : "whatsapp_webhook",
       externalMessageId,
-      JSON.stringify(rawPayload || {}),
+      JSON.stringify({
+        direction,
+        rawPayload: rawPayload || {},
+      }),
     ]
   );
 
   return result.rows[0];
+}
+
+async function applyDecisionToLead({ leadId, conversationId, decision }) {
+  if (!decision.leadStatus && !decision.disableAi && !decision.humanTakeover) {
+    return;
+  }
+
+  await pool.query(
+    `
+      UPDATE gc_ai_leads
+      SET
+        status = COALESCE($2, status),
+        service_interest = COALESCE($3, service_interest),
+        qualification_reason = COALESCE($4, qualification_reason),
+        ai_enabled = CASE WHEN $5 THEN FALSE ELSE ai_enabled END,
+        human_takeover = CASE WHEN $6 THEN TRUE ELSE human_takeover END,
+        off_topic_count = CASE WHEN $7 = 'off_topic' THEN off_topic_count + 1 ELSE off_topic_count END,
+        updated_at = NOW()
+      WHERE id = $1
+    `,
+    [
+      leadId,
+      decision.leadStatus || null,
+      decision.serviceInterest || null,
+      decision.qualificationReason || null,
+      Boolean(decision.disableAi),
+      Boolean(decision.humanTakeover),
+      decision.action,
+    ]
+  );
+
+  if (decision.humanTakeover) {
+    await pool.query(
+      `
+        UPDATE gc_ai_conversations
+        SET
+          human_takeover = TRUE,
+          status = 'open',
+          updated_at = NOW()
+        WHERE id = $1
+      `,
+      [conversationId]
+    );
+  }
 }
 
 async function sendAutoReply({ toPhone, phoneNumberId, content }) {
@@ -234,7 +279,34 @@ async function processIncomingMessage(incoming) {
     rawPayload: incoming.rawPayload,
   });
 
-  const replyContent = DEFAULT_REPLY;
+  const decision = intentGuardService.decideNextAction({
+    message: incoming.content,
+    lead,
+  });
+
+  await applyDecisionToLead({
+    leadId: lead.id,
+    conversationId: conversation.id,
+    decision,
+  });
+
+  if (!decision.shouldReply) {
+    return {
+      processed: true,
+      leadId: lead.id,
+      conversationId: conversation.id,
+      decision: {
+        action: decision.action,
+        reason: decision.reason,
+      },
+      autoReply: {
+        sent: false,
+        reason: decision.reason,
+      },
+    };
+  }
+
+  const replyContent = decision.reply;
   const sendResult = await sendAutoReply({
     toPhone: incoming.fromPhone,
     phoneNumberId: incoming.phoneNumberId,
@@ -251,6 +323,7 @@ async function processIncomingMessage(incoming) {
     externalMessageId: sendResult.whatsappMessageId || null,
     rawPayload: {
       autoReply: sendResult,
+      decision,
     },
   });
 
@@ -263,6 +336,12 @@ async function processIncomingMessage(incoming) {
       sent: Boolean(sendResult.sent),
       status: sendResult.status || null,
       reason: sendResult.reason || null,
+    },
+    decision: {
+      action: decision.action,
+      reason: decision.reason,
+      leadStatus: decision.leadStatus || null,
+      humanTakeover: Boolean(decision.humanTakeover),
     },
   };
 }

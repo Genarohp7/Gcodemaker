@@ -76,6 +76,13 @@ respuesta fija en `gc_ai_messages`. La respuesta solo se envia a WhatsApp si
 necesarias. Esto evita respuestas reales accidentales durante pruebas o deploys
 incompletos.
 
+La decision inicial vive en `intent-guard.service.js`:
+
+- saludos simples: respuesta fija sin OpenAI.
+- preguntas fuera de tema: respuesta educada, estado `off_topic` y apagado IA.
+- intencion comercial: transferencia a humano y estado `qualified_for_human`.
+- poco contexto: una pregunta breve de perfilamiento.
+
 ## Produccion
 
 El backend actual de produccion vive en la VM de Google Cloud. Antes de modificar produccion:
