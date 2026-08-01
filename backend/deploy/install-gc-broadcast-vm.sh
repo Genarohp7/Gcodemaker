@@ -52,7 +52,7 @@ echo "Ejecutando migraciones..."
 sudo -u "$APP_USER" bash -lc "cd $APP_DIR && npm run db:migrate"
 
 echo "Reiniciando PM2..."
-sudo -u "$APP_USER" env PM2_HOME=/home/genar/.pm2 pm2 restart all --update-env
+sudo -u "$APP_USER" env PM2_HOME=/home/genar/.pm2 pm2 restart gcodemaker-ai-api --update-env
 
 echo "Verificando health..."
 curl -sS --max-time 5 http://127.0.0.1:3000/health

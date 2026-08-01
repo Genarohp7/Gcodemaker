@@ -6,7 +6,7 @@
     <title>GCodemaker</title>
     <script>
       (function redirectToSpa(location) {
-        var pathSegmentsToKeep = 1;
+        var pathSegmentsToKeep = 0;
         var pathParts = location.pathname.split("/");
         var basePath = pathParts.slice(0, 1 + pathSegmentsToKeep).join("/");
         var routePath = pathParts.slice(1 + pathSegmentsToKeep).join("/");

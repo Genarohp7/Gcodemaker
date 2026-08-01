@@ -288,7 +288,6 @@ export async function startWhatsAppBusinessEmbeddedSignup() {
 
       console.log("[WA Embedded Signup] maybeSendExchange", {
         hasCode: Boolean(code),
-        codeLength: code?.length ?? 0,
         hasEmbeddedSignup: Boolean(embeddedSignup),
         embeddedSignupType: embeddedSignup?.type ?? null,
         embeddedSignupEvent: embeddedSignup?.event ?? null,
@@ -313,13 +312,15 @@ export async function startWhatsAppBusinessEmbeddedSignup() {
         return;
       }
 
-      if (!isEmbeddedSignupCompletion(embeddedSignup)) {
+      if (embeddedSignup && !isEmbeddedSignupCompletion(embeddedSignup)) {
         return;
       }
 
       exchangeStartedRef.current = true;
       cleanupMessageListener();
-      console.log("[WA Embedded Signup] calling backend exchange");
+      console.log("[WA Embedded Signup] calling backend exchange", {
+        hasEmbeddedSignup: Boolean(embeddedSignup),
+      });
 
       resolve({
         code,
@@ -340,7 +341,6 @@ export async function startWhatsAppBusinessEmbeddedSignup() {
           hasAuthResponse: Boolean(authResponse),
           authResponseKeys: authResponse ? Object.keys(authResponse) : [],
           hasCode: Boolean(code),
-          codeLength: code ? String(code).length : 0,
           hasAccessToken: Boolean(authResponse?.accessToken),
           hasSignedRequest: Boolean(authResponse?.signedRequest),
           expiresIn: authResponse?.expiresIn || null,
@@ -358,13 +358,11 @@ export async function startWhatsAppBusinessEmbeddedSignup() {
         codeRef.current = code;
         ensureWaEmbeddedSignupDebug().lastCode = {
           hasCode: true,
-          codeLength: String(code).length,
           timestamp: new Date().toISOString(),
         };
 
         console.log("[WA Embedded Signup] code captured", {
           hasCode: true,
-          codeLength: String(code).length,
         });
 
         timeoutRef.current = window.setTimeout(() => {
@@ -377,12 +375,8 @@ export async function startWhatsAppBusinessEmbeddedSignup() {
             note: "Check browser extensions/ad blockers. net::ERR_BLOCKED_BY_CLIENT may block Meta resources.",
           });
 
-          cleanupMessageListener();
-          reject(
-            new Error(
-              "Meta devolvio el codigo de autorizacion, pero no se recibio la informacion completa de Embedded Signup. Intenta nuevamente."
-            )
-          );
+          embeddedSignupRef.current = null;
+          void maybeSendExchange();
         }, 15000);
 
         maybeSendExchange();

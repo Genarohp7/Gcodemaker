@@ -1,16 +1,33 @@
-# React + Vite
+# GCodemaker.com.mx
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Landing principal de GCodemaker para `https://gcodemaker.com.mx/`.
 
-Currently, two official plugins are available:
+## Alcance
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Sitio comercial publico de GCodemaker.
+- Paginas informativas, paquetes, legales y demo IA embebido.
+- Build de produccion para la raiz del dominio: `/`.
 
-## React Compiler
+## No mezclar aqui
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Fabrica interna de demos: vive en `C:\dev\gcodemaker-demo-factory` y se publica bajo `/demo/`.
+- Plataforma multiempresa de IA: vive en `C:\dev\gcodemaker-platform`.
+- Documentacion maestra del ecosistema: vive en `C:\dev\gcodemaker-ecosystem`.
 
-## Expanding the ESLint configuration
+## Comandos
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run dev
+npm run build
+npm run preview
+```
+
+El build correcto de este proyecto genera `dist/index.html` con titulo
+`GCodemaker | Desarrollo web con IA integrada para negocios` y canonical
+`https://gcodemaker.com.mx/`.
+
+## Nota pendiente
+
+La ruta `/gc-broadcast` y algunos clientes API siguen dentro de este proyecto.
+Funcionan como herramienta heredada/interna, pero conviene migrarlos a
+`gcodemaker-platform` cuando la plataforma ya tenga modulo administrativo listo.

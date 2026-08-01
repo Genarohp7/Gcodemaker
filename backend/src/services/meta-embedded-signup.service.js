@@ -90,6 +90,10 @@ function getFirstArrayItem(value) {
   return Array.isArray(value?.data) && value.data.length ? value.data[0] : null;
 }
 
+function getArrayItems(value) {
+  return Array.isArray(value?.data) ? value.data : [];
+}
+
 function getEmbeddedSignupAssets(embeddedSignup) {
   const data = embeddedSignup?.data || {};
 
@@ -106,6 +110,7 @@ function resolveAssets({
   clientWhatsAppAccounts,
   phoneNumbers,
   embeddedSignup,
+  businessId = null,
 }) {
   const ownedWaba = getFirstArrayItem(ownedWhatsAppAccounts?.body);
   const clientWaba = getFirstArrayItem(clientWhatsAppAccounts?.body);
@@ -114,7 +119,7 @@ function resolveAssets({
   const embeddedAssets = getEmbeddedSignupAssets(embeddedSignup);
 
   return {
-    businessId: embeddedAssets.businessId || tokenResponse?.business_id || null,
+    businessId: embeddedAssets.businessId || tokenResponse?.business_id || businessId || null,
     wabaId: embeddedAssets.wabaId || waba?.id || null,
     phoneNumberId: embeddedAssets.phoneNumberId || phoneNumber?.id || null,
     connectedPhone:
@@ -128,6 +133,66 @@ async function discoverWhatsAppAssets(accessToken, tokenResponse, embeddedSignup
   const businessId = tokenResponse?.business_id || embeddedSignup?.data?.business_id;
 
   if (!businessId || !accessToken) {
+    if (accessToken) {
+      const businesses = await graphGet(
+        "/me/businesses?fields=id,name&limit=10",
+        accessToken
+      );
+
+      for (const business of getArrayItems(businesses.body)) {
+        if (!business?.id) {
+          continue;
+        }
+
+        const fields = "id,name";
+        const ownedWhatsAppAccounts = await graphGet(
+          `/${business.id}/owned_whatsapp_business_accounts?fields=${encodeURIComponent(fields)}`,
+          accessToken
+        );
+        const clientWhatsAppAccounts = await graphGet(
+          `/${business.id}/client_whatsapp_business_accounts?fields=${encodeURIComponent(fields)}`,
+          accessToken
+        );
+        const wabaId =
+          getFirstArrayItem(ownedWhatsAppAccounts.body)?.id ||
+          getFirstArrayItem(clientWhatsAppAccounts.body)?.id ||
+          null;
+        const phoneNumbers = wabaId
+          ? await graphGet(
+              `/${wabaId}/phone_numbers?fields=${encodeURIComponent(
+                "id,display_phone_number,verified_name"
+              )}`,
+              accessToken
+            )
+          : null;
+
+        if (wabaId || getFirstArrayItem(phoneNumbers?.body)?.id) {
+          return {
+            ownedWhatsAppAccounts,
+            clientWhatsAppAccounts,
+            phoneNumbers,
+            businesses,
+            resolvedAssets: resolveAssets({
+              tokenResponse,
+              ownedWhatsAppAccounts,
+              clientWhatsAppAccounts,
+              phoneNumbers,
+              embeddedSignup,
+              businessId: business.id,
+            }),
+          };
+        }
+      }
+
+      return {
+        ownedWhatsAppAccounts: null,
+        clientWhatsAppAccounts: null,
+        phoneNumbers: null,
+        businesses,
+        resolvedAssets: resolveAssets({ tokenResponse, embeddedSignup }),
+      };
+    }
+
     return {
       ownedWhatsAppAccounts: null,
       clientWhatsAppAccounts: null,
@@ -194,16 +259,14 @@ async function exchangeEmbeddedSignupCode({ code, redirectUri, embeddedSignup = 
 
   console.info("Meta Embedded Signup code exchange", {
     graphVersion: env.metaGraphVersion,
-    appId: env.metaAppId,
     metaOauthSendRedirectUriRaw: env.metaOauthSendRedirectUriRaw || null,
     redirectUriMode,
     sendsRedirectUri,
     bodyHasRedirectUri: Boolean(redirectUri),
     bodyRedirectUri: redirectUri || null,
     redirectUri: sendsRedirectUri ? resolvedRedirectUri : null,
-    finalParamKeys,
+    finalParamKeys: finalParamKeys.filter((key) => key !== "client_secret" && key !== "code"),
     metaEndpoint: `${url.origin}${url.pathname}`,
-    codeLength: String(code || "").length,
   });
 
   const response = await fetch(url);

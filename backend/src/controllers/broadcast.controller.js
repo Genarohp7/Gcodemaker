@@ -1548,7 +1548,6 @@ async function exchangeEmbeddedSignupCode(req, res) {
     graphVersion: env.metaGraphVersion,
     metaOauthRedirectUriMode: redirectTrace.mode,
     hasCode: Boolean(resolvedCode),
-    codeLength: resolvedCode.length,
     redirectUriReceivedFromFrontend: redirectUri || null,
     redirectUriUsedByBackend: redirectTrace.redirectUriUsedByBackend,
     redirectUriSource: redirectTrace.redirectUriSource,
@@ -1568,10 +1567,10 @@ async function exchangeEmbeddedSignupCode(req, res) {
     });
   }
 
-  if (!embeddedSignup || embeddedSignup.type !== "WA_EMBEDDED_SIGNUP") {
+  if (embeddedSignup && embeddedSignup.type !== "WA_EMBEDDED_SIGNUP") {
     return res.status(400).json({
       ok: false,
-      message: "No se recibio informacion de Embedded Signup",
+      message: "La informacion de Embedded Signup no tiene el formato esperado",
       requiredFields: ["embeddedSignup"],
     });
   }
