@@ -5,10 +5,7 @@ const OFF_TOPIC_MESSAGE =
   "Puedo ayudarte unicamente con informacion relacionada con los servicios de GCodemaker, como paginas web, sistemas a medida o automatizaciones con IA para negocios. Si necesitas alguno de estos servicios, con gusto te oriento.";
 
 const HUMAN_TAKEOVER_MESSAGE =
-  "Perfecto, con eso ya tengo una idea mas clara. Voy a pasar tu caso con Genaro para que pueda orientarte mejor y darte una propuesta adecuada.";
-
-const PROFILING_MESSAGE =
-  "Gracias por contarme. Para ubicar mejor tu caso, dime en una frase que negocio tienes y que te gustaria mejorar: atraer clientes, responder dudas, vender mejor o automatizar algun proceso.";
+  "Perfecto, con eso ya tengo una idea mas clara. Voy a pasar tu caso con el ingeniero responsable para que pueda orientarte mejor y darte una propuesta adecuada.";
 
 const SIMPLE_GREETING_PATTERNS = [
   /^hola[!. ]*$/i,
@@ -36,6 +33,10 @@ const OFF_TOPIC_PATTERNS = [
 
 const COMMERCIAL_PATTERNS = [
   /precio/i,
+  /costo/i,
+  /incluye/i,
+  /iva/i,
+  /\bcrm\b/i,
   /cotiz/i,
   /presupuesto/i,
   /cu[aá]nto cuesta/i,
@@ -43,18 +44,63 @@ const COMMERCIAL_PATTERNS = [
   /agendar/i,
   /cita/i,
   /como empezamos/i,
+  /empezar/i,
+  /iniciar/i,
+  /requisitos/i,
+  /conviene/i,
+  /recomiendas/i,
   /p[aá]gina web/i,
   /landing/i,
   /sistema/i,
   /automatiz/i,
+  /asistente/i,
   /chatbot/i,
   /\bia\b/i,
   /whatsapp/i,
+  /mensajes/i,
+  /atender/i,
+  /horario/i,
+  /servicios/i,
+  /tiempo/i,
+  /tarda/i,
+  /implementarse/i,
+  /quedar.*listo/i,
   /google/i,
   /seo/i,
   /clientes/i,
   /negocio/i,
   /ventas/i,
+];
+
+const ENGINEER_DECISION_PATTERNS = [
+  /hablar con (genaro|un asesor|una persona|alguien|el ingeniero)/i,
+  /quiero (hablar|contactar|contactarme) con (genaro|un asesor|una persona|alguien|el ingeniero)/i,
+  /pasame con (genaro|un asesor|una persona|alguien|el ingeniero)/i,
+  /p[aÃ¡]same con (genaro|un asesor|una persona|alguien|el ingeniero)/i,
+  /que me contacte (genaro|un asesor|una persona|alguien|el ingeniero)/i,
+  /descuento/i,
+  /rebaja/i,
+  /promoci(?:on|\u00f3n) especial/i,
+  /excepci(?:on|\u00f3n)/i,
+  /autoriza/i,
+  /autorizar/i,
+  /negociar/i,
+  /negociacion/i,
+  /negociaci[oÃ³]n/i,
+  /negociemos/i,
+  /negociable/i,
+  /garant(?:ia|\u00eda)/i,
+  /garantiza/i,
+  /compromiso/i,
+  /contrato/i,
+  /legal/i,
+  /financier/i,
+  /cambio de alcance/i,
+  /fecha especial/i,
+  /pueden asegurar/i,
+  /me aseguras/i,
+  /no tengo certeza/i,
+  /no estoy seguro/i,
 ];
 
 const USEFUL_CONTEXT_PATTERNS = [
@@ -152,17 +198,28 @@ function decideNextAction({ message, lead }) {
     };
   }
 
-  if (matchesAny(lowerText, COMMERCIAL_PATTERNS)) {
+  if (matchesAny(lowerText, ENGINEER_DECISION_PATTERNS)) {
     return {
       action: "transfer_to_human",
       shouldReply: true,
       reply: HUMAN_TAKEOVER_MESSAGE,
       leadStatus: "qualified_for_human",
-      qualificationReason: "commercial_interest_detected",
+      qualificationReason: "engineer_decision_required",
       serviceInterest: detectServiceInterest(lowerText),
       humanTakeover: true,
       disableAi: true,
-      reason: "commercial_intent",
+      reason: "engineer_decision_required",
+    };
+  }
+
+  if (matchesAny(lowerText, COMMERCIAL_PATTERNS)) {
+    return {
+      action: "use_ai_profiling",
+      shouldReply: true,
+      shouldUseAi: true,
+      leadStatus: "ai_profiling",
+      serviceInterest: detectServiceInterest(lowerText),
+      reason: "commercial_interest_profile_needed",
     };
   }
 
@@ -178,9 +235,9 @@ function decideNextAction({ message, lead }) {
   }
 
   return {
-    action: "profiling",
+    action: "use_ai_profiling",
     shouldReply: true,
-    reply: PROFILING_MESSAGE,
+    shouldUseAi: true,
     leadStatus: "ai_profiling",
     reason: "needs_more_context",
   };
