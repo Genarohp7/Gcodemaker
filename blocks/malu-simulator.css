@@ -1,0 +1,221 @@
+.malu-sim-page {
+  min-height: 100vh;
+  background: #07111f;
+  color: #e5eefc;
+  padding: 32px;
+}
+
+.malu-sim-shell {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.malu-sim-header,
+.malu-sim-config,
+.malu-sim-chat,
+.malu-sim-state {
+  border: 1px solid rgba(173, 202, 238, 0.18);
+  background: rgba(11, 23, 40, 0.88);
+  border-radius: 8px;
+}
+
+.malu-sim-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px;
+}
+
+.malu-sim-header p {
+  margin: 0 0 8px;
+  color: #ffcb4e;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.malu-sim-header h1 {
+  margin: 0 0 8px;
+  font-size: 34px;
+}
+
+.malu-sim-header span,
+.malu-sim-state span,
+.malu-sim-message small {
+  color: #9db0cb;
+}
+
+.malu-sim-actions,
+.malu-sim-composer {
+  display: flex;
+  gap: 10px;
+}
+
+.malu-sim-actions {
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.malu-sim-actions button,
+.malu-sim-composer button {
+  border: 0;
+  border-radius: 6px;
+  background: #4da3ff;
+  color: #07111f;
+  font-weight: 800;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+.malu-sim-actions button:disabled,
+.malu-sim-composer button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.malu-sim-config {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 18px 0;
+  padding: 18px;
+}
+
+.malu-sim-config label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.malu-sim-config input,
+.malu-sim-config select,
+.malu-sim-composer textarea {
+  width: 100%;
+  border: 1px solid rgba(173, 202, 238, 0.28);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5eefc;
+  padding: 11px 12px;
+}
+
+.malu-sim-config option {
+  color: #07111f;
+}
+
+.malu-sim-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 18px;
+}
+
+.malu-sim-chat {
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+}
+
+.malu-sim-messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  overflow: auto;
+}
+
+.malu-sim-empty {
+  margin: auto;
+  color: #9db0cb;
+}
+
+.malu-sim-message {
+  max-width: 76%;
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(173, 202, 238, 0.16);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.malu-sim-message--malu {
+  align-self: flex-end;
+  background: rgba(77, 163, 255, 0.16);
+}
+
+.malu-sim-message__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.malu-sim-message p {
+  white-space: pre-wrap;
+  margin: 8px 0;
+}
+
+.malu-sim-composer {
+  border-top: 1px solid rgba(173, 202, 238, 0.18);
+  padding: 16px;
+}
+
+.malu-sim-composer textarea {
+  resize: vertical;
+}
+
+.malu-sim-state {
+  padding: 18px;
+}
+
+.malu-sim-state h2 {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+
+.malu-sim-state__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(173, 202, 238, 0.12);
+}
+
+.malu-sim-state__row strong {
+  text-align: right;
+}
+
+.malu-sim-ids,
+.malu-sim-activity {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.malu-sim-error {
+  border: 1px solid rgba(255, 114, 114, 0.35);
+  background: rgba(255, 114, 114, 0.12);
+  color: #ffd3d3;
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+@media (max-width: 860px) {
+  .malu-sim-page {
+    padding: 18px;
+  }
+
+  .malu-sim-header,
+  .malu-sim-grid,
+  .malu-sim-config {
+    grid-template-columns: 1fr;
+  }
+
+  .malu-sim-header {
+    display: grid;
+  }
+
+  .malu-sim-message {
+    max-width: 100%;
+  }
+}
