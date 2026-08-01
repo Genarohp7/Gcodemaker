@@ -2,10 +2,46 @@ const crypto = require("crypto");
 
 const env = require("../config/env");
 const { pool } = require("../db");
+const { MALU_BUSINESS_KNOWLEDGE } = require("../knowledge/malu-business-knowledge");
 const aiAgentService = require("./ai-agent.service");
+const { getCalendarProvider } = require("./calendar-provider.service");
 const demoModeService = require("./demo-mode.service");
 const intentGuardService = require("./intent-guard.service");
+const scopeGuardService = require("./malu-scope-guard.service");
 const whatsappService = require("./whatsapp.service");
+
+const MALU_INTRODUCTION =
+  "Hola, soy Malu, asistente virtual de GCodemaker.";
+const POST_HANDOFF_CONTACT_QUESTION =
+  "El ingeniero ya esta atendiendo tu caso y los detalles de tu servicio podras revisarlos directamente con el. Gustas que le pida que se ponga en contacto contigo?";
+const POST_HANDOFF_CONTACT_CONFIRMATION =
+  "Listo, ya deje registrada tu solicitud para que el ingeniero se ponga en contacto contigo.";
+const POST_HANDOFF_BOUNDARY_MESSAGE =
+  "El seguimiento de tu caso corresponde al ingeniero asignado. Para evitar darte informacion incorrecta, no voy a retomar la atencion comercial desde aqui.";
+const POST_HANDOFF_FINAL_MESSAGE =
+  "Para evitar darte informacion incorrecta, el seguimiento de tu caso debe realizarlo el ingeniero asignado. Tu solicitud ya quedo registrada.";
+const POST_HANDOFF_MAX_AUTO_REPLIES = 4;
+const SIMULATOR_PROVIDER = "simulator";
+const SCHEDULING_ACTION = "malu_scheduling_state_changed";
+const SCOPE_METRIC_ACTION = "malu_scope_consumption_metric";
+const SCHEDULING_STATUSES = Object.freeze({
+  READY_TO_OFFER: "READY_TO_OFFER_SCHEDULING",
+  OFFERED: "SCHEDULING_OFFERED",
+  WAITING_ACCEPTANCE: "WAITING_FOR_SCHEDULING_ACCEPTANCE",
+  MODALITY_REQUIRED: "SCHEDULING_MODALITY_REQUIRED",
+  AVAILABILITY_REQUIRED: "CALENDAR_AVAILABILITY_REQUIRED",
+  SLOT_OPTIONS_PRESENTED: "SLOT_OPTIONS_PRESENTED",
+  SLOT_SELECTED: "SLOT_SELECTED",
+  APPOINTMENT_CONFIRMED: "APPOINTMENT_CONFIRMED",
+  HANDOFF_FINALIZED: "HANDOFF_FINALIZED",
+  DECLINED: "SCHEDULING_DECLINED",
+});
+
+const APPOINTMENT_MODALITIES = Object.freeze({
+  IN_PERSON: "PRESENCIAL",
+  VIDEO_CALL: "VIDEOLLAMADA",
+  PHONE_CALL: "LLAMADA",
+});
 
 function createId(prefix) {
   return `${prefix}-${crypto.randomUUID()}`;
@@ -40,6 +76,222 @@ function getMessageContent(message) {
   return `[Mensaje ${message.type || "desconocido"} recibido]`;
 }
 
+function isAffirmativeContactRequest(message) {
+  const text = String(message || "").trim().toLowerCase();
+
+  return [
+    /^s(?:i|\u00ed)\b/,
+    /por favor/,
+    /que me contacte/,
+    /dile que me escriba/,
+    /de acuerdo/,
+    /claro/,
+    /ok/,
+  ].some((pattern) => pattern.test(text));
+}
+
+function isNegativeSchedulingResponse(message) {
+  const text = String(message || "").trim().toLowerCase();
+
+  return [
+    /^no\b/,
+    /no gracias/,
+    /despues/,
+    /luego/,
+    /por ahora no/,
+  ].some((pattern) => pattern.test(text));
+}
+
+function isSchedulingAcceptance(message) {
+  const text = String(message || "").trim().toLowerCase();
+
+  return [
+    /^s(?:i|\u00ed)\b/,
+    /por favor/,
+    /me gustaria/,
+    /me gustar[ií]a/,
+    /consultar horarios/,
+    /agenda/,
+    /agendar/,
+    /llamada/,
+    /de acuerdo/,
+    /\bok\b/,
+  ].some((pattern) => pattern.test(text));
+}
+
+function detectAppointmentModality(message) {
+  const text = String(message || "").trim().toLowerCase();
+
+  if (/videollamada|video llamada|meet|zoom|teams|llamada por video|virtual|en linea|en línea/.test(text)) {
+    return APPOINTMENT_MODALITIES.VIDEO_CALL;
+  }
+
+  if (/llamada telefonica|llamada telef[oó]nica|por telefono|por tel[eé]fono|telefono|tel[eé]fono/.test(text)) {
+    return APPOINTMENT_MODALITIES.PHONE_CALL;
+  }
+
+  if (/presencial|en persona|reunion presencial|reuni[oó]n presencial|nos vemos|vernos/.test(text)) {
+    return APPOINTMENT_MODALITIES.IN_PERSON;
+  }
+
+  return null;
+}
+
+function detectProspectLocation(message) {
+  const text = String(message || "").trim().toLowerCase();
+
+  if (/cdmx|ciudad de mexico|ciudad de m[eé]xico|mexico city|df|distrito federal/.test(text)) {
+    return {
+      city: "Ciudad de Mexico",
+      state: "Ciudad de Mexico",
+      inMexicoCity: true,
+    };
+  }
+
+  const statePatterns = [
+    [/baja california|tijuana|mexicali|ensenada/, "Baja California"],
+    [/jalisco|guadalajara|zapopan/, "Jalisco"],
+    [/nuevo leon|nuevo le[oó]n|monterrey/, "Nuevo Leon"],
+    [/queretaro|quer[eé]taro/, "Queretaro"],
+    [/puebla/, "Puebla"],
+    [/estado de mexico|edomex|toluca/, "Estado de Mexico"],
+    [/yucatan|yucat[aá]n|merida|m[eé]rida/, "Yucatan"],
+    [/quintana roo|cancun|canc[uú]n|playa del carmen/, "Quintana Roo"],
+  ];
+  const match = statePatterns.find(([pattern]) => pattern.test(text));
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    city: null,
+    state: match[1],
+    inMexicoCity: false,
+  };
+}
+
+function mergeSchedulingContext(state = {}, message) {
+  const location = detectProspectLocation(message) || state.location || null;
+  const requestedModality = detectAppointmentModality(message) || state.modality || null;
+  const modality =
+    requestedModality === APPOINTMENT_MODALITIES.IN_PERSON && location?.inMexicoCity === false
+      ? null
+      : requestedModality;
+
+  return {
+    location,
+    modality,
+    requestedModality,
+  };
+}
+
+function isGenericMeetingRequest(message) {
+  return /reunir|reunion|reuni[oó]n|cita|ver disponibilidad|horarios|agenda|agendar|llamada/i.test(
+    String(message || "")
+  );
+}
+
+function needsSchedulingModalityClarification({ state, message }) {
+  const context = mergeSchedulingContext(state, message);
+
+  if (
+    context.requestedModality === APPOINTMENT_MODALITIES.IN_PERSON &&
+    context.location?.inMexicoCity === false
+  ) {
+    return {
+      needed: true,
+      context,
+      reply:
+        "La reunion presencial solo esta disponible en Ciudad de Mexico. Podemos continuar con videollamada o llamada telefonica. Cual modalidad prefieres?",
+    };
+  }
+
+  if (context.modality) {
+    return {
+      needed: false,
+      context,
+    };
+  }
+
+  if (context.location?.inMexicoCity === true) {
+    return {
+      needed: true,
+      context,
+      reply:
+        "Como estas en Ciudad de Mexico, podemos revisar la reunion en modalidad presencial, videollamada o llamada telefonica. Cual prefieres?",
+    };
+  }
+
+  if (context.location?.inMexicoCity === false) {
+    return {
+      needed: true,
+      context,
+      reply:
+        "Podemos continuar por videollamada o llamada telefonica. Cual modalidad prefieres para la reunion con el ingeniero responsable?",
+    };
+  }
+
+  if (isGenericMeetingRequest(message)) {
+    return {
+      needed: true,
+      context,
+      reply:
+        "Claro. Podemos revisar tu proyecto con el ingeniero responsable. En que ciudad te encuentras o prefieres videollamada o llamada telefonica? Asi puedo indicarte que modalidades de reunion tenemos disponibles.",
+    };
+  }
+
+  return {
+    needed: true,
+    context,
+    reply:
+      "Antes de consultar horarios, necesito confirmar la modalidad de la reunion: videollamada, llamada telefonica o, si estas en Ciudad de Mexico, reunion presencial. Cual prefieres?",
+  };
+}
+
+function parseSlotSelection(message, slots = []) {
+  const text = String(message || "").trim().toLowerCase();
+  const explicitNumber = text.match(/\b(?:opci[oó]n\s*)?([1-3])\b/);
+
+  if (explicitNumber) {
+    return slots[Number(explicitNumber[1]) - 1] || null;
+  }
+
+  return (
+    slots.find((slot) => text.includes(String(slot.label || "").toLowerCase())) ||
+    null
+  );
+}
+
+function isTransferredConversation(conversation, lead) {
+  return (
+    conversation?.conversation_owner === "INGENIERO" ||
+    conversation?.human_takeover === true ||
+    lead?.ai_enabled === false ||
+    lead?.human_takeover === true
+  );
+}
+
+function withMaluIntroduction(reply, conversation) {
+  const text = String(reply || "").trim();
+
+  if (!conversation?.isNew) {
+    return text
+      .replace(/^Hola,\s*soy Malu,\s*asistente virtual de GCodemaker\.\s*/i, "")
+      .trim();
+  }
+
+  if (!text || text.startsWith(MALU_INTRODUCTION)) {
+    return text || MALU_INTRODUCTION;
+  }
+
+  if (text.startsWith("Hola! ")) {
+    return `${MALU_INTRODUCTION} ${text.slice("Hola! ".length)}`;
+  }
+
+  return `${MALU_INTRODUCTION} ${text}`;
+}
+
 function extractIncomingMessages(payload) {
   return getChanges(payload).flatMap((change) => {
     const value = change.value || {};
@@ -58,6 +310,615 @@ function extractIncomingMessages(payload) {
       },
     }));
   });
+}
+
+function getIncomingProvider(incoming) {
+  return incoming?.provider || "whatsapp_webhook";
+}
+
+function getOutgoingProvider(incoming) {
+  return incoming?.transport === "simulator" ? SIMULATOR_PROVIDER : "whatsapp_cloud_api";
+}
+
+function isSimulatorMockMode(incoming) {
+  return incoming?.transport === "simulator" && incoming?.simulationMode === "MOCK";
+}
+
+function getMaluProduct(code) {
+  return MALU_BUSINESS_KNOWLEDGE.products.find((product) => product.code === code);
+}
+
+function getMaluAiPackage(code) {
+  return MALU_BUSINESS_KNOWLEDGE.aiAgentPackages.find((aiPackage) => aiPackage.code === code);
+}
+
+function formatMxn(amount) {
+  return `$${Number(amount).toLocaleString("es-MX")} MXN`;
+}
+
+function hasImplementationDiscountOfferShown(recentMessages = []) {
+  return recentMessages.some((message) =>
+    /15%|quince por ciento|descuento.*implementaci[oÃ³]n|descuento.*implementacion/i.test(
+      String(message.content || "")
+    )
+  );
+}
+
+function buildImplementationDiscountSentence(recentMessages = []) {
+  if (hasImplementationDiscountOfferShown(recentMessages)) {
+    return "";
+  }
+
+  return " Ademas, si programas una llamada con el ingeniero responsable, podria aplicar un descuento del 15% sobre el costo de implementacion.";
+}
+
+function textIncludesAny(text, patterns) {
+  return patterns.some((pattern) => pattern.test(text));
+}
+
+function isPriceQuestion(message) {
+  return /precio|costo|cu[aÃ¡]nto cuesta|cuanto cuesta|mensualidad|inversi[oÃ³]n|presupuesto|paquete|cotiz/i.test(
+    String(message || "")
+  );
+}
+
+function stripUnrequestedPriceReferences(reply) {
+  return String(reply || "")
+    .split(/(?<=[.!?])\s+/)
+    .filter(
+      (sentence) =>
+        !/\$ ?(?:1,900|2,500|2,000|3,900|4,700|6,900|9,800)|mil novecientos|dos mil quinientos|menos de \$?2,000|menos de dos mil/i.test(
+          sentence
+        )
+    )
+    .join(" ")
+    .trim();
+}
+
+function productFromText(text) {
+  if (/landing|p[aÃ¡]gina|pagina|sitio web|web sencilla/.test(text)) {
+    return "landing_esencial";
+  }
+
+  if (/agente|asistente|automatiz|whatsapp|mensajes|fuera de horario|horarios no laborales|chatbot|\bia\b/.test(text)) {
+    return "agente_ia_base";
+  }
+
+  return null;
+}
+
+function deriveSimulatorMockContext({ incoming, decision, lead, recentMessages }) {
+  const combined = recentMessages.map((message) => message.content || "").join("\n").toLowerCase();
+  const currentText = String(incoming?.content || "").toLowerCase();
+  const serviceInterest = decision.serviceInterest || lead?.service_interest || null;
+  const productByService =
+    serviceInterest === "landing_page"
+      ? "landing_esencial"
+      : serviceInterest === "ai_automation"
+        ? "agente_ia_base"
+        : null;
+  const currentProduct =
+    productFromText(currentText) || productByService || productFromText(combined);
+  const lastAssistantMessage = [...recentMessages].reverse().find((message) => message.role === "ai");
+  const previousLeadMessages = recentMessages.filter((message) => message.role === "lead");
+
+  return {
+    currentProduct,
+    lastAssistantTopic: lastAssistantMessage ? productFromText(lastAssistantMessage.content || "") : null,
+    knownBusinessType: textIncludesAny(combined, [/clinica|clÃ­nica/, /restaurante/, /tienda/, /consultorio/]),
+    knownNeed: Boolean(productFromText(combined) || /clientes|ventas|atencion|atenci[oÃ³]n|fuera de horario|mensajes/.test(combined)),
+    knownVolume: /\b\d+\s*(mensajes|prospectos)|muchos mensajes|pocos mensajes|alto volumen/i.test(combined),
+    previousQuestion: lastAssistantMessage?.content || null,
+    profilingStage: previousLeadMessages.length <= 1 ? "opening" : "contextual_followup",
+  };
+}
+
+async function getRecentConversationMessages({ conversationId, limit = 12 }) {
+  const result = await pool.query(
+    `
+      SELECT role, content, created_at
+      FROM gc_ai_messages
+      WHERE conversation_id = $1
+      ORDER BY created_at DESC
+      LIMIT $2
+    `,
+    [conversationId, limit]
+  );
+
+  return result.rows.reverse();
+}
+
+async function logScopeMetric({ leadId, conversationId, event, metadata = {} }) {
+  await pool.query(
+    `
+      INSERT INTO gc_ai_activity_logs (
+        id,
+        action,
+        entity_type,
+        entity_id,
+        metadata
+      )
+      VALUES ($1, $2, 'gc_ai_conversation', $3, $4::jsonb)
+    `,
+    [
+      createId("activity"),
+      SCOPE_METRIC_ACTION,
+      conversationId,
+      JSON.stringify({
+        leadId,
+        event,
+        ...metadata,
+      }),
+    ]
+  );
+}
+
+async function updateScopeState({
+  leadId,
+  conversationId,
+  status = null,
+  incrementOffTopic = false,
+  markBlocked = false,
+  markReactivated = false,
+}) {
+  await pool.query(
+    `
+      UPDATE gc_ai_conversations
+      SET
+        conversation_scope_status = COALESCE($2, conversation_scope_status),
+        off_topic_count = off_topic_count + CASE WHEN $3 THEN 1 ELSE 0 END,
+        non_commercial_blocked_at = CASE
+          WHEN $4 THEN COALESCE(non_commercial_blocked_at, NOW())
+          ELSE non_commercial_blocked_at
+        END,
+        commercial_reactivated_at = CASE
+          WHEN $5 THEN NOW()
+          ELSE commercial_reactivated_at
+        END,
+        updated_at = NOW()
+      WHERE id = $1
+    `,
+    [conversationId, status, Boolean(incrementOffTopic), Boolean(markBlocked), Boolean(markReactivated)]
+  );
+
+  if (incrementOffTopic) {
+    await pool.query(
+      `
+        UPDATE gc_ai_leads
+        SET
+          off_topic_count = off_topic_count + 1,
+          updated_at = NOW()
+        WHERE id = $1
+      `,
+      [leadId]
+    );
+  }
+}
+
+async function handleScopeGuard({ lead, conversation, incoming, outgoingProvider }) {
+  const recentMessages = await getRecentConversationMessages({
+    conversationId: conversation.id,
+    limit: 12,
+  });
+  const scopeDecision = scopeGuardService.classifyMessage({
+    message: incoming.content,
+    conversation,
+    recentMessages,
+  });
+
+  if (scopeDecision.action === "allow") {
+    return null;
+  }
+
+  if (scopeDecision.action === "reactivate_commercial") {
+    await updateScopeState({
+      leadId: lead.id,
+      conversationId: conversation.id,
+      status: scopeGuardService.ACTIVE_STATUS,
+      markReactivated: true,
+    });
+    await logScopeMetric({
+      leadId: lead.id,
+      conversationId: conversation.id,
+      event: "commercial_reactivation",
+      metadata: {
+        reason: scopeDecision.reason,
+      },
+    });
+
+    return null;
+  }
+
+  if (scopeDecision.action === "silent_block") {
+    await logScopeMetric({
+      leadId: lead.id,
+      conversationId: conversation.id,
+      event: "non_commercial_blocked",
+      metadata: {
+        reason: scopeDecision.reason,
+        openAiAvoided: true,
+        responded: false,
+      },
+    });
+
+    return {
+      processed: true,
+      leadId: lead.id,
+      conversationId: conversation.id,
+      scope: {
+        status: scopeGuardService.BLOCKED_STATUS,
+        reason: scopeDecision.reason,
+        openAiAvoided: true,
+      },
+      autoReply: {
+        sent: false,
+        reason: scopeDecision.reason,
+      },
+      decision: {
+        action: "scope_silent_block",
+        reason: scopeDecision.reason,
+        usedAi: false,
+      },
+    };
+  }
+
+  if (scopeDecision.action === "warn_or_block") {
+    const currentOffTopicCount = Number(conversation.off_topic_count || 0);
+    const hasPriorScopeReconduct = recentMessages.some((message) =>
+      /fuera de lo que puedo ayudarte|consulta tecnologica general/i.test(message.content || "")
+    );
+    const hasPriorNonCommercialInbound = recentMessages.some((message) => {
+      if (message.role !== "lead" || message.content === incoming.content) {
+        return false;
+      }
+
+      return (
+        scopeGuardService.classifyMessage({
+          message: message.content,
+          conversation: {
+            conversation_scope_status: scopeGuardService.ACTIVE_STATUS,
+            off_topic_count: 0,
+          },
+          recentMessages: [],
+        }).action === "warn_or_block"
+      );
+    });
+
+    if (currentOffTopicCount >= 1 || hasPriorScopeReconduct || hasPriorNonCommercialInbound) {
+      await updateScopeState({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        status: scopeGuardService.BLOCKED_STATUS,
+        incrementOffTopic: true,
+        markBlocked: true,
+      });
+      await logScopeMetric({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        event: "non_commercial_blocked",
+        metadata: {
+          reason: scopeDecision.reason,
+          openAiAvoided: true,
+          responded: false,
+        },
+      });
+
+      return {
+        processed: true,
+        leadId: lead.id,
+        conversationId: conversation.id,
+        scope: {
+          status: scopeGuardService.BLOCKED_STATUS,
+          reason: scopeDecision.reason,
+          openAiAvoided: true,
+        },
+        autoReply: {
+          sent: false,
+          reason: scopeDecision.reason,
+        },
+        decision: {
+          action: "scope_block",
+          reason: scopeDecision.reason,
+          usedAi: false,
+        },
+      };
+    }
+
+    await updateScopeState({
+      leadId: lead.id,
+      conversationId: conversation.id,
+      status: scopeGuardService.BLOCKED_STATUS,
+      incrementOffTopic: true,
+      markBlocked: true,
+    });
+    const replyContent = withMaluIntroduction(scopeDecision.reply, conversation);
+    const sendResult = await sendAutoReply({
+      toPhone: incoming.fromPhone,
+      phoneNumberId: incoming.phoneNumberId,
+      content: replyContent,
+      transport: incoming.transport,
+    });
+    const outgoingMessage = await saveMessage({
+      leadId: lead.id,
+      conversationId: conversation.id,
+      role: "ai",
+      direction: "outgoing",
+      content: replyContent,
+      messageType: "text",
+      externalMessageId: sendResult.whatsappMessageId || null,
+      provider: outgoingProvider,
+      rawPayload: {
+        autoReply: sendResult,
+        responseSource: "DETERMINISTIC_SCOPE",
+        scope: {
+          reason: scopeDecision.reason,
+          openAiAvoided: true,
+        },
+      },
+    });
+
+    await logScopeMetric({
+      leadId: lead.id,
+      conversationId: conversation.id,
+      event: "deterministic_response",
+      metadata: {
+        reason: scopeDecision.reason,
+        openAiAvoided: true,
+        responded: true,
+      },
+    });
+
+    return {
+      processed: true,
+      leadId: lead.id,
+      conversationId: conversation.id,
+      outgoingMessageId: outgoingMessage.id,
+      scope: {
+        status: scopeGuardService.ACTIVE_STATUS,
+        reason: scopeDecision.reason,
+        openAiAvoided: true,
+      },
+      autoReply: {
+        sent: Boolean(sendResult.sent),
+        status: sendResult.status || null,
+        reason: sendResult.reason || null,
+      },
+      decision: {
+        action: "scope_reconduct",
+        reason: scopeDecision.reason,
+        usedAi: false,
+      },
+    };
+  }
+
+  return null;
+}
+
+function needsProductClarification(content, context) {
+  return (
+    !context.currentProduct &&
+    textIncludesAny(content, [
+      /otro costo|otros costos|alg[uÃº]n otro costo|algun otro costo|costo adicional|cuesta aparte/,
+      /incluye iva|iva/,
+      /qu[eÃ©] incluye|que incluye/,
+      /qu[eÃ©] no incluye|que no incluye|no incluye/,
+      /cu[aÃ¡]ntos mensajes|cuantos mensajes/,
+      /\bcrm\b/,
+    ])
+  );
+}
+
+function createContextualMockReply({ content, context, landing, aiAgent, recentMessages = [] }) {
+  if (needsProductClarification(content, context)) {
+    return "Para responderte bien necesito aclarar a que servicio te refieres: Landing Esencial o paquetes de Agentes de IA?";
+  }
+
+  const product = context.currentProduct === "landing_esencial" ? landing : aiAgent;
+  const isLanding = product.code === "landing_esencial";
+  const iaRespuestas = getMaluAiPackage("ia_respuestas");
+  const discountSentence = buildImplementationDiscountSentence(recentMessages);
+
+  if (textIncludesAny(content, [/15%.*mensualidad|mensualidad.*15%|descuento.*mensualidad/])) {
+    return "No. El posible 15% aplica unicamente sobre el costo de implementacion cuando se programa una llamada con el ingeniero responsable; no aplica sobre mensualidad, IVA, consumos ni servicios externos.";
+  }
+
+  if (textIncludesAny(content, [/precio|cu[aÃƒÂ¡]nto cuesta|cuanto cuesta|mensualidad|inversion|inversi[oÃƒÂ³]n|presupuesto/])) {
+    return isLanding
+      ? "La Landing Esencial tiene un precio base de $2,500 MXN como pago por creacion. Cualquier ampliacion, como tienda en linea, pagos o integraciones, se revisa y cotiza aparte."
+      : `IA Respuestas tiene implementacion de ${formatMxn(
+          iaRespuestas.implementationPriceMxn
+        )} y mensualidad de ${formatMxn(
+          iaRespuestas.monthlyPriceMxn
+        )}. Si requieres factura se agrega IVA. Para saber si conviene ese paquete, IA Perfilador o IA Comercial, primero hay que revisar volumen, proceso e integraciones.${discountSentence}`;
+  }
+
+  if (textIncludesAny(content, [/otros paquetes|otro paquete|que paquetes|qu[eÃ©] paquetes|planes|opciones|alternativas/])) {
+    const lines = MALU_BUSINESS_KNOWLEDGE.aiAgentPackages.map(
+      (aiPackage) =>
+        `${aiPackage.name}: implementacion ${formatMxn(
+          aiPackage.implementationPriceMxn
+        )} y mensualidad ${formatMxn(aiPackage.monthlyPriceMxn)}`
+    );
+
+    return `Los paquetes IA autorizados son: ${lines.join("; ")}. La recomendacion depende del volumen, agenda, proceso e integraciones. Que proceso quieres automatizar primero?${discountSentence}`;
+  }
+
+  if (textIncludesAny(content, [/otro costo|otros costos|alg[uÃº]n otro costo|algun otro costo|costo adicional|cuesta aparte/])) {
+    if (isLanding) {
+      return "El precio de $2,500 MXN es la base de creacion de la Landing Esencial. Tienda en linea, pagos, reservaciones complejas, catalogo amplio, integraciones, SEO continuo o mantenimiento se evaluan y cotizan aparte.";
+    }
+
+    return `En IA Respuestas, la mensualidad base es ${formatMxn(
+      iaRespuestas.monthlyPriceMxn
+    )} y la implementacion es ${formatMxn(
+      iaRespuestas.implementationPriceMxn
+    )}. Si requieres factura se agrega IVA. Integraciones, consumos extraordinarios, servicios externos o necesidades fuera del alcance del paquete se revisan por separado.${discountSentence}`;
+  }
+
+  if (textIncludesAny(content, [/incluye iva|iva|factura/])) {
+    return isLanding
+      ? "El precio base de la Landing Esencial es $2,500 MXN. Si necesitas factura, la condicion fiscal debe validarse antes de cerrar la propuesta con el ingeniero."
+      : "En los paquetes de Agentes de IA, el IVA se agrega cuando el cliente requiere factura. El incentivo del 15% aplica solo sobre el costo de implementacion, no sobre mensualidad ni IVA.";
+  }
+
+  if (
+    textIncludesAny(content, [/qu[eÃ©] incluye|que incluye|incluye/]) &&
+    !textIncludesAny(content, [/qu[eÃ©] no incluye|que no incluye|no incluye|excluye/])
+  ) {
+    return isLanding
+      ? "Landing Esencial incluye landing profesional, dominio, hosting, dos correos, hasta cuatro secciones, boton de WhatsApp, redes sociales, SEO inicial y diseno adaptable. Que tipo de negocio quieres presentar?"
+      : "Los paquetes IA cubren desde respuestas a prospectos hasta perfilamiento y apoyo comercial, segun el paquete. IA Respuestas atiende dudas frecuentes; IA Perfilador profundiza calificacion y citas; IA Comercial ofrece mayor capacidad y ajustes.";
+  }
+
+  if (textIncludesAny(content, [/qu[eÃ©] no incluye|que no incluye|no incluye|excluye/])) {
+    return isLanding
+      ? "Landing Esencial no incluye tienda en linea, pagos, reservaciones complejas, panel administrativo, catalogo amplio, software personalizado, integraciones avanzadas, SEO continuo ni campanas."
+      : "Los paquetes IA no incluyen CRM completo, campanas masivas, ERP, pagos, infraestructura dedicada, API personalizada, Meta Ads, numeros ni costos de terceros salvo que se autoricen y coticen aparte.";
+  }
+
+  if (textIncludesAny(content, [/cu[aÃ¡]ntos mensajes|cuantos mensajes|prospectos|interacciones/])) {
+    return "IA Respuestas contempla 150 leads y 1050 respuestas de IA por ciclo, con maximo siete respuestas por lead. IA Perfilador sube a 300 leads y 3000 respuestas; IA Comercial a 500 leads y 6000 respuestas. Esos limites comerciales no reemplazan limites tecnicos internos.";
+  }
+
+  if (textIncludesAny(content, [/\bcrm\b/])) {
+    return "Los paquetes IA no incluyen un CRM completo. Pueden perfilar prospectos y preparar seguimiento, pero un CRM o integracion personalizada se evalua y cotiza aparte.";
+  }
+
+  if (textIncludesAny(content, [/fuera de horario|horarios no laborales|24 horas|siempre|noche|madrugada/])) {
+    return "Un paquete IA puede ayudar a no perder prospectos fuera del horario humano y operar dentro de la ventana de atencion de 24 horas de WhatsApp. En que horarios recibes mas mensajes?";
+  }
+
+  if (textIncludesAny(content, [/y la landing|y una landing|y la p[aÃ¡]gina|y la pagina/])) {
+    return "La Landing Esencial sirve para presentar tu negocio de forma profesional y facilitar contacto por WhatsApp. Su precio base es $2,500 MXN como pago por creacion.";
+  }
+
+  if (textIncludesAny(content, [/cu[aÃ¡]l me conviene|cual me conviene|que me conviene|cu[aÃ¡]l recomiendas|cual recomiendas/])) {
+    return "Si necesitas captar confianza y contacto, conviene Landing Esencial. Si ya recibes mensajes y pierdes oportunidades por tiempo de respuesta, conviene evaluar un paquete IA. Que problema pesa mas hoy?";
+  }
+
+  if (textIncludesAny(content, [/empezar|iniciar|requisitos|necesito para empezar/])) {
+    return isLanding
+      ? "Para iniciar una Landing Esencial se necesita nombre del negocio, colores, contacto, servicios o productos, redes y fotos si existen. El logo ayuda, pero puede revisarse segun tu caso."
+      : "Para iniciar un paquete IA se necesitan reglas, preguntas frecuentes, servicios, criterios de transferencia y el canal de atencion. Primero conviene definir que dudas debe responder y que proceso debe cubrir.";
+  }
+
+  return null;
+}
+
+function isSimulatorContextualFollowup(content) {
+  return textIncludesAny(String(content || "").toLowerCase(), [
+      /otro costo|otros costos|alg[uÃƒÂº]n otro costo|algun otro costo|costo adicional|cuesta aparte/,
+      /precio|cu[aÃƒÂ¡]nto cuesta|cuanto cuesta|mensualidad|inversion|inversi[oÃƒÂ³]n|presupuesto/,
+    /incluye iva|iva|factura/,
+    /qu[eÃƒÂ©] incluye|que incluye|incluye/,
+    /qu[eÃƒÂ©] no incluye|que no incluye|no incluye|excluye/,
+    /cu[aÃƒÂ¡]ntos mensajes|cuantos mensajes|prospectos|interacciones/,
+    /\bcrm\b/,
+    /fuera de horario|horarios no laborales|24 horas|siempre|noche|madrugada/,
+    /y la landing|y una landing|y la p[aÃƒÂ¡]gina|y la pagina/,
+    /cu[aÃƒÂ¡]l me conviene|cual me conviene|que me conviene|cu[aÃƒÂ¡]l recomiendas|cual recomiendas/,
+    /empezar|iniciar|requisitos|necesito para empezar/,
+  ]);
+}
+
+function createSimulatorMockAiResult({ incoming, decision, lead, recentMessages = [] }) {
+  const content = String(incoming?.content || "").toLowerCase();
+  const landing = getMaluProduct("landing_esencial");
+  const aiAgent = getMaluProduct("agente_ia_base");
+  const context = deriveSimulatorMockContext({ incoming, decision, lead, recentMessages });
+  const shouldTransferToHuman =
+    /descuento|garantia|garant[ií]a|excepcion|excepci[oó]n|negociar|autoriza|contrato/.test(
+      content
+    );
+
+  if (shouldTransferToHuman) {
+    return {
+      reply:
+        "Gracias por explicarlo. Esa decision necesita revisarla el ingeniero responsable para darte una respuesta correcta.",
+      shouldTransferToHuman: true,
+      leadStatus: "qualified_for_human",
+      serviceInterest: decision.serviceInterest || null,
+      summary: "Solicitud que requiere validacion humana.",
+      nextSuggestedAction: "Seguimiento humano",
+      tokensInput: 0,
+      tokensOutput: 0,
+      model: "simulator-mock",
+      skipped: false,
+    };
+  }
+
+  const contextualReply = createContextualMockReply({
+    content,
+    context,
+    landing,
+    aiAgent,
+    recentMessages,
+  });
+  if (contextualReply) {
+    return {
+      reply: contextualReply,
+      shouldTransferToHuman: false,
+      leadStatus: decision.leadStatus || "ai_profiling",
+      serviceInterest:
+        context.currentProduct === "landing_esencial"
+          ? "landing_page"
+          : context.currentProduct === "agente_ia_base"
+            ? "ai_automation"
+            : decision.serviceInterest || null,
+      summary: "Respuesta contextual en simulador MOCK.",
+      nextSuggestedAction: "Continuar perfilamiento",
+      tokensInput: 0,
+      tokensOutput: 0,
+      model: "simulator-mock",
+      skipped: false,
+    };
+  }
+
+  if (/fuera de horario|horarios no laborales|responder.*clientes|automatiz|whatsapp|mensajes/.test(content)) {
+    return {
+      reply:
+        "Un paquete de Agentes de IA puede ayudarte a responder prospectos fuera del horario humano y calificar oportunidades. Para perfilarlo bien, cuantos mensajes recibes en un dia normal?",
+      shouldTransferToHuman: false,
+      leadStatus: decision.leadStatus || "ai_profiling",
+      serviceInterest: "ai_automation",
+      summary: "Interes en automatizar atencion fuera de horario.",
+      nextSuggestedAction: "Continuar perfilamiento",
+      tokensInput: 0,
+      tokensOutput: 0,
+      model: "simulator-mock",
+      skipped: false,
+    };
+  }
+
+  if (/landing|p[aÃ¡]gina|pagina|sitio web|web sencilla/.test(content)) {
+    return {
+      reply:
+        `${landing.name} puede servir si necesitas una pagina sencilla y profesional para recibir contactos. Para orientarte mejor, a que se dedica tu negocio y que te gustaria que los visitantes pudieran conocer o hacer en la pagina?`,
+      shouldTransferToHuman: false,
+      leadStatus: decision.leadStatus || "ai_profiling",
+      serviceInterest: "landing_page",
+      summary: "Interes en landing page sencilla.",
+      nextSuggestedAction: "Continuar perfilamiento",
+      tokensInput: 0,
+      tokensOutput: 0,
+      model: "simulator-mock",
+      skipped: false,
+    };
+  }
+
+  return {
+    reply:
+      "Gracias por contarme. Para perfilar mejor tu caso, cuentame que proceso de tu negocio quieres mejorar primero.",
+    shouldTransferToHuman: false,
+    leadStatus: decision.leadStatus || "ai_profiling",
+    serviceInterest: decision.serviceInterest || null,
+    summary: "Conversacion simulada en modo tecnico.",
+    nextSuggestedAction: "Continuar perfilamiento",
+    tokensInput: 0,
+    tokensOutput: 0,
+    model: "simulator-mock",
+    skipped: false,
+  };
 }
 
 async function findOrCreateLead({ phone, name }) {
@@ -89,9 +950,15 @@ async function findOrCreateLead({ phone, name }) {
 async function findOrCreateConversation({ leadId, phoneNumberId }) {
   const existing = await pool.query(
     `
-      SELECT *
-      FROM gc_ai_conversations
-      WHERE lead_id = $1
+      SELECT
+        conversations.*,
+        NOT EXISTS (
+          SELECT 1
+          FROM gc_ai_messages messages
+          WHERE messages.conversation_id = conversations.id
+        ) AS is_new
+      FROM gc_ai_conversations conversations
+      WHERE conversations.lead_id = $1
         AND channel = 'whatsapp'
         AND status = 'open'
       ORDER BY updated_at DESC
@@ -101,7 +968,10 @@ async function findOrCreateConversation({ leadId, phoneNumberId }) {
   );
 
   if (existing.rows[0]) {
-    return existing.rows[0];
+    return {
+      ...existing.rows[0],
+      isNew: Boolean(existing.rows[0].is_new),
+    };
   }
 
   const result = await pool.query(
@@ -111,22 +981,45 @@ async function findOrCreateConversation({ leadId, phoneNumberId }) {
         lead_id,
         channel,
         status,
-        ai_enabled,
-        metadata
+        conversation_owner
       )
-      VALUES ($1, $2, 'whatsapp', 'open', TRUE, $3::jsonb)
+      VALUES ($1, $2, 'whatsapp', 'open', 'MALU')
       RETURNING *
     `,
-    [
-      createId("conversation"),
-      leadId,
-      JSON.stringify({
-        phoneNumberId,
-      }),
-    ]
+    [createId("conversation"), leadId]
   );
 
-  return result.rows[0];
+  return {
+    ...result.rows[0],
+    isNew: true,
+  };
+}
+
+async function findMessageByProviderMessageId({ provider, providerMessageId }) {
+  if (!providerMessageId) {
+    return null;
+  }
+
+  const result = await pool.query(
+    `
+      SELECT *
+      FROM gc_ai_messages
+      WHERE provider = $1
+        AND provider_message_id = $2
+      LIMIT 1
+    `,
+    [provider, providerMessageId]
+  );
+
+  return result.rows[0] || null;
+}
+
+function isProviderMessageDuplicate(error) {
+  return (
+    error?.code === "23505" &&
+    (error?.constraint === "idx_gc_ai_messages_provider_message_id_unique" ||
+      String(error?.message || "").includes("provider_message_id"))
+  );
 }
 
 async function saveMessage({
@@ -138,40 +1031,63 @@ async function saveMessage({
   messageType = "text",
   externalMessageId = null,
   rawPayload = {},
+  provider = null,
 }) {
-  const result = await pool.query(
-    `
-      INSERT INTO gc_ai_messages (
-        id,
-        lead_id,
-        conversation_id,
-        role,
-        message_type,
-        content,
-        provider,
-        provider_message_id,
-        metadata
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb)
-      RETURNING *
-    `,
-    [
-      createId("message"),
-      leadId,
-      conversationId,
-      role,
-      messageType,
-      content,
-      direction === "outgoing" ? "whatsapp_cloud_api" : "whatsapp_webhook",
-      externalMessageId,
-      JSON.stringify({
-        direction,
-        rawPayload: rawPayload || {},
-      }),
-    ]
-  );
+  const messageProvider = provider || (direction === "outgoing" ? "whatsapp_cloud_api" : "whatsapp_webhook");
 
-  return result.rows[0];
+  try {
+    const result = await pool.query(
+      `
+        INSERT INTO gc_ai_messages (
+          id,
+          lead_id,
+          conversation_id,
+          role,
+          message_type,
+          content,
+          provider,
+          provider_message_id,
+          metadata
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb)
+        RETURNING *
+      `,
+      [
+        createId("message"),
+        leadId,
+        conversationId,
+        role,
+        messageType,
+        content,
+        messageProvider,
+        externalMessageId,
+        JSON.stringify({
+          direction,
+          rawPayload: rawPayload || {},
+        }),
+      ]
+    );
+
+    return result.rows[0];
+  } catch (error) {
+    if (!isProviderMessageDuplicate(error)) {
+      throw error;
+    }
+
+    const existing = await findMessageByProviderMessageId({
+      provider: messageProvider,
+      providerMessageId: externalMessageId,
+    });
+
+    if (!existing) {
+      throw error;
+    }
+
+    return {
+      ...existing,
+      duplicate: true,
+    };
+  }
 }
 
 async function applyDecisionToLead({ leadId, conversationId, decision }) {
@@ -209,6 +1125,8 @@ async function applyDecisionToLead({ leadId, conversationId, decision }) {
         UPDATE gc_ai_conversations
         SET
           human_takeover = TRUE,
+          conversation_owner = 'INGENIERO',
+          handoff_finalized_at = COALESCE(handoff_finalized_at, NOW()),
           status = 'open',
           updated_at = NOW()
         WHERE id = $1
@@ -246,6 +1164,8 @@ async function applyAiResultToLead({ leadId, conversationId, aiResult }) {
         UPDATE gc_ai_conversations
         SET
           human_takeover = TRUE,
+          conversation_owner = 'INGENIERO',
+          handoff_finalized_at = COALESCE(handoff_finalized_at, NOW()),
           status = 'open',
           updated_at = NOW()
         WHERE id = $1
@@ -255,7 +1175,650 @@ async function applyAiResultToLead({ leadId, conversationId, aiResult }) {
   }
 }
 
-async function sendAutoReply({ toPhone, phoneNumberId, content }) {
+async function logSchedulingState({ leadId, conversationId, status, metadata = {} }) {
+  await pool.query(
+    `
+      INSERT INTO gc_ai_activity_logs (
+        id,
+        action,
+        entity_type,
+        entity_id,
+        metadata
+      )
+      VALUES ($1, $2, 'gc_ai_conversation', $3, $4::jsonb)
+    `,
+    [
+      createId("activity"),
+      SCHEDULING_ACTION,
+      conversationId,
+      JSON.stringify({
+        leadId,
+        status,
+        ...metadata,
+      }),
+    ]
+  );
+}
+
+async function getLatestSchedulingState({ conversationId }) {
+  const result = await pool.query(
+    `
+      SELECT metadata
+      FROM gc_ai_activity_logs
+      WHERE entity_id = $1
+        AND action = $2
+      ORDER BY created_at DESC, id DESC
+      LIMIT 1
+    `,
+    [conversationId, SCHEDULING_ACTION]
+  );
+
+  return result.rows[0]?.metadata || {
+    status: "PROFILING",
+  };
+}
+
+async function getLatestPresentedSchedulingSlots({ conversationId }) {
+  const result = await pool.query(
+    `
+      SELECT metadata
+      FROM gc_ai_activity_logs
+      WHERE entity_id = $1
+        AND action = $2
+        AND metadata->>'status' = $3
+      ORDER BY created_at DESC, id DESC
+      LIMIT 1
+    `,
+    [conversationId, SCHEDULING_ACTION, SCHEDULING_STATUSES.SLOT_OPTIONS_PRESENTED]
+  );
+
+  return result.rows[0]?.metadata?.slots || [];
+}
+
+async function getConversationSummaryForScheduling({ conversationId, lead }) {
+  const recentMessages = await getRecentConversationMessages({
+    conversationId,
+    limit: 12,
+  });
+  const combined = recentMessages.map((message) => message.content || "").join(" ").toLowerCase();
+  const product =
+    productFromText(combined) === "landing_esencial"
+      ? "Landing Esencial"
+      : productFromText(combined) === "agente_ia_base"
+        ? "Agente de IA Base"
+        : lead.service_interest || null;
+
+  return {
+    prospect: lead.name || null,
+    business: /dentista|clinica|clÃƒÂ­nica/.test(combined) ? "servicio dental o clinica" : null,
+    businessType: /dentista|clinica|clÃƒÂ­nica/.test(combined) ? "salud dental" : null,
+    need: /google|presencia|p[aÃƒÂ¡]gina|pagina|landing/.test(combined)
+      ? "presencia digital y contacto"
+      : /mensajes|horario|asistente|agente/.test(combined)
+        ? "atencion automatizada de mensajes"
+        : null,
+    product,
+    relevantContext: recentMessages
+      .filter((message) => message.role === "lead")
+      .map((message) => String(message.content || "").slice(0, 180)),
+    pendingQuestions: [],
+    availableMaterials: /logo|logotipo/.test(combined) ? ["logotipo"] : [],
+    conversationId,
+    leadId: lead.id,
+  };
+}
+
+function hasUsefulSchedulingContext({ lead, recentMessages }) {
+  const combined = recentMessages.map((message) => message.content || "").join(" ").toLowerCase();
+
+  return Boolean(
+    (lead.service_interest || productFromText(combined)) &&
+      (/dentista|clinica|clÃƒÂ­nica|restaurante|tienda|consultorio|negocio|logo|logotipo|mensajes|google|presencia/.test(
+        combined
+      ) ||
+        recentMessages.filter((message) => message.role === "lead").length >= 3)
+  );
+}
+
+function buildSchedulingOfferReply() {
+  return "Con la informacion que me compartiste ya puedo preparar tu caso para una consultoria comercial final con el ingeniero responsable. La reunion se agenda segun disponibilidad real y puede ser por videollamada, llamada telefonica o presencial si estas en Ciudad de Mexico. Que modalidad prefieres?";
+}
+
+function getModalityLabel(modality) {
+  if (modality === APPOINTMENT_MODALITIES.IN_PERSON) {
+    return "reunion presencial";
+  }
+
+  if (modality === APPOINTMENT_MODALITIES.VIDEO_CALL) {
+    return "videollamada";
+  }
+
+  return "llamada telefonica";
+}
+
+function formatSlotDateTime(slot) {
+  const date = new Date(slot.startsAt);
+  const datePart = new Intl.DateTimeFormat("es-MX", {
+    dateStyle: "medium",
+    timeZone: slot.timeZone || "America/Mexico_City",
+  }).format(date);
+  const timePart = new Intl.DateTimeFormat("es-MX", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: slot.timeZone || "America/Mexico_City",
+  }).format(date);
+
+  return {
+    date: datePart,
+    time: timePart,
+    timeZone: slot.timeZone || "America/Mexico_City",
+  };
+}
+
+function buildSlotOptionsReply(slots, modality) {
+  const options = slots
+    .map((slot, index) => {
+      const formatted = formatSlotDateTime(slot);
+
+      return `${index + 1}. ${formatted.date} a las ${formatted.time} (${formatted.timeZone})`;
+    })
+    .join("\n");
+
+  return `Tengo estos horarios simulados para ${getModalityLabel(
+    modality
+  )}, sin crear eventos reales:\n${options}\nCual opcion prefieres?`;
+}
+
+function buildAppointmentConfirmedReply(slot, modality) {
+  const formatted = formatSlotDateTime(slot);
+  const label = getModalityLabel(modality);
+  const coordination =
+    modality === APPOINTMENT_MODALITIES.PHONE_CALL
+      ? "El ingeniero responsable se pondra en contacto contigo para confirmar la cita."
+      : "El ingeniero responsable se pondra en contacto contigo posteriormente por llamada o mensaje para confirmar la cita y coordinar los detalles de la reunion.";
+
+  return `Perfecto, tu ${label} quedo programada para ${formatted.date} a las ${formatted.time} (${formatted.timeZone}). ${coordination}`;
+}
+
+async function finalizeHandoffAfterAppointment({ leadId, conversationId }) {
+  await pool.query(
+    `
+      UPDATE gc_ai_leads
+      SET
+        status = 'qualified_for_human',
+        ai_enabled = FALSE,
+        human_takeover = TRUE,
+        updated_at = NOW()
+      WHERE id = $1
+    `,
+    [leadId]
+  );
+
+  await pool.query(
+    `
+      UPDATE gc_ai_conversations
+      SET
+        human_takeover = TRUE,
+        conversation_owner = 'INGENIERO',
+        handoff_finalized_at = COALESCE(handoff_finalized_at, NOW()),
+        status = 'open',
+        updated_at = NOW()
+      WHERE id = $1
+    `,
+    [conversationId]
+  );
+}
+
+async function sendAndPersistSchedulingReply({
+  lead,
+  conversation,
+  incoming,
+  outgoingProvider,
+  replyContent,
+  scheduling,
+}) {
+  const sendResult = await sendAutoReply({
+    toPhone: incoming.fromPhone,
+    phoneNumberId: incoming.phoneNumberId,
+    content: replyContent,
+    transport: incoming.transport,
+  });
+  const outgoingMessage = await saveMessage({
+    leadId: lead.id,
+    conversationId: conversation.id,
+    role: "ai",
+    direction: "outgoing",
+    content: replyContent,
+    messageType: "text",
+    externalMessageId: sendResult.whatsappMessageId || null,
+    provider: outgoingProvider,
+    rawPayload: {
+      autoReply: sendResult,
+      responseSource: "DETERMINISTIC_SCHEDULING",
+      scheduling,
+    },
+  });
+
+  return {
+    processed: true,
+    leadId: lead.id,
+    conversationId: conversation.id,
+    outgoingMessageId: outgoingMessage.id,
+    autoReply: {
+      sent: Boolean(sendResult.sent),
+      status: sendResult.status || null,
+      reason: sendResult.reason || null,
+    },
+    scheduling,
+    decision: {
+      action: "scheduling",
+      reason: scheduling.status,
+      leadStatus: lead.status,
+      humanTakeover: [
+        SCHEDULING_STATUSES.APPOINTMENT_CONFIRMED,
+        SCHEDULING_STATUSES.HANDOFF_FINALIZED,
+      ].includes(scheduling.status),
+      usedAi: false,
+    },
+    demo: null,
+  };
+}
+
+async function handleSchedulingFlow({ lead, conversation, incoming, outgoingProvider }) {
+  const calendarProvider = getCalendarProvider();
+  const state = await getLatestSchedulingState({
+    conversationId: conversation.id,
+  });
+  const status = state.status || "PROFILING";
+
+  if (
+    [
+      SCHEDULING_STATUSES.OFFERED,
+      SCHEDULING_STATUSES.WAITING_ACCEPTANCE,
+      SCHEDULING_STATUSES.MODALITY_REQUIRED,
+    ].includes(status)
+  ) {
+    if (isNegativeSchedulingResponse(incoming.content)) {
+      await logSchedulingState({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        status: SCHEDULING_STATUSES.DECLINED,
+      });
+
+      return sendAndPersistSchedulingReply({
+        lead,
+        conversation,
+        incoming,
+        outgoingProvider,
+        replyContent:
+          "De acuerdo, seguimos con el perfilamiento por aqui. Puedo responder dudas generales con la informacion autorizada sin agendar por ahora.",
+        scheduling: {
+          status: SCHEDULING_STATUSES.DECLINED,
+        },
+      });
+    }
+
+    if (
+      isSchedulingAcceptance(incoming.content) ||
+      status === SCHEDULING_STATUSES.MODALITY_REQUIRED ||
+      detectAppointmentModality(incoming.content) ||
+      detectProspectLocation(incoming.content) ||
+      isGenericMeetingRequest(incoming.content)
+    ) {
+      const modalityCheck = needsSchedulingModalityClarification({
+        state,
+        message: incoming.content,
+      });
+
+      if (modalityCheck.needed) {
+        await logSchedulingState({
+          leadId: lead.id,
+          conversationId: conversation.id,
+          status: SCHEDULING_STATUSES.MODALITY_REQUIRED,
+          metadata: {
+            modality: modalityCheck.context.modality,
+            requestedModality: modalityCheck.context.requestedModality,
+            location: modalityCheck.context.location,
+          },
+        });
+
+        return sendAndPersistSchedulingReply({
+          lead,
+          conversation,
+          incoming,
+          outgoingProvider,
+          replyContent: modalityCheck.reply,
+          scheduling: {
+            status: SCHEDULING_STATUSES.MODALITY_REQUIRED,
+            modality: modalityCheck.context.modality,
+            requestedModality: modalityCheck.context.requestedModality,
+            location: modalityCheck.context.location,
+          },
+        });
+      }
+
+      await logSchedulingState({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        status: SCHEDULING_STATUSES.AVAILABILITY_REQUIRED,
+        metadata: {
+          modality: modalityCheck.context.modality,
+          location: modalityCheck.context.location,
+        },
+      });
+      const slots = await calendarProvider.getAvailableSlots({
+        modality: modalityCheck.context.modality,
+        location: modalityCheck.context.location,
+        conversationId: conversation.id,
+        leadId: lead.id,
+      });
+      await logSchedulingState({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        status: SCHEDULING_STATUSES.SLOT_OPTIONS_PRESENTED,
+        metadata: {
+          slots,
+          modality: modalityCheck.context.modality,
+          location: modalityCheck.context.location,
+        },
+      });
+
+      return sendAndPersistSchedulingReply({
+        lead,
+        conversation,
+        incoming,
+        outgoingProvider,
+        replyContent: buildSlotOptionsReply(slots, modalityCheck.context.modality),
+        scheduling: {
+          status: SCHEDULING_STATUSES.SLOT_OPTIONS_PRESENTED,
+          slots,
+          modality: modalityCheck.context.modality,
+          location: modalityCheck.context.location,
+        },
+      });
+    }
+  }
+
+  let presentedSlots = status === SCHEDULING_STATUSES.SLOT_OPTIONS_PRESENTED ? state.slots || [] : [];
+  const schedulingContext = mergeSchedulingContext(state, incoming.content);
+
+  if (!presentedSlots.length) {
+    presentedSlots = await getLatestPresentedSchedulingSlots({
+      conversationId: conversation.id,
+    });
+  }
+  const selectedSlot = parseSlotSelection(incoming.content, presentedSlots);
+
+  if (selectedSlot) {
+    const summary = await getConversationSummaryForScheduling({
+      conversationId: conversation.id,
+      lead,
+    });
+    let appointment;
+
+    try {
+      appointment = await calendarProvider.createAppointment({
+        slot: selectedSlot,
+        summary,
+        modality: schedulingContext.modality || selectedSlot.modality || APPOINTMENT_MODALITIES.PHONE_CALL,
+        location: schedulingContext.location || selectedSlot.location || null,
+        idempotencyKey: `${conversation.id}:${lead.id}:${selectedSlot.id}`,
+      });
+    } catch (error) {
+      await logSchedulingState({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        status: SCHEDULING_STATUSES.AVAILABILITY_REQUIRED,
+        metadata: {
+          errorCode: error.code || "calendar_appointment_failed",
+          calendarError: error.details || null,
+        },
+      });
+
+      return sendAndPersistSchedulingReply({
+        lead,
+        conversation,
+        incoming,
+        outgoingProvider,
+        replyContent:
+          "No pude confirmar ese horario en este momento. La cita no quedo programada. Podemos intentar con otra opcion o retomarlo un poco mas tarde.",
+        scheduling: {
+          status: SCHEDULING_STATUSES.AVAILABILITY_REQUIRED,
+          errorCode: error.code || "calendar_appointment_failed",
+        },
+      });
+    }
+    await logSchedulingState({
+      leadId: lead.id,
+      conversationId: conversation.id,
+      status: SCHEDULING_STATUSES.SLOT_SELECTED,
+      metadata: {
+        selectedSlot,
+        modality: appointment.modality,
+        location: appointment.location,
+      },
+    });
+    await logSchedulingState({
+      leadId: lead.id,
+      conversationId: conversation.id,
+      status: SCHEDULING_STATUSES.APPOINTMENT_CONFIRMED,
+      metadata: {
+        appointment,
+        summary,
+        modality: appointment.modality,
+        location: appointment.location,
+        timeZone: appointment.timeZone || selectedSlot.timeZone || "America/Mexico_City",
+        googleCalendarEventId: appointment.googleCalendarEventId || null,
+      },
+    });
+    await finalizeHandoffAfterAppointment({
+      leadId: lead.id,
+      conversationId: conversation.id,
+    });
+    await logSchedulingState({
+      leadId: lead.id,
+      conversationId: conversation.id,
+      status: SCHEDULING_STATUSES.HANDOFF_FINALIZED,
+      metadata: {
+        appointmentId: appointment.id,
+      },
+    });
+
+    return sendAndPersistSchedulingReply({
+      lead,
+      conversation,
+      incoming,
+      outgoingProvider,
+      replyContent: buildAppointmentConfirmedReply(selectedSlot, appointment.modality),
+      scheduling: {
+        status: SCHEDULING_STATUSES.APPOINTMENT_CONFIRMED,
+        selectedSlot,
+        appointment,
+        summary,
+        modality: appointment.modality,
+        location: appointment.location,
+        timeZone: appointment.timeZone || selectedSlot.timeZone || "America/Mexico_City",
+        googleCalendarEventId: appointment.googleCalendarEventId || null,
+      },
+    });
+  }
+
+  const recentMessages = await getRecentConversationMessages({
+    conversationId: conversation.id,
+    limit: 12,
+  });
+
+  if (
+    status !== SCHEDULING_STATUSES.DECLINED &&
+    /me interesa|sigamos|siguiente paso|quiero avanzar|proceder|continuar/i.test(incoming.content) &&
+    hasUsefulSchedulingContext({ lead, recentMessages })
+  ) {
+    await logSchedulingState({
+      leadId: lead.id,
+      conversationId: conversation.id,
+      status: SCHEDULING_STATUSES.READY_TO_OFFER,
+    });
+    await logSchedulingState({
+      leadId: lead.id,
+      conversationId: conversation.id,
+      status: SCHEDULING_STATUSES.OFFERED,
+    });
+
+    return sendAndPersistSchedulingReply({
+      lead,
+      conversation,
+      incoming,
+      outgoingProvider,
+      replyContent: buildSchedulingOfferReply(),
+      scheduling: {
+        status: SCHEDULING_STATUSES.OFFERED,
+      },
+    });
+  }
+
+  return null;
+}
+
+async function registerEngineerContactRequest({ leadId, conversationId }) {
+  await pool.query(
+    `
+      UPDATE gc_ai_conversations
+      SET
+        handoff_contact_requested_at = COALESCE(handoff_contact_requested_at, NOW()),
+        conversation_owner = 'INGENIERO',
+        human_takeover = TRUE,
+        handoff_finalized_at = COALESCE(handoff_finalized_at, NOW()),
+        updated_at = NOW()
+      WHERE id = $1
+    `,
+    [conversationId]
+  );
+
+  await pool.query(
+    `
+      INSERT INTO gc_ai_activity_logs (
+        id,
+        action,
+        entity_type,
+        entity_id,
+        metadata
+      )
+      VALUES ($1, 'handoff_contact_requested', 'gc_ai_conversation', $2, $3::jsonb)
+    `,
+    [
+      createId("activity"),
+      conversationId,
+      JSON.stringify({
+        leadId,
+        channel: "whatsapp",
+      }),
+    ]
+  );
+}
+
+async function incrementPostHandoffInteractionCount({ conversationId }) {
+  const result = await pool.query(
+    `
+      UPDATE gc_ai_conversations
+      SET
+        post_handoff_interaction_count = LEAST(post_handoff_interaction_count + 1, $2),
+        updated_at = NOW()
+      WHERE id = $1
+      RETURNING post_handoff_interaction_count
+    `,
+    [conversationId, POST_HANDOFF_MAX_AUTO_REPLIES]
+  );
+
+  return result.rows[0]?.post_handoff_interaction_count || POST_HANDOFF_MAX_AUTO_REPLIES;
+}
+
+async function handlePostHandoffInbound({ lead, conversation, incoming }) {
+  const currentCount = Number(conversation.post_handoff_interaction_count || 0);
+
+  if (currentCount >= POST_HANDOFF_MAX_AUTO_REPLIES) {
+    return {
+      processed: true,
+      leadId: lead.id,
+      conversationId: conversation.id,
+      postHandoff: true,
+      autoReply: {
+        sent: false,
+        reason: "post_handoff_auto_reply_limit_reached",
+      },
+    };
+  }
+
+  const nextCount = await incrementPostHandoffInteractionCount({
+    conversationId: conversation.id,
+  });
+  let replyContent = POST_HANDOFF_BOUNDARY_MESSAGE;
+  let contactRequested = false;
+
+  if (nextCount >= POST_HANDOFF_MAX_AUTO_REPLIES) {
+    replyContent = POST_HANDOFF_FINAL_MESSAGE;
+  } else if (currentCount === 0) {
+    replyContent = POST_HANDOFF_CONTACT_QUESTION;
+  } else if (isAffirmativeContactRequest(incoming.content)) {
+    contactRequested = true;
+    replyContent = POST_HANDOFF_CONTACT_CONFIRMATION;
+    await registerEngineerContactRequest({
+      leadId: lead.id,
+      conversationId: conversation.id,
+    });
+  }
+
+  const sendResult = await sendAutoReply({
+    toPhone: incoming.fromPhone,
+    phoneNumberId: incoming.phoneNumberId,
+    content: replyContent,
+    transport: incoming.transport,
+  });
+
+  const outgoingMessage = await saveMessage({
+    leadId: lead.id,
+    conversationId: conversation.id,
+    role: "ai",
+    direction: "outgoing",
+    content: replyContent,
+    messageType: "text",
+    externalMessageId: sendResult.whatsappMessageId || null,
+    provider: getOutgoingProvider(incoming),
+    rawPayload: {
+      autoReply: sendResult,
+      responseSource: "DETERMINISTIC_HANDOFF",
+      postHandoff: {
+        contactRequested,
+        interactionCount: nextCount,
+      },
+    },
+  });
+
+  return {
+    processed: true,
+    leadId: lead.id,
+    conversationId: conversation.id,
+    outgoingMessageId: outgoingMessage.id,
+    postHandoff: true,
+    contactRequested,
+    autoReply: {
+      sent: Boolean(sendResult.sent),
+      status: sendResult.status || null,
+      reason: sendResult.reason || null,
+    },
+  };
+}
+
+async function sendAutoReply({ toPhone, phoneNumberId, content, transport = "whatsapp" }) {
+  if (transport === "simulator") {
+    return {
+      sent: true,
+      status: "simulator_captured",
+      whatsappMessageId: createId("sim-out"),
+      simulator: true,
+    };
+  }
+
   if (!env.whatsappAgentAutoReplyEnabled) {
     return {
       sent: false,
@@ -298,6 +1861,30 @@ async function processIncomingMessage(incoming) {
     };
   }
 
+  const incomingProvider = getIncomingProvider(incoming);
+  const outgoingProvider = getOutgoingProvider(incoming);
+  const duplicateInboundMessage = await findMessageByProviderMessageId({
+    provider: incomingProvider,
+    providerMessageId: incoming.whatsappMessageId,
+  });
+
+  if (duplicateInboundMessage) {
+    console.info("whatsapp_agent_duplicate_inbound_message", {
+      provider: incomingProvider,
+      duplicate: true,
+    });
+
+    return {
+      processed: true,
+      duplicate: true,
+      reason: "duplicate_provider_message_id",
+      autoReply: {
+        sent: false,
+        reason: "duplicate_provider_message_id",
+      },
+    };
+  }
+
   if (demoModeService.isDemoCommand(incoming.content)) {
     const commandResult = await demoModeService.handleAdminCommand({
       fromPhone: incoming.fromPhone,
@@ -307,6 +1894,7 @@ async function processIncomingMessage(incoming) {
       toPhone: incoming.fromPhone,
       phoneNumberId: incoming.phoneNumberId,
       content: commandResult.reply,
+      transport: incoming.transport,
     });
 
     return {
@@ -330,7 +1918,7 @@ async function processIncomingMessage(incoming) {
     phoneNumberId: incoming.phoneNumberId,
   });
 
-  await saveMessage({
+  const inboundMessage = await saveMessage({
     leadId: lead.id,
     conversationId: conversation.id,
     role: "lead",
@@ -339,7 +1927,45 @@ async function processIncomingMessage(incoming) {
     messageType: incoming.messageType,
     externalMessageId: incoming.whatsappMessageId,
     rawPayload: incoming.rawPayload,
+    provider: getIncomingProvider(incoming),
   });
+
+  if (inboundMessage.duplicate) {
+    console.info("whatsapp_agent_duplicate_inbound_message", {
+      provider: incomingProvider,
+      duplicate: true,
+      raceDetected: true,
+    });
+
+    return {
+      processed: true,
+      duplicate: true,
+      reason: "duplicate_provider_message_id",
+      autoReply: {
+        sent: false,
+        reason: "duplicate_provider_message_id",
+      },
+    };
+  }
+
+  if (isTransferredConversation(conversation, lead)) {
+    return handlePostHandoffInbound({
+      lead,
+      conversation,
+      incoming,
+    });
+  }
+
+  const scopeResult = await handleScopeGuard({
+    lead,
+    conversation,
+    incoming,
+    outgoingProvider,
+  });
+
+  if (scopeResult) {
+    return scopeResult;
+  }
 
   if (conversation.demo_mode) {
     if (demoModeService.isDemoExpired(conversation)) {
@@ -349,11 +1975,12 @@ async function processIncomingMessage(incoming) {
       });
 
       const replyContent =
-        "La demo ya expiro. Si quieres continuar, Genaro puede volver a activarla o darle seguimiento a tu caso.";
+        "La demo ya expiro. Si quieres continuar, el ingeniero responsable puede volver a activarla o darle seguimiento a tu caso.";
       const sendResult = await sendAutoReply({
         toPhone: incoming.fromPhone,
         phoneNumberId: incoming.phoneNumberId,
         content: replyContent,
+        transport: incoming.transport,
       });
 
       await saveMessage({
@@ -364,6 +1991,7 @@ async function processIncomingMessage(incoming) {
         content: replyContent,
         messageType: "text",
         externalMessageId: sendResult.whatsappMessageId || null,
+        provider: outgoingProvider,
         rawPayload: {
           autoReply: sendResult,
           demo: {
@@ -391,11 +2019,12 @@ async function processIncomingMessage(incoming) {
       });
 
       const replyContent =
-        "La demo llego al limite de preguntas. Voy a dejar tu caso listo para seguimiento con Genaro.";
+        "La demo llego al limite de preguntas. Voy a dejar tu caso listo para seguimiento con el ingeniero responsable.";
       const sendResult = await sendAutoReply({
         toPhone: incoming.fromPhone,
         phoneNumberId: incoming.phoneNumberId,
         content: replyContent,
+        transport: incoming.transport,
       });
 
       await saveMessage({
@@ -406,6 +2035,7 @@ async function processIncomingMessage(incoming) {
         content: replyContent,
         messageType: "text",
         externalMessageId: sendResult.whatsappMessageId || null,
+        provider: outgoingProvider,
         rawPayload: {
           autoReply: sendResult,
           demo: {
@@ -425,6 +2055,17 @@ async function processIncomingMessage(incoming) {
         },
       };
     }
+  }
+
+  const schedulingResult = await handleSchedulingFlow({
+    lead,
+    conversation,
+    incoming,
+    outgoingProvider,
+  });
+
+  if (schedulingResult) {
+    return schedulingResult;
   }
 
   let decision = intentGuardService.decideNextAction({
@@ -467,15 +2108,45 @@ async function processIncomingMessage(incoming) {
 
   let replyContent = decision.reply;
   let aiResult = null;
+  const shouldUseSimulatorMock = isSimulatorMockMode(incoming);
+  const simulatorMockHistory =
+    shouldUseSimulatorMock
+      ? await getRecentConversationMessages({ conversationId: conversation.id })
+      : [];
 
-  if (decision.shouldUseAi) {
+  if (
+    shouldUseSimulatorMock &&
+    !decision.shouldUseAi &&
+    isSimulatorContextualFollowup(incoming.content)
+  ) {
+    aiResult = createSimulatorMockAiResult({
+      incoming,
+      decision,
+      lead,
+      recentMessages: simulatorMockHistory,
+    });
+    replyContent = aiResult.reply;
+
+    await applyAiResultToLead({
+      leadId: lead.id,
+      conversationId: conversation.id,
+      aiResult,
+    });
+  } else if (decision.shouldUseAi) {
     try {
-      aiResult = await aiAgentService.generateProfilingResponse({
-        lead,
-        conversation,
-        incomingMessage: incoming.content,
-        reason: decision.reason,
-      });
+      aiResult = shouldUseSimulatorMock
+        ? createSimulatorMockAiResult({
+            incoming,
+            decision,
+            lead,
+            recentMessages: simulatorMockHistory,
+          })
+        : await aiAgentService.generateProfilingResponse({
+            lead,
+            conversation,
+            incomingMessage: incoming.content,
+            reason: decision.reason,
+          });
       replyContent = aiResult.reply;
 
       await applyAiResultToLead({
@@ -483,9 +2154,20 @@ async function processIncomingMessage(incoming) {
         conversationId: conversation.id,
         aiResult,
       });
+
+      if (!shouldUseSimulatorMock && aiResult && !aiResult.skipped) {
+        await logScopeMetric({
+          leadId: lead.id,
+          conversationId: conversation.id,
+          event: "openai_call",
+          metadata: {
+            reason: decision.reason,
+          },
+        });
+      }
     } catch (error) {
       replyContent =
-        "Gracias por contarme. En este momento voy a pasar tu caso con Genaro para que pueda orientarte mejor sin perder el contexto.";
+        "Gracias por contarme. En este momento voy a pasar tu caso con el ingeniero responsable para que pueda orientarte mejor sin perder el contexto.";
       aiResult = {
         skipped: true,
         skipReason: error.message || "ai_generation_failed",
@@ -501,6 +2183,11 @@ async function processIncomingMessage(incoming) {
     }
   }
 
+  replyContent = withMaluIntroduction(replyContent, conversation);
+  if (!isPriceQuestion(incoming.content)) {
+    replyContent = stripUnrequestedPriceReferences(replyContent) || replyContent;
+  }
+
   if (conversation.demo_mode && decision.shouldReply) {
     await demoModeService.consumeDemoQuestion({
       conversationId: conversation.id,
@@ -511,6 +2198,7 @@ async function processIncomingMessage(incoming) {
     toPhone: incoming.fromPhone,
     phoneNumberId: incoming.phoneNumberId,
     content: replyContent,
+    transport: incoming.transport,
   });
 
   const outgoingMessage = await saveMessage({
@@ -521,8 +2209,16 @@ async function processIncomingMessage(incoming) {
     content: replyContent,
     messageType: "text",
     externalMessageId: sendResult.whatsappMessageId || null,
+    provider: outgoingProvider,
     rawPayload: {
       autoReply: sendResult,
+      responseSource: aiResult
+        ? shouldUseSimulatorMock
+          ? "MOCK"
+          : aiResult.skipped
+            ? "FALLBACK"
+            : "LIVE_AI"
+        : "DETERMINISTIC_INTENT",
       decision,
       aiResult,
     },
@@ -568,7 +2264,37 @@ async function processWebhookPayload(payload) {
   };
 }
 
+async function processSimulatorInbound({
+  sessionId,
+  text,
+  messageId,
+  phone,
+  profileName = "Usuario de prueba",
+  mode = "MOCK",
+}) {
+  const normalizedText = String(text || "");
+  const normalizedMode = mode === "LIVE_AI" ? "LIVE_AI" : "MOCK";
+
+  return processIncomingMessage({
+    whatsappMessageId: messageId || createId("sim-in"),
+    fromPhone: normalizePhone(phone),
+    contactName: profileName,
+    phoneNumberId: "simulator-phone-number-id",
+    messageType: "text",
+    content: normalizedText,
+    provider: SIMULATOR_PROVIDER,
+    transport: "simulator",
+    simulationMode: normalizedMode,
+    rawPayload: {
+      simulator: true,
+      sessionId,
+      mode: normalizedMode,
+    },
+  });
+}
+
 module.exports = {
   extractIncomingMessages,
   processWebhookPayload,
+  processSimulatorInbound,
 };

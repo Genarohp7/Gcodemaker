@@ -2,12 +2,19 @@ const express = require("express");
 
 const {
   activateAdminDemo,
+  createLearningFinding,
+  createLearningFrameworkVersion,
   deactivateAdminDemo,
   getAdminConversationMessages,
   getAdminLead,
   getAdminLeads,
   getAdminMetrics,
   getAdminSettings,
+  getLearningConversation,
+  getLearningPendingReviews,
+  listLearningFindings,
+  saveLearningConversationReview,
+  updateLearningFindingStatus,
   updateAdminLeadStatus,
   updateAdminSetting,
 } = require("../controllers/ai-admin.controller");
@@ -26,5 +33,12 @@ router.post("/demo/deactivate", deactivateAdminDemo);
 router.get("/metrics", getAdminMetrics);
 router.get("/settings", getAdminSettings);
 router.patch("/settings", updateAdminSetting);
+router.get("/ai-learning/reviews/pending", getLearningPendingReviews);
+router.get("/ai-learning/conversations/:id", getLearningConversation);
+router.post("/ai-learning/conversations/:id/reviews", saveLearningConversationReview);
+router.get("/ai-learning/findings", listLearningFindings);
+router.post("/ai-learning/findings", createLearningFinding);
+router.patch("/ai-learning/findings/:id/status", updateLearningFindingStatus);
+router.post("/ai-learning/framework-versions", createLearningFrameworkVersion);
 
 module.exports = router;

@@ -1,5 +1,16 @@
 const aiAdminService = require("../services/ai-admin.service");
 
+function getReviewerUserId(req) {
+  return req.header("x-admin-user-id") || null;
+}
+
+function sendError(res, error) {
+  return res.status(error.statusCode || 500).json({
+    ok: false,
+    message: error.statusCode ? error.message : "Error interno",
+  });
+}
+
 async function getAdminLeads(req, res) {
   const leads = await aiAdminService.getLeads(req.query);
 
@@ -137,6 +148,128 @@ async function updateAdminSetting(req, res) {
   });
 }
 
+async function getLearningPendingReviews(req, res) {
+  try {
+    const data = await aiAdminService.listPendingLearningReviews(req.query);
+
+    return res.status(200).json({
+      ok: true,
+      data,
+    });
+  } catch (error) {
+    return sendError(res, error);
+  }
+}
+
+async function getLearningConversation(req, res) {
+  try {
+    const data = await aiAdminService.getLearningConversationDetail({
+      conversationId: req.params.id,
+    });
+
+    if (!data) {
+      return res.status(404).json({
+        ok: false,
+        message: "Conversacion no encontrada",
+      });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      data,
+    });
+  } catch (error) {
+    return sendError(res, error);
+  }
+}
+
+async function saveLearningConversationReview(req, res) {
+  try {
+    const data = await aiAdminService.saveConversationReview({
+      conversationId: req.params.id,
+      reviewerUserId: getReviewerUserId(req),
+      review: req.body || {},
+    });
+
+    return res.status(200).json({
+      ok: true,
+      data,
+    });
+  } catch (error) {
+    return sendError(res, error);
+  }
+}
+
+async function createLearningFinding(req, res) {
+  try {
+    const data = await aiAdminService.createLearningFinding({
+      finding: req.body || {},
+      createdBy: getReviewerUserId(req),
+    });
+
+    return res.status(201).json({
+      ok: true,
+      data,
+    });
+  } catch (error) {
+    return sendError(res, error);
+  }
+}
+
+async function listLearningFindings(req, res) {
+  try {
+    const data = await aiAdminService.listLearningFindings(req.query);
+
+    return res.status(200).json({
+      ok: true,
+      data,
+    });
+  } catch (error) {
+    return sendError(res, error);
+  }
+}
+
+async function updateLearningFindingStatus(req, res) {
+  try {
+    const data = await aiAdminService.updateLearningFindingStatus({
+      findingId: req.params.id,
+      status: req.body?.status,
+      targetVersion: req.body?.targetVersion,
+      approvedBy: getReviewerUserId(req),
+    });
+
+    if (!data) {
+      return res.status(404).json({
+        ok: false,
+        message: "Hallazgo no encontrado",
+      });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      data,
+    });
+  } catch (error) {
+    return sendError(res, error);
+  }
+}
+
+async function createLearningFrameworkVersion(req, res) {
+  try {
+    const data = await aiAdminService.createFrameworkVersion({
+      version: req.body || {},
+      createdBy: getReviewerUserId(req),
+    });
+
+    return res.status(201).json({
+      ok: true,
+      data,
+    });
+  } catch (error) {
+    return sendError(res, error);
+  }
+}
+
 module.exports = {
   getAdminLeads,
   getAdminLead,
@@ -147,4 +280,11 @@ module.exports = {
   getAdminMetrics,
   getAdminSettings,
   updateAdminSetting,
+  getLearningPendingReviews,
+  getLearningConversation,
+  saveLearningConversationReview,
+  createLearningFinding,
+  listLearningFindings,
+  updateLearningFindingStatus,
+  createLearningFrameworkVersion,
 };
