@@ -18,9 +18,9 @@ router.get("/health", (req, res) => {
 
 router.use("/", demoRoutes);
 router.use("/", whatsappAgentRoutes);
+router.use("/admin/malu-simulator", maluSimulatorRoutes);
 router.use("/admin", calendarAdminRoutes);
 router.use("/admin", aiAdminRoutes);
-router.use("/admin/malu-simulator", maluSimulatorRoutes);
 router.use("/api", broadcastRoutes);
 
 module.exports = router;
