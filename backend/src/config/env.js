@@ -37,6 +37,7 @@ const env = {
   gcAiAdminKey: process.env.GC_AI_ADMIN_KEY,
   gcMaluQaPanelEnabled:
     String(process.env.GC_MALU_QA_PANEL_ENABLED || "false").toLowerCase() === "true",
+  gcMaluOwnerPhoneE164: process.env.GC_MALU_OWNER_PHONE_E164 || "",
 
   whatsappAccessToken: process.env.WHATSAPP_ACCESS_TOKEN,
   whatsappPhoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,

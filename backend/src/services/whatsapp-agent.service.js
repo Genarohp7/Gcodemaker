@@ -24,6 +24,10 @@ const POST_HANDOFF_MAX_AUTO_REPLIES = 4;
 const SIMULATOR_PROVIDER = "simulator";
 const SCHEDULING_ACTION = "malu_scheduling_state_changed";
 const SCOPE_METRIC_ACTION = "malu_scope_consumption_metric";
+const OWNER_INBOUND_ACTION = "malu_owner_inbound_message";
+const OWNER_RESPONSE_SOURCE = "DETERMINISTIC_OWNER";
+const OWNER_ACKNOWLEDGEMENT_MESSAGE =
+  "Hola. Te reconozco como propietario de GCodemaker. En esta fase todavia no tengo comandos administrativos activos, pero no voy a tratar esta conversacion como prospecto comercial.";
 const SCHEDULING_STATUSES = Object.freeze({
   READY_TO_OFFER: "READY_TO_OFFER_SCHEDULING",
   OFFERED: "SCHEDULING_OFFERED",
@@ -49,6 +53,42 @@ function createId(prefix) {
 
 function normalizePhone(phone) {
   return String(phone || "").replace(/\D/g, "");
+}
+
+function normalizePhoneE164(phone) {
+  const raw = String(phone || "").trim();
+  const digits = raw.replace(/\D/g, "");
+
+  if (!digits) {
+    return "";
+  }
+
+  if (raw.startsWith("+")) {
+    return `+${digits}`;
+  }
+
+  if (digits.startsWith("00") && digits.length > 2) {
+    return `+${digits.slice(2)}`;
+  }
+
+  return `+${digits}`;
+}
+
+function createOwnerActorId(normalizedPhone) {
+  const digest = crypto.createHash("sha256").update(normalizedPhone).digest("hex");
+  return `owner-${digest.slice(0, 16)}`;
+}
+
+function getOwnerIdentity(fromPhone) {
+  const configuredOwnerPhone = normalizePhoneE164(env.gcMaluOwnerPhoneE164);
+  const senderPhone = normalizePhoneE164(fromPhone);
+  const isOwner = Boolean(configuredOwnerPhone && senderPhone && configuredOwnerPhone === senderPhone);
+
+  return {
+    isOwner,
+    actorType: isOwner ? "OWNER" : "PROSPECT",
+    actorId: isOwner ? createOwnerActorId(senderPhone) : null,
+  };
 }
 
 function getChanges(payload) {
@@ -672,6 +712,124 @@ async function logScopeMetric({ leadId, conversationId, event, metadata = {} }) 
       }),
     ]
   );
+}
+
+async function findOwnerInboundActivity({ provider, providerMessageId }) {
+  if (!providerMessageId) {
+    return null;
+  }
+
+  const result = await pool.query(
+    `
+      SELECT id
+      FROM gc_ai_activity_logs
+      WHERE action = $1
+        AND metadata->>'provider' = $2
+        AND metadata->>'providerMessageId' = $3
+      LIMIT 1
+    `,
+    [OWNER_INBOUND_ACTION, provider, providerMessageId]
+  );
+
+  return result.rows[0] || null;
+}
+
+async function logOwnerInboundActivity({ actorId, incoming, incomingProvider, outgoingProvider, sendResult }) {
+  await pool.query(
+    `
+      INSERT INTO gc_ai_activity_logs (
+        id,
+        action,
+        entity_type,
+        entity_id,
+        metadata
+      )
+      VALUES ($1, $2, 'gc_ai_owner_conversation', $3, $4::jsonb)
+    `,
+    [
+      createId("activity"),
+      OWNER_INBOUND_ACTION,
+      actorId,
+      JSON.stringify({
+        actorType: "OWNER",
+        ownerDetected: true,
+        provider: incomingProvider,
+        outgoingProvider,
+        providerMessageId: incoming.whatsappMessageId || null,
+        transport: incoming.transport || "whatsapp",
+        autoReply: {
+          sent: Boolean(sendResult.sent),
+          status: sendResult.status || null,
+          reason: sendResult.reason || null,
+          simulator: Boolean(sendResult.simulator),
+        },
+      }),
+    ]
+  );
+}
+
+async function handleOwnerInbound({ incoming, incomingProvider, outgoingProvider, ownerIdentity }) {
+  const duplicateOwnerInbound = await findOwnerInboundActivity({
+    provider: incomingProvider,
+    providerMessageId: incoming.whatsappMessageId,
+  });
+
+  if (duplicateOwnerInbound) {
+    console.info("whatsapp_agent_owner_inbound", {
+      provider: incomingProvider,
+      ownerDetected: true,
+      duplicate: true,
+    });
+
+    return {
+      processed: true,
+      duplicate: true,
+      actorType: "OWNER",
+      reason: "duplicate_owner_provider_message_id",
+      autoReply: {
+        sent: false,
+        reason: "duplicate_owner_provider_message_id",
+      },
+    };
+  }
+
+  console.info("whatsapp_agent_owner_inbound", {
+    provider: incomingProvider,
+    ownerDetected: true,
+  });
+
+  const sendResult = await sendAutoReply({
+    toPhone: incoming.fromPhone,
+    phoneNumberId: incoming.phoneNumberId,
+    content: OWNER_ACKNOWLEDGEMENT_MESSAGE,
+    transport: incoming.transport,
+  });
+
+  await logOwnerInboundActivity({
+    actorId: ownerIdentity.actorId,
+    incoming,
+    incomingProvider,
+    outgoingProvider,
+    sendResult,
+  });
+
+  return {
+    processed: true,
+    actorType: "OWNER",
+    responseSource: OWNER_RESPONSE_SOURCE,
+    ownerDetected: true,
+    commercialLeadCreated: false,
+    autoReply: {
+      sent: Boolean(sendResult.sent),
+      status: sendResult.status || null,
+      reason: sendResult.reason || null,
+    },
+    decision: {
+      action: "owner_internal_acknowledgement",
+      usedAi: false,
+      humanTakeover: false,
+    },
+  };
 }
 
 async function updateScopeState({
@@ -2386,6 +2544,17 @@ async function processIncomingMessage(incoming) {
 
   const incomingProvider = getIncomingProvider(incoming);
   const outgoingProvider = getOutgoingProvider(incoming);
+  const ownerIdentity = getOwnerIdentity(incoming.fromPhone);
+
+  if (ownerIdentity.isOwner) {
+    return handleOwnerInbound({
+      incoming,
+      incomingProvider,
+      outgoingProvider,
+      ownerIdentity,
+    });
+  }
+
   const duplicateInboundMessage = await findMessageByProviderMessageId({
     provider: incomingProvider,
     providerMessageId: incoming.whatsappMessageId,

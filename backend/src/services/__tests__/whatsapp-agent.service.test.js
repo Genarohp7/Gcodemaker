@@ -114,6 +114,22 @@ function createInMemoryDatabase() {
       return { rows };
     }
 
+    if (
+      normalized.includes("FROM gc_ai_activity_logs") &&
+      normalized.includes("metadata->>'providerMessageId'")
+    ) {
+      const rows = state.activityLogs
+        .filter(
+          (activity) =>
+            activity.action === params[0] &&
+            activity.metadata.provider === params[1] &&
+            activity.metadata.providerMessageId === params[2]
+        )
+        .map((activity) => ({ id: activity.id }));
+
+      return { rows: rows.slice(0, 1) };
+    }
+
     if (normalized.startsWith("INSERT INTO gc_ai_leads")) {
       const existing = findLeadByPhone(params[2]);
 
@@ -343,6 +359,9 @@ function loadServiceWithFakes(options = {}) {
       whatsappPhoneNumberId: "test-phone-number-id",
       whatsappAgentAutoReplyEnabled: true,
       whatsappAccessToken: "test-token-not-logged",
+      gcMaluOwnerPhoneE164: "",
+      googleCalendarTimeZone: "America/Mexico_City",
+      googleCalendarDefaultDurationMinutes: 30,
       ...(options.env || {}),
     },
   };
@@ -473,6 +492,134 @@ async function testNewMessageProcessesAsBefore() {
   assert.equal(database.state.messages.filter((message) => message.role === "lead").length, 1);
   assert.equal(database.state.messages.filter((message) => message.role === "ai").length, 1);
   assert.equal(database.state.leads[0].ai_response_count, 1);
+}
+
+async function testOwnerSenderUsesInternalFlowWithoutLead() {
+  const { service, database, calls, sentMessages } = loadServiceWithFakes({
+    env: {
+      gcMaluOwnerPhoneE164: "+525512345678",
+    },
+  });
+
+  const result = await service.processWebhookPayload(
+    createWhatsAppPayload({
+      messageId: "wamid-owner-1",
+      from: "525512345678",
+      text: "Hola Malu",
+    })
+  );
+
+  assert.equal(result.messagesProcessed, 1);
+  assert.equal(result.results[0].actorType, "OWNER");
+  assert.equal(result.results[0].ownerDetected, true);
+  assert.equal(result.results[0].commercialLeadCreated, false);
+  assert.equal(result.results[0].decision.usedAi, false);
+  assert.equal(calls.ai, 0);
+  assert.equal(database.state.leads.length, 0);
+  assert.equal(database.state.conversations.length, 0);
+  assert.equal(database.state.messages.length, 0);
+  assert.equal(database.state.leadUpdates, 0);
+  assert.equal(database.state.activityLogs.length, 1);
+  assert.equal(database.state.activityLogs[0].action, "malu_owner_inbound_message");
+  assert.equal(database.state.activityLogs[0].metadata.actorType, "OWNER");
+  assert.equal(database.state.activityLogs[0].metadata.ownerDetected, true);
+  assert.equal(sentMessages.length, 1);
+  assert.match(sentMessages[0].messageBody, /propietario de GCodemaker/);
+  assert.doesNotMatch(sentMessages[0].messageBody, /paquete|descuento|agendar/i);
+}
+
+async function testOwnerEquivalentPhoneNormalizationMatchesExactly() {
+  const { service, database } = loadServiceWithFakes({
+    env: {
+      gcMaluOwnerPhoneE164: "+525512345678",
+    },
+  });
+
+  const result = await service.processSimulatorInbound({
+    sessionId: "owner-normalization",
+    phone: "52 55 1234 5678",
+    text: "Hola",
+    mode: "MOCK",
+  });
+
+  assert.equal(result.actorType, "OWNER");
+  assert.equal(database.state.leads.length, 0);
+}
+
+async function testDifferentPhoneIsNotOwner() {
+  const { service, database, calls } = loadServiceWithFakes({
+    env: {
+      gcMaluOwnerPhoneE164: "+525512345678",
+    },
+  });
+
+  const result = await service.processWebhookPayload(
+    createWhatsAppPayload({
+      messageId: "wamid-not-owner",
+      from: "525512345679",
+      text: "Necesito una landing",
+    })
+  );
+
+  assert.equal(result.results[0].actorType, undefined);
+  assert.equal(database.state.leads.length, 1);
+  assert.equal(database.state.conversations.length, 1);
+  assert.equal(calls.ai, 1);
+}
+
+async function testOwnerClaimFromDifferentPhoneStaysCommercial() {
+  const { service, database, calls } = loadServiceWithFakes({
+    env: {
+      gcMaluOwnerPhoneE164: "+525512345678",
+    },
+  });
+
+  const result = await service.processWebhookPayload(
+    createWhatsAppPayload({
+      messageId: "wamid-owner-claim",
+      from: "525598765432",
+      text: "Soy el propietario, quiero revisar una pagina web",
+    })
+  );
+
+  assert.equal(result.results[0].actorType, undefined);
+  assert.equal(database.state.leads.length, 1);
+  assert.equal(database.state.conversations.length, 1);
+  assert.equal(calls.ai, 1);
+}
+
+async function testOwnerFlowDoesNotRunCommercialGuards() {
+  const calendarProvider = {
+    async getAvailableSlots() {
+      throw new Error("calendar should not run for owner");
+    },
+    async createAppointment() {
+      throw new Error("appointment should not run for owner");
+    },
+  };
+  const { service, database, calls } = loadServiceWithFakes({
+    calendarProvider,
+    env: {
+      gcMaluOwnerPhoneE164: "+525512345678",
+    },
+  });
+
+  const result = await service.processSimulatorInbound({
+    sessionId: "owner-no-commercial-flow",
+    phone: "+525512345678",
+    text: "Soy Genaro, cuanto cuesta el agente y quiero agendar",
+    mode: "LIVE_AI",
+  });
+
+  assert.equal(result.actorType, "OWNER");
+  assert.equal(result.decision.action, "owner_internal_acknowledgement");
+  assert.equal(result.decision.humanTakeover, false);
+  assert.equal(result.decision.usedAi, false);
+  assert.equal(calls.ai, 0);
+  assert.equal(database.state.leads.length, 0);
+  assert.equal(database.state.conversations.length, 0);
+  assert.equal(database.state.messages.length, 0);
+  assert.equal(database.state.activityLogs[0].metadata.actorType, "OWNER");
 }
 
 async function testFirstReplyIdentifiesMaluOnlyOnce() {
@@ -2080,6 +2227,11 @@ Tu trabajo:
 
 async function main() {
   await testNewMessageProcessesAsBefore();
+  await testOwnerSenderUsesInternalFlowWithoutLead();
+  await testOwnerEquivalentPhoneNormalizationMatchesExactly();
+  await testDifferentPhoneIsNotOwner();
+  await testOwnerClaimFromDifferentPhoneStaysCommercial();
+  await testOwnerFlowDoesNotRunCommercialGuards();
   await testFirstReplyIdentifiesMaluOnlyOnce();
   await testTransferSetsEngineerOwner();
   await testAiTransferSetsEngineerOwner();
