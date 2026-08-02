@@ -107,7 +107,10 @@ export default function MaluSimulatorPage({ authMode = "manual" }) {
     setError("");
 
     try {
-      const session = await loginBroadcastUser(loginForm);
+      const session = await loginBroadcastUser({
+        username: loginForm.phone,
+        password: loginForm.password,
+      });
 
       if (session.role !== "admin_cliente") {
         throw new Error("Esta pantalla requiere una sesion admin.");
