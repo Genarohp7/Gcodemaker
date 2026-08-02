@@ -1,120 +1,150 @@
 import { useEffect } from "react";
 
-const CONTACT_EMAIL = "gehernandez@gcodemaker.com";
+const CONTACT_EMAIL = "meta@gcodemaker.com.mx";
 const CONTACT_WHATSAPP = "https://wa.me/525567359470";
-const LAST_UPDATED = "2 de julio de 2026";
+const LAST_UPDATED = "2 de agosto de 2026";
 
 const legalContent = {
   privacy: {
     title: "Aviso de privacidad",
     label: "Privacidad",
     intro:
-      "Este aviso explica cómo GCodemaker trata la información relacionada con GC Broadcast, nuestros servicios digitales y los canales de contacto vinculados a clientes y usuarios.",
+      "Este aviso explica como GCodemaker trata la informacion relacionada con sus servicios digitales, GC Broadcast, GCodemaker Malu y los canales de contacto vinculados a clientes y usuarios.",
     sections: [
       {
         heading: "Responsable",
         paragraphs: [
-          "GCodemaker es responsable del tratamiento de los datos personales recabados a través de sus sitios, formularios, herramientas internas, integraciones de mensajería y canales de atención.",
-          "GC Broadcast es una herramienta operada por GCodemaker para administrar envios, registros, usuarios, lineas de WhatsApp y actividad relacionada con campanas autorizadas por clientes.",
+          "GCodemaker es responsable del tratamiento de los datos personales recabados a traves de sus sitios, formularios, herramientas internas, integraciones de mensajeria, asistentes automatizados y canales de atencion.",
+          "Para solicitudes relacionadas con privacidad o datos personales puedes escribir a meta@gcodemaker.com.mx.",
         ],
       },
       {
         heading: "Datos que podemos tratar",
         paragraphs: [
-          "Podemos tratar nombre, teléfono, datos de acceso, rol de usuario, permisos, información de campañas, destinatarios, mensajes enviados, estados de entrega, respuestas recibidas y archivos cargados por usuarios autorizados.",
-          "También podemos registrar datos técnicos necesarios para seguridad y operación, como fecha de acceso, actividad dentro de la herramienta, identificadores de mensajes, respuestas de plataformas integradas y eventos de sistema.",
+          "Segun la interaccion, podemos tratar numero de WhatsApp, nombre o informacion de perfil proporcionada por la plataforma cuando este disponible, contenido de mensajes, informacion comercial que el usuario proporcione voluntariamente y datos relacionados con una solicitud de servicio.",
+          "Cuando el usuario solicita coordinar una cita, podemos tratar los datos necesarios para revisar disponibilidad y registrar la reunion. Tambien podemos conservar datos tecnicos y operativos necesarios para funcionamiento, seguridad y trazabilidad.",
+          "En GC Broadcast podemos tratar datos de acceso, rol de usuario, permisos, informacion de campanas, destinatarios, mensajes enviados, estados de entrega, respuestas recibidas y archivos cargados por usuarios autorizados.",
         ],
       },
       {
         heading: "Finalidades",
         paragraphs: [
-          "Usamos la información para operar GC Broadcast, crear usuarios, asignar permisos, conectar líneas autorizadas, enviar mensajes solicitados por el cliente, registrar historiales, medir consumo y atender solicitudes de soporte.",
-          "Los datos también pueden utilizarse para cumplir obligaciones técnicas, prevenir uso indebido, mantener seguridad, resolver errores y mejorar la administración del servicio.",
+          "Usamos la informacion para responder solicitudes iniciadas por usuarios, ofrecer informacion sobre servicios de GCodemaker, perfilar necesidades comerciales, coordinar atencion humana, consultar disponibilidad y crear citas cuando el usuario lo solicite.",
+          "Tambien usamos la informacion para operar GC Broadcast y otros servicios digitales, crear usuarios autorizados, asignar permisos, conectar lineas autorizadas, registrar historiales, medir consumo, atender soporte, prevenir uso indebido, mantener seguridad y mejorar la operacion del servicio.",
         ],
       },
       {
-        heading: "WhatsApp y terceros",
+        heading: "Asistentes automatizados y atencion humana",
         paragraphs: [
-          "Cuando un cliente conecta WhatsApp Cloud API o herramientas de Meta, ciertos datos pueden ser enviados o recibidos a través de plataformas de Meta conforme a sus propias condiciones y políticas.",
-          "GCodemaker no vende datos personales. Solo comparte información cuando es necesario para operar el servicio, cumplir instrucciones del cliente, atender requerimientos legales o mantener integraciones autorizadas.",
+          "Algunas conversaciones pueden ser atendidas inicialmente mediante un asistente automatizado como GCodemaker Malu. Malu puede responder dudas comerciales, recopilar contexto de una solicitud y facilitar la coordinacion con personal humano.",
+          "Cuando el caso lo requiere, la atencion puede escalarse a una persona de GCodemaker para revisar detalles comerciales, tecnicos o de seguimiento.",
+        ],
+      },
+      {
+        heading: "Proveedores tecnologicos",
+        paragraphs: [
+          "Para operar nuestros servicios podemos utilizar proveedores tecnologicos como Meta y WhatsApp para mensajeria, OpenAI para procesamiento y generacion de respuestas, Google Calendar para consultar disponibilidad y crear citas cuando proceda, e infraestructura tecnologica utilizada por GCodemaker.",
+          "Estos proveedores pueden procesar informacion necesaria para prestar sus servicios conforme a sus propias politicas. GCodemaker no vende datos personales y solo comparte informacion cuando es necesario para operar el servicio, cumplir instrucciones del cliente, atender requerimientos legales o mantener integraciones autorizadas.",
         ],
       },
       {
         heading: "Conservacion y seguridad",
         paragraphs: [
-          "Conservamos la información durante el tiempo necesario para prestar el servicio, mantener historiales operativos, atender soporte y cumplir obligaciones aplicables.",
-          "Aplicamos medidas razonables de seguridad administrativa y técnica para proteger la información contra acceso no autorizado, pérdida, alteración o uso indebido.",
+          "Conservamos la informacion durante el tiempo necesario para prestar el servicio, mantener historiales operativos, atender soporte, cumplir finalidades legales o de seguridad aplicables y resolver incidentes.",
+          "Aplicamos medidas razonables de seguridad administrativa y tecnica para proteger la informacion contra acceso no autorizado, perdida, alteracion o uso indebido.",
         ],
       },
       {
-        heading: "Eliminacion de datos de usuario",
+        heading: "Solicitud de eliminacion de datos",
         paragraphs: [
-          "Un usuario o cliente puede solicitar la eliminación, corrección o baja de sus datos escribiendo al correo de contacto indicado en esta página.",
-          "La solicitud debe incluir el nombre de la empresa, el usuario o teléfono relacionado y una descripción clara de los datos que desea eliminar. GCodemaker revisará la solicitud y responderá por el mismo medio.",
+          "Un usuario puede solicitar la eliminacion de la informacion relacionada con sus interacciones escribiendo a meta@gcodemaker.com.mx.",
+          "Para localizar el registro, la solicitud debe incluir informacion suficiente, por ejemplo el numero de WhatsApp utilizado, nombre de la empresa si aplica y una descripcion clara de los datos relacionados. GCodemaker revisara la solicitud y la atendera conforme a obligaciones legales y operativas aplicables.",
         ],
       },
       {
         heading: "Derechos y contacto",
         paragraphs: [
-          "Para ejercer derechos de acceso, rectificación, cancelación, oposición o solicitar información sobre el tratamiento de datos, contáctanos por correo o WhatsApp.",
-          "Correo: gehernandez@gcodemaker.com. WhatsApp: +52 55 6735 9470.",
+          "Para ejercer derechos de acceso, rectificacion, cancelacion, oposicion o solicitar informacion sobre el tratamiento de datos, contactanos por correo o WhatsApp.",
+          "Correo: meta@gcodemaker.com.mx. WhatsApp: +52 55 6735 9470.",
         ],
       },
     ],
   },
   terms: {
-    title: "Términos del servicio",
-    label: "Términos",
+    title: "Terminos del servicio",
+    label: "Terminos",
     intro:
-      "Estos términos regulan el uso de GC Broadcast y los servicios digitales operados por GCodemaker para clientes que administran comunicación, usuarios y campañas.",
+      "Estos terminos regulan el uso de los servicios digitales operados por GCodemaker, incluyendo GC Broadcast cuando corresponda, GCodemaker Malu, herramientas de automatizacion, mensajeria y coordinacion comercial.",
     sections: [
       {
         heading: "Uso del servicio",
         paragraphs: [
-          "GC Broadcast permite administrar usuarios, líneas, campañas, consumo, envíos de prueba, historiales y funciones relacionadas con mensajería empresarial autorizada.",
-          "El cliente es responsable de usar la herramienta de forma lícita, mantener actualizada la información de sus usuarios y asegurarse de contar con autorización para contactar a sus destinatarios.",
+          "Los servicios de GCodemaker pueden incluir paginas web, herramientas digitales, automatizaciones, mensajeria, asistentes comerciales, integraciones y coordinacion de citas.",
+          "GC Broadcast permite administrar usuarios, lineas, campanas, consumo, envios de prueba, historiales y funciones relacionadas con mensajeria empresarial autorizada cuando el cliente utiliza ese servicio.",
+          "El cliente y los usuarios deben usar los servicios de forma licita, mantener actualizada la informacion necesaria y asegurarse de contar con autorizacion para contactar a destinatarios cuando corresponda.",
         ],
       },
       {
-        heading: "Cuentas y accesos",
+        heading: "GCodemaker Malu",
         paragraphs: [
-          "El administrador del cliente puede crear usuarios, asignar contraseñas provisionales, definir roles, permisos y capacidad de mensajes conforme al plan contratado.",
+          "Malu es un asistente utilizado por GCodemaker para atender consultas, proporcionar informacion comercial, recopilar datos necesarios para entender una solicitud, facilitar la coordinacion con personal humano y gestionar disponibilidad o citas cuando corresponda.",
+          "Las respuestas de Malu son de caracter comercial e informativo. Aspectos especificos de alcance, integraciones, tiempos, condiciones finales o decisiones tecnicas pueden requerir confirmacion humana.",
+        ],
+      },
+      {
+        heading: "Cuentas, accesos y datos de uso",
+        paragraphs: [
+          "Cuando un servicio requiere cuentas, el administrador del cliente puede crear usuarios, asignar contrasenas provisionales, definir roles, permisos y capacidad conforme al plan o configuracion contratada.",
           "Cada usuario debe proteger sus credenciales. Cualquier actividad realizada desde una cuenta autorizada se considerara realizada por el cliente o su personal.",
         ],
       },
       {
         heading: "Mensajeria y plataformas externas",
         paragraphs: [
-          "Los envíos por WhatsApp dependen de la configuración, aprobaciones, disponibilidad, políticas y límites establecidos por Meta y WhatsApp Cloud API.",
-          "GCodemaker puede asistir con la configuración técnica, pero el cliente debe respetar las reglas de mensajería, plantillas, consentimiento, calidad de número y políticas aplicables.",
+          "Las funciones que usan WhatsApp, Meta, OpenAI, Google Calendar u otros proveedores externos dependen de su configuracion, aprobaciones, disponibilidad, politicas y limites tecnicos.",
+          "GCodemaker puede asistir con la configuracion tecnica, pero no garantiza disponibilidad ininterrumpida de WhatsApp, Meta, OpenAI, Google Calendar, proveedores externos o infraestructura tecnologica.",
         ],
       },
       {
-        heading: "Contenido y datos cargados",
+        heading: "Contenido y uso licito",
         paragraphs: [
-          "El cliente es responsable del contenido de mensajes, bases de contactos, archivos, imágenes, documentos y cualquier información cargada o enviada desde GC Broadcast.",
-          "No debe utilizarse la herramienta para spam, fraude, contenido engañoso, actividades ilegales, mensajes no autorizados o comunicaciones que infrinjan derechos de terceros.",
+          "El cliente es responsable del contenido de mensajes, bases de contactos, archivos, imagenes, documentos y cualquier informacion cargada, enviada o proporcionada a traves de los servicios.",
+          "No deben utilizarse los servicios para spam, fraude, contenido enganoso, actividades ilegales, mensajes no autorizados, abuso de plataformas o comunicaciones que infrinjan derechos de terceros.",
         ],
       },
       {
         heading: "Planes, consumo y disponibilidad",
         paragraphs: [
-          "Los planes, límites de mensajes, bloques adicionales y condiciones comerciales se acuerdan con cada cliente y pueden actualizarse conforme a la configuración registrada.",
-          "GCodemaker procura mantener el servicio disponible, pero pueden existir interrupciones por mantenimiento, cambios de proveedor, errores técnicos o disponibilidad de plataformas externas.",
+          "Los planes, limites de mensajes, bloques adicionales, alcances y condiciones comerciales se acuerdan con cada cliente y pueden actualizarse conforme a la configuracion registrada.",
+          "GCodemaker procura mantener sus servicios disponibles, pero pueden existir interrupciones por mantenimiento, cambios de proveedor, errores tecnicos, disponibilidad de plataformas externas o causas fuera de su control.",
+        ],
+      },
+      {
+        heading: "Propiedad intelectual",
+        paragraphs: [
+          "El software, marca, contenidos, disenos, configuraciones y materiales de GCodemaker estan protegidos por derechos de propiedad intelectual o industrial, salvo que se indique expresamente lo contrario.",
+          "El uso de los servicios no transfiere derechos sobre la marca, tecnologia, codigo o materiales internos de GCodemaker.",
         ],
       },
       {
         heading: "Suspension o baja",
         paragraphs: [
-          "GCodemaker puede suspender accesos o funciones si detecta uso indebido, incumplimiento de políticas, riesgo de seguridad, falta de pago o solicitud expresa del cliente administrador.",
-          "El cliente puede solicitar la baja del servicio o eliminación de datos conforme al aviso de privacidad publicado en este sitio.",
+          "GCodemaker puede suspender accesos o funciones si detecta uso indebido, incumplimiento de politicas, riesgo de seguridad, falta de pago o solicitud expresa del cliente administrador.",
+          "El cliente puede solicitar la baja del servicio o eliminacion de datos conforme al aviso de privacidad publicado en este sitio.",
+        ],
+      },
+      {
+        heading: "Cambios y jurisdiccion",
+        paragraphs: [
+          "GCodemaker puede actualizar estos terminos cuando sea necesario para reflejar cambios operativos, legales, comerciales o tecnologicos.",
+          "Estos terminos se interpretan conforme a las leyes aplicables en Mexico.",
         ],
       },
       {
         heading: "Contacto",
         paragraphs: [
-          "Para soporte, solicitudes sobre datos, dudas comerciales o temas relacionados con GC Broadcast, contacta a GCodemaker por correo o WhatsApp.",
-          "Correo: gehernandez@gcodemaker.com. WhatsApp: +52 55 6735 9470.",
+          "Para soporte, solicitudes sobre datos, dudas comerciales o temas relacionados con los servicios digitales de GCodemaker, contacta a GCodemaker por correo o WhatsApp.",
+          "Correo: meta@gcodemaker.com.mx. WhatsApp: +52 55 6735 9470.",
         ],
       },
     ],
@@ -138,7 +168,7 @@ function LegalPage({ type }) {
           </h1>
           <p className="legal-page__intro">{content.intro}</p>
           <p className="legal-page__updated">
-            Última actualización: {LAST_UPDATED}
+            Ultima actualizacion: {LAST_UPDATED}
           </p>
         </div>
 
@@ -159,7 +189,7 @@ function LegalPage({ type }) {
           <div>
             <h2 className="legal-page__contact-title">Contacto directo</h2>
             <p className="legal-page__text">
-              Para solicitudes de privacidad, soporte o términos del servicio,
+              Para solicitudes de privacidad, soporte o terminos del servicio,
               usa cualquiera de estos canales.
             </p>
           </div>
