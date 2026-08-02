@@ -173,9 +173,10 @@ function detectProspectLocation(message) {
 
 function mergeSchedulingContext(state = {}, message) {
   const location = detectProspectLocation(message) || state.location || null;
-  const requestedModality = detectAppointmentModality(message) || state.modality || null;
+  const requestedModality =
+    detectAppointmentModality(message) || state.modality || state.requestedModality || null;
   const modality =
-    requestedModality === APPOINTMENT_MODALITIES.IN_PERSON && location?.inMexicoCity === false
+    requestedModality === APPOINTMENT_MODALITIES.IN_PERSON && location?.inMexicoCity !== true
       ? null
       : requestedModality;
 
@@ -269,6 +270,7 @@ function detectRequestedAppointmentSlot(
     /\b(?:proximo|pr[oÃ³]ximo|este|el)?\s*(lunes|martes|miercoles|mi[eÃ©]rcoles|jueves|viernes|sabado|s[aÃ¡]bado|domingo)\b/
   );
   const timeMatch = text.match(/\b(?:a\s+las\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/);
+  const dayPeriodMatch = text.match(/\b(?:de\s+la\s+)?(manana|maÃƒÂ±ana|tarde|noche)\b/);
 
   if (!weekdayMatch || !timeMatch) {
     return null;
@@ -289,11 +291,14 @@ function detectRequestedAppointmentSlot(
   let hour = Number(timeMatch[1]);
   const minute = Number(timeMatch[2] || 0);
   const meridiem = timeMatch[3];
+  const dayPeriod = dayPeriodMatch?.[1] || null;
 
   if (meridiem === "pm" && hour < 12) {
     hour += 12;
   } else if (meridiem === "am" && hour === 12) {
     hour = 0;
+  } else if ((dayPeriod === "tarde" || dayPeriod === "noche") && hour < 12) {
+    hour += 12;
   }
 
   if (hour > 23 || minute > 59) {
@@ -408,6 +413,18 @@ function needsSchedulingModalityClarification({ state, message }) {
       context,
       reply:
         "La reunion presencial solo esta disponible en Ciudad de Mexico. Podemos continuar con videollamada o llamada telefonica. Cual modalidad prefieres?",
+    };
+  }
+
+  if (
+    context.requestedModality === APPOINTMENT_MODALITIES.IN_PERSON &&
+    !context.location
+  ) {
+    return {
+      needed: true,
+      context,
+      reply:
+        "Claro, revisamos la reunion presencial. En que ciudad te encuentras? La modalidad presencial esta disponible para Ciudad de Mexico.",
     };
   }
 
@@ -1503,20 +1520,28 @@ function getModalityLabel(modality) {
 function formatSlotDateTime(slot) {
   const date = new Date(slot.startsAt);
   const datePart = new Intl.DateTimeFormat("es-MX", {
-    dateStyle: "medium",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
     timeZone: slot.timeZone || "America/Mexico_City",
-  }).format(date);
+  })
+    .format(date)
+    .replace(",", "");
   const timePart = new Intl.DateTimeFormat("es-MX", {
-    hour: "2-digit",
+    hour: "numeric",
     minute: "2-digit",
-    hour12: false,
+    hour12: true,
     timeZone: slot.timeZone || "America/Mexico_City",
-  }).format(date);
+  })
+    .format(date)
+    .replace(/\s+/g, " ")
+    .replace(/a\.?\s?m\.?/i, "a. m.")
+    .replace(/p\.?\s?m\.?/i, "p. m.");
 
   return {
     date: datePart,
     time: timePart,
-    timeZone: slot.timeZone || "America/Mexico_City",
+    label: `${datePart} a las ${timePart}`,
   };
 }
 
@@ -1525,13 +1550,13 @@ function buildSlotOptionsReply(slots, modality) {
     .map((slot, index) => {
       const formatted = formatSlotDateTime(slot);
 
-      return `${index + 1}. ${formatted.date} a las ${formatted.time} (${formatted.timeZone})`;
+      return `${index + 1}. ${formatted.label}`;
     })
     .join("\n");
 
-  return `Tengo estos horarios simulados para ${getModalityLabel(
+  return `Tengo estas opciones disponibles para ${getModalityLabel(
     modality
-  )}, sin crear eventos reales:\n${options}\nCual opcion prefieres?`;
+  )}:\n${options}\nCual opcion prefieres?`;
 }
 
 function buildAppointmentConfirmedReply(slot, modality) {
@@ -1542,7 +1567,7 @@ function buildAppointmentConfirmedReply(slot, modality) {
       ? "El ingeniero responsable se pondra en contacto contigo para confirmar la cita."
       : "El ingeniero responsable se pondra en contacto contigo posteriormente por llamada o mensaje para confirmar la cita y coordinar los detalles de la reunion.";
 
-  return `Perfecto, tu ${label} quedo programada para ${formatted.date} a las ${formatted.time} (${formatted.timeZone}). ${coordination}`;
+  return `Perfecto, tu ${label} quedo programada para ${formatted.label}. ${coordination}`;
 }
 
 async function finalizeHandoffAfterAppointment({ leadId, conversationId }) {
@@ -1661,6 +1686,39 @@ async function handleSchedulingFlow({ lead, conversation, incoming, outgoingProv
     });
 
     if (requestedSlot && hasUsefulSchedulingContext({ lead, recentMessages })) {
+      if (
+        schedulingContext.requestedModality === APPOINTMENT_MODALITIES.IN_PERSON &&
+        !schedulingContext.location
+      ) {
+        await logSchedulingState({
+          leadId: lead.id,
+          conversationId: conversation.id,
+          status: SCHEDULING_STATUSES.MODALITY_REQUIRED,
+          metadata: {
+            requestedSlot,
+            modality: null,
+            requestedModality: schedulingContext.requestedModality,
+            location: null,
+          },
+        });
+
+        return sendAndPersistSchedulingReply({
+          lead,
+          conversation,
+          incoming,
+          outgoingProvider,
+          replyContent:
+            "Claro, revisamos la reunion presencial. En que ciudad te encuentras? La modalidad presencial esta disponible para Ciudad de Mexico.",
+          scheduling: {
+            status: SCHEDULING_STATUSES.MODALITY_REQUIRED,
+            selectedSlot: requestedSlot,
+            modality: null,
+            requestedModality: schedulingContext.requestedModality,
+            location: null,
+          },
+        });
+      }
+
       if (!schedulingContext.modality) {
         await logSchedulingState({
           leadId: lead.id,

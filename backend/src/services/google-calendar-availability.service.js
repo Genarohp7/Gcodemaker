@@ -117,6 +117,22 @@ function zonedTimeToUtc({ year, month, day, hour, minute = 0 }, timeZone) {
   return new Date(utcGuess.getTime() + (wantedUtc - actualUtc));
 }
 
+function formatGoogleLocalDateTime(date, timeZone) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+
+  return `${values.year}-${values.month}-${values.day}T${values.hour}:${values.minute}:${values.second}`;
+}
+
 function overlapsBusy(slotStart, slotEnd, busy = [], bufferMinutes = 0) {
   return busy.some((range) => {
     const busyStart = addMinutes(new Date(range.start), -bufferMinutes);
@@ -140,6 +156,29 @@ function buildCandidateSlots({
 }) {
   const earliest = addMinutes(now, minNoticeHours * 60);
   const slots = [];
+  const addSlotIfAvailable = ({ start, end, label = null }) => {
+    if (start < earliest || overlapsBusy(start, end, busy, bufferMinutes)) {
+      return false;
+    }
+
+    if (slots.some((slot) => slot.startsAt === start.toISOString())) {
+      return false;
+    }
+
+    slots.push({
+      id: `google-slot-${start.toISOString()}`,
+      label: label || `Opcion ${slots.length + 1}`,
+      startsAt: start.toISOString(),
+      endsAt: end.toISOString(),
+      durationMinutes,
+      timeZone,
+      modality,
+      location,
+      simulated: false,
+    });
+
+    return true;
+  };
 
   if (preferredSlot?.startsAt && preferredSlot?.endsAt) {
     const preferredStart = new Date(preferredSlot.startsAt);
@@ -172,6 +211,32 @@ function buildCandidateSlots({
         simulated: false,
       });
     }
+
+    if (!slots.length && preferredHours) {
+      const sameDayCandidates = [];
+
+      for (let hour = preferredHours.start; hour < preferredHours.end; hour += 1) {
+        const start = zonedTimeToUtc({ ...preferredParts, hour }, timeZone);
+        const end = addMinutes(start, durationMinutes);
+
+        if (end > businessEnd || start.toISOString() === preferredStart.toISOString()) {
+          continue;
+        }
+
+        sameDayCandidates.push({
+          start,
+          end,
+          distance: Math.abs(start.getTime() - preferredStart.getTime()),
+        });
+      }
+
+      sameDayCandidates
+        .sort((left, right) => left.distance - right.distance || left.start - right.start)
+        .some((candidate) => {
+          addSlotIfAvailable(candidate);
+          return slots.length >= 3;
+        });
+    }
   }
 
   for (let offset = 0; offset <= lookaheadDays; offset += 1) {
@@ -188,29 +253,11 @@ function buildCandidateSlots({
       const start = zonedTimeToUtc({ ...parts, hour }, timeZone);
       const end = addMinutes(start, durationMinutes);
 
-      if (start < earliest || end > zonedTimeToUtc({ ...parts, hour: hours.end }, timeZone)) {
+      if (end > zonedTimeToUtc({ ...parts, hour: hours.end }, timeZone)) {
         continue;
       }
 
-      if (overlapsBusy(start, end, busy, bufferMinutes)) {
-        continue;
-      }
-
-      if (slots.some((slot) => slot.startsAt === start.toISOString())) {
-        continue;
-      }
-
-      slots.push({
-        id: `google-slot-${start.toISOString()}`,
-        label: `Opcion ${slots.length + 1}`,
-        startsAt: start.toISOString(),
-        endsAt: end.toISOString(),
-        durationMinutes,
-        timeZone,
-        modality,
-        location,
-        simulated: false,
-      });
+      addSlotIfAvailable({ start, end });
 
       if (slots.length >= 3) {
         return slots;
@@ -387,18 +434,19 @@ async function createAppointment({
   }
 
   const calendar = await getAuthorizedCalendarClient();
+  const slotTimeZone = slot.timeZone || env.googleCalendarTimeZone;
   const event = {
     summary:
       summary?.eventTitle ||
       `Consultoria GCodemaker - ${summary?.business || summary?.prospect || "Prospecto"}`,
     description: buildEventDescription({ summary, modality, location }),
     start: {
-      dateTime: slot.startsAt,
-      timeZone: slot.timeZone || env.googleCalendarTimeZone,
+      dateTime: formatGoogleLocalDateTime(new Date(slot.startsAt), slotTimeZone),
+      timeZone: slotTimeZone,
     },
     end: {
-      dateTime: slot.endsAt,
-      timeZone: slot.timeZone || env.googleCalendarTimeZone,
+      dateTime: formatGoogleLocalDateTime(new Date(slot.endsAt), slotTimeZone),
+      timeZone: slotTimeZone,
     },
     extendedProperties: {
       private: {

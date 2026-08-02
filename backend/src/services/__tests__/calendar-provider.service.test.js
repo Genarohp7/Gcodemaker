@@ -967,6 +967,37 @@ async function testCreateAppointmentModalitiesAndMeet() {
   }
 }
 
+async function testCreateAppointmentSendsLocalWallClockTimeToGoogle() {
+  const { googleCalendar, calls } = loadCalendarModules({
+    env: {
+      googleCalendarEnabled: true,
+      googleRefreshToken: "refresh-token",
+    },
+  });
+
+  await googleCalendar.createAppointment({
+    slot: {
+      id: "slot-13-cdmx",
+      startsAt: "2026-08-03T19:00:00.000Z",
+      endsAt: "2026-08-03T19:30:00.000Z",
+      timeZone: "America/Mexico_City",
+    },
+    summary: {
+      prospect: "Cliente",
+      business: "Negocio",
+      conversationId: "conv-wall-clock",
+      leadId: "lead-wall-clock",
+    },
+    modality: "LLAMADA",
+    idempotencyKey: "wall-clock-13-cdmx",
+  });
+
+  assert.equal(calls.lastEventRequest.requestBody.start.dateTime, "2026-08-03T13:00:00");
+  assert.equal(calls.lastEventRequest.requestBody.end.dateTime, "2026-08-03T13:30:00");
+  assert.equal(calls.lastEventRequest.requestBody.start.timeZone, "America/Mexico_City");
+  assert.equal(calls.lastEventRequest.requestBody.end.timeZone, "America/Mexico_City");
+}
+
 async function testIdempotencyPreventsDoubleEvent() {
   const { googleCalendar, calls } = loadCalendarModules({
     env: {
@@ -1059,6 +1090,7 @@ async function main() {
   await testFreeBusyCreatesAvailableSlotsWithBufferAndBusinessHours();
   await testSundayDoesNotGenerateSlots();
   await testCreateAppointmentModalitiesAndMeet();
+  await testCreateAppointmentSendsLocalWallClockTimeToGoogle();
   await testIdempotencyPreventsDoubleEvent();
   await testGoogleFailureIsSanitized();
 }

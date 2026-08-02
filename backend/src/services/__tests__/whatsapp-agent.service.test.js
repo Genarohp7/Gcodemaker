@@ -48,6 +48,17 @@ function createWhatsAppPayload({ messageId, text = "Necesito una landing", from 
   };
 }
 
+function getHourInMexicoCity(isoDate) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Mexico_City",
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date(isoDate));
+  const hour = parts.find((part) => part.type === "hour")?.value;
+
+  return Number(hour);
+}
+
 function createInMemoryDatabase() {
   const state = {
     leads: [],
@@ -1301,7 +1312,7 @@ async function testSchedulingRemoteFromStartDoesNotRequireLocation() {
   );
   assert.equal(slotEvent.metadata.modality, "VIDEOLLAMADA");
   assert.equal(slotEvent.metadata.location, null);
-  assert.match(database.state.messages.at(-1).content, /horarios simulados/i);
+  assert.match(database.state.messages.at(-1).content, /opciones disponibles/i);
   assert.doesNotMatch(database.state.messages.at(-1).content, /ciudad/i);
 }
 
@@ -1424,6 +1435,40 @@ async function testDirectRequestedSlotRequiresConfirmedGoogleEventBeforeHandoff(
   assert.match(database.state.messages.at(-1).content, /no quedo programada/i);
 }
 
+async function testInPersonModalityPersistsAfterLocationProvided() {
+  const { service, database } = loadServiceWithFakes({ useRealIntentGuard: true });
+  const phone = "999000000039";
+
+  for (const [index, text] of [
+    "Quiero una pagina web",
+    "Soy dentista y quiero tener presencia en Google",
+    "Solo tengo el logotipo",
+    "Me interesa",
+    "Quiero una reunion presencial",
+    "Me encuentro en la Ciudad de Mexico en Coyoacan",
+  ].entries()) {
+    await service.processSimulatorInbound({
+      sessionId: "sim-session-presencial-location-after",
+      text,
+      messageId: `sim-presencial-location-after-${index + 1}`,
+      phone,
+      mode: "MOCK",
+    });
+  }
+
+  const schedulingEvents = database.state.activityLogs.filter(
+    (activity) => activity.action === "malu_scheduling_state_changed"
+  );
+  const lastSchedulingEvent = schedulingEvents.at(-1);
+  const reply = database.state.messages.at(-1).content;
+
+  assert.equal(lastSchedulingEvent.metadata.status, "SLOT_OPTIONS_PRESENTED");
+  assert.equal(lastSchedulingEvent.metadata.modality, "PRESENCIAL");
+  assert.equal(lastSchedulingEvent.metadata.location.inMexicoCity, true);
+  assert.doesNotMatch(reply, /Cual prefieres/i);
+  assert.doesNotMatch(reply, /modalidad presencial, videollamada o llamada telefonica/i);
+}
+
 async function testDirectRequestedSlotWithGoogleEventFinalizesHandoff() {
   const calendarProvider = {
     async getAvailableSlots({ preferredSlot, modality = null, location = null } = {}) {
@@ -1480,10 +1525,147 @@ async function testDirectRequestedSlotWithGoogleEventFinalizesHandoff() {
   );
   assert.equal(appointmentEvent.metadata.googleCalendarEventId, "google-event-present");
   assert.equal(appointmentEvent.metadata.modality, "LLAMADA");
+  assert.equal(getHourInMexicoCity(appointmentEvent.metadata.appointment.startsAt), 13);
   assert.equal(database.state.conversations[0].conversation_owner, "INGENIERO");
   assert.equal(database.state.conversations[0].human_takeover, true);
   assert.match(database.state.messages.at(-1).content, /llamada/i);
   assert.match(database.state.messages.at(-1).content, /quedo programada/i);
+  assert.doesNotMatch(database.state.messages.at(-1).content, /America\/Mexico_City/i);
+}
+
+async function testRequestedSlotAvailableIsBookedDirectlyWithoutAlternatives() {
+  const calls = {
+    preferredSlot: null,
+    createAppointment: 0,
+  };
+  const calendarProvider = {
+    async getAvailableSlots({ preferredSlot, modality = null, location = null } = {}) {
+      calls.preferredSlot = preferredSlot;
+      return [
+        {
+          ...preferredSlot,
+          modality,
+          location,
+          simulated: false,
+        },
+      ];
+    },
+    async createAppointment({ slot, summary, modality = null, location = null }) {
+      calls.createAppointment += 1;
+      return {
+        id: "google-appointment-requested-slot",
+        status: "confirmed",
+        slot,
+        startsAt: slot.startsAt,
+        endsAt: slot.endsAt,
+        timeZone: slot.timeZone,
+        modality,
+        location,
+        confirmedAt: "2026-08-01T12:00:00.000Z",
+        googleCalendarEventId: "google-event-requested-slot",
+        summary,
+        simulated: false,
+      };
+    },
+  };
+  const { service, database } = loadServiceWithFakes({
+    useRealIntentGuard: true,
+    calendarProvider,
+    calendarProviderName: "GOOGLE",
+  });
+  const phone = "999000000040";
+
+  for (const [index, text] of [
+    "Quiero un agente de IA para mi pizzeria",
+    "Necesito que tome pedidos por WhatsApp",
+    "Me interesa coordinar una llamada",
+    "Podria ser el proximo lunes a las 3 de la tarde?",
+  ].entries()) {
+    await service.processSimulatorInbound({
+      sessionId: "sim-session-requested-slot-available",
+      text,
+      messageId: `sim-requested-slot-available-${index + 1}`,
+      phone,
+      mode: "MOCK",
+    });
+  }
+
+  const statuses = database.state.activityLogs
+    .filter((activity) => activity.action === "malu_scheduling_state_changed")
+    .map((activity) => activity.metadata.status);
+  const reply = database.state.messages.at(-1).content;
+
+  assert.equal(calls.createAppointment, 1);
+  assert.ok(calls.preferredSlot, "preferred slot should be passed to provider");
+  assert.equal(getHourInMexicoCity(calls.preferredSlot.startsAt), 15);
+  assert.ok(!statuses.includes("SLOT_OPTIONS_PRESENTED"), statuses.join(","));
+  assert.ok(statuses.includes("APPOINTMENT_CONFIRMED"), statuses.join(","));
+  assert.doesNotMatch(reply, /America\/Mexico_City/i);
+}
+
+async function testRequestedSlotOccupiedOffersAlternativesWithoutCreatingAppointment() {
+  const calls = {
+    preferredSlot: null,
+    createAppointment: 0,
+  };
+  const calendarProvider = {
+    async getAvailableSlots({ preferredSlot, modality = null, location = null } = {}) {
+      calls.preferredSlot = preferredSlot;
+      return [
+        {
+          id: "alt-slot-1",
+          label: "Opcion 1",
+          startsAt: "2026-08-03T20:00:00.000Z",
+          endsAt: "2026-08-03T20:30:00.000Z",
+          durationMinutes: 30,
+          timeZone: "America/Mexico_City",
+          modality,
+          location,
+          simulated: false,
+        },
+      ];
+    },
+    async createAppointment() {
+      calls.createAppointment += 1;
+      throw new Error("No debe crear cita cuando el slot solicitado no fue devuelto");
+    },
+  };
+  const { service, database } = loadServiceWithFakes({
+    useRealIntentGuard: true,
+    calendarProvider,
+    calendarProviderName: "GOOGLE",
+  });
+  const phone = "999000000041";
+
+  for (const [index, text] of [
+    "Quiero un agente de IA para mi pizzeria",
+    "Necesito que tome pedidos por WhatsApp",
+    "Me interesa coordinar una llamada",
+    "Podria ser el proximo lunes a las 3 de la tarde?",
+  ].entries()) {
+    await service.processSimulatorInbound({
+      sessionId: "sim-session-requested-slot-occupied",
+      text,
+      messageId: `sim-requested-slot-occupied-${index + 1}`,
+      phone,
+      mode: "MOCK",
+    });
+  }
+
+  const slotEvent = database.state.activityLogs.find(
+    (activity) => activity.metadata.status === "SLOT_OPTIONS_PRESENTED"
+  );
+  const reply = database.state.messages.at(-1).content;
+
+  assert.equal(calls.createAppointment, 0);
+  assert.ok(calls.preferredSlot, "preferred slot should be checked first");
+  assert.equal(getHourInMexicoCity(calls.preferredSlot.startsAt), 15);
+  assert.ok(slotEvent, "alternatives should be presented");
+  assert.equal(database.state.conversations[0].conversation_owner, "MALU");
+  assert.equal(database.state.conversations[0].human_takeover, false);
+  assert.match(reply, /no aparece disponible/i);
+  assert.match(reply, /opciones disponibles/i);
+  assert.doesNotMatch(reply, /America\/Mexico_City/i);
 }
 
 async function testSchedulingDeclinedKeepsMaluOwner() {
@@ -1930,7 +2112,10 @@ async function main() {
   await testSchedulingRemoteFromStartDoesNotRequireLocation();
   await testSchedulingCalendarFailureDoesNotFinalizeHandoff();
   await testDirectRequestedSlotRequiresConfirmedGoogleEventBeforeHandoff();
+  await testInPersonModalityPersistsAfterLocationProvided();
   await testDirectRequestedSlotWithGoogleEventFinalizesHandoff();
+  await testRequestedSlotAvailableIsBookedDirectlyWithoutAlternatives();
+  await testRequestedSlotOccupiedOffersAlternativesWithoutCreatingAppointment();
   await testSchedulingDeclinedKeepsMaluOwner();
   await testScopeBlocksPureOffTopicBeforeOpenAi();
   await testScopeStopsRepeatedRecreationalUse();
