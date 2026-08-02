@@ -195,7 +195,11 @@ export default function MaluSimulatorPage({ authMode = "manual" }) {
         text,
         mode,
       });
-      setConversation(data.conversation);
+      setConversation({
+        ...data.conversation,
+        liveAiAvailable: data.liveAiAvailable,
+        calendarProvider: data.calendarProvider,
+      });
       setInput("");
       setStatus("idle");
     } catch (requestError) {

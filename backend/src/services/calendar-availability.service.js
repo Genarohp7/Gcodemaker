@@ -44,17 +44,33 @@ function buildMockSlot(index, baseDate, hour, { modality = null, location = null
   };
 }
 
-async function getAvailableSlots({ now = new Date(), modality = null, location = null } = {}) {
+async function getAvailableSlots({
+  now = new Date(),
+  modality = null,
+  location = null,
+  preferredSlot = null,
+} = {}) {
   ensureDevelopmentMock();
 
   const firstDay = addBusinessDays(now, 1);
   const secondDay = addBusinessDays(now, 2);
+  const preferred = preferredSlot
+    ? {
+        ...preferredSlot,
+        id: preferredSlot.id || "mock-preferred-slot",
+        label: preferredSlot.label || "Horario solicitado",
+        modality: modality || preferredSlot.modality || null,
+        location: location || preferredSlot.location || null,
+        simulated: true,
+      }
+    : null;
 
   return [
+    preferred,
     buildMockSlot(1, firstDay, 16, { modality, location }),
     buildMockSlot(2, firstDay, 18, { modality, location }),
     buildMockSlot(3, secondDay, 17, { modality, location }),
-  ];
+  ].filter(Boolean);
 }
 
 async function createAppointment({ slot, summary, modality = null, location = null }) {

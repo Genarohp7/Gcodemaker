@@ -4,7 +4,7 @@ const env = require("../config/env");
 const { pool } = require("../db");
 const { MALU_BUSINESS_KNOWLEDGE } = require("../knowledge/malu-business-knowledge");
 const aiAgentService = require("./ai-agent.service");
-const { getCalendarProvider } = require("./calendar-provider.service");
+const { getCalendarProvider, getCalendarProviderName } = require("./calendar-provider.service");
 const demoModeService = require("./demo-mode.service");
 const intentGuardService = require("./intent-guard.service");
 const scopeGuardService = require("./malu-scope-guard.service");
@@ -189,6 +189,210 @@ function mergeSchedulingContext(state = {}, message) {
 function isGenericMeetingRequest(message) {
   return /reunir|reunion|reuni[oó]n|cita|ver disponibilidad|horarios|agenda|agendar|llamada/i.test(
     String(message || "")
+  );
+}
+
+function getZonedDateParts(date, timeZone) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    weekday: "short",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  const dayMap = {
+    Sun: 0,
+    Mon: 1,
+    Tue: 2,
+    Wed: 3,
+    Thu: 4,
+    Fri: 5,
+    Sat: 6,
+  };
+
+  return {
+    year: Number(values.year),
+    month: Number(values.month),
+    day: Number(values.day),
+    dayOfWeek: dayMap[values.weekday],
+  };
+}
+
+function zonedTimeToUtc({ year, month, day, hour, minute = 0 }, timeZone) {
+  const utcGuess = new Date(Date.UTC(year, month - 1, day, hour, minute, 0, 0));
+  const formatted = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(utcGuess);
+  const values = Object.fromEntries(formatted.map((part) => [part.type, part.value]));
+  const actualUtc = Date.UTC(
+    Number(values.year),
+    Number(values.month) - 1,
+    Number(values.day),
+    Number(values.hour),
+    Number(values.minute),
+    Number(values.second)
+  );
+  const wantedUtc = Date.UTC(year, month - 1, day, hour, minute, 0);
+
+  return new Date(utcGuess.getTime() + (wantedUtc - actualUtc));
+}
+
+function getNextWeekdayDateParts(dayOfWeek, { now = new Date(), timeZone = "America/Mexico_City" } = {}) {
+  const current = getZonedDateParts(now, timeZone);
+  const daysUntil = (dayOfWeek - current.dayOfWeek + 7) % 7 || 7;
+  const cursor = new Date(now);
+  cursor.setUTCDate(cursor.getUTCDate() + daysUntil);
+
+  return getZonedDateParts(cursor, timeZone);
+}
+
+function detectRequestedAppointmentSlot(
+  message,
+  {
+    now = new Date(),
+    timeZone = "America/Mexico_City",
+    durationMinutes = env.googleCalendarDefaultDurationMinutes || 30,
+    modality = null,
+    location = null,
+  } = {}
+) {
+  const text = String(message || "").trim().toLowerCase();
+  const weekdayMatch = text.match(
+    /\b(?:proximo|pr[oÃ³]ximo|este|el)?\s*(lunes|martes|miercoles|mi[eÃ©]rcoles|jueves|viernes|sabado|s[aÃ¡]bado|domingo)\b/
+  );
+  const timeMatch = text.match(/\b(?:a\s+las\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/);
+
+  if (!weekdayMatch || !timeMatch) {
+    return null;
+  }
+
+  const dayMap = {
+    domingo: 0,
+    lunes: 1,
+    martes: 2,
+    miercoles: 3,
+    "miÃ©rcoles": 3,
+    jueves: 4,
+    viernes: 5,
+    sabado: 6,
+    "sÃ¡bado": 6,
+  };
+  const normalizedWeekday = weekdayMatch[1].replace("Ã©", "e").replace("Ã¡", "a");
+  let hour = Number(timeMatch[1]);
+  const minute = Number(timeMatch[2] || 0);
+  const meridiem = timeMatch[3];
+
+  if (meridiem === "pm" && hour < 12) {
+    hour += 12;
+  } else if (meridiem === "am" && hour === 12) {
+    hour = 0;
+  }
+
+  if (hour > 23 || minute > 59) {
+    return null;
+  }
+
+  const parts = getNextWeekdayDateParts(dayMap[normalizedWeekday], { now, timeZone });
+  const startsAt = zonedTimeToUtc({ ...parts, hour, minute }, timeZone);
+  const endsAt = new Date(startsAt.getTime() + durationMinutes * 60 * 1000);
+
+  return {
+    id: `requested-slot-${startsAt.toISOString()}`,
+    label: "Horario solicitado",
+    startsAt: startsAt.toISOString(),
+    endsAt: endsAt.toISOString(),
+    durationMinutes,
+    timeZone,
+    modality,
+    location,
+    simulated: false,
+  };
+}
+
+function inferSchedulingModalityFromMessages(messages = []) {
+  const joined = messages
+    .map((message) => message.content || "")
+    .join("\n")
+    .toLowerCase();
+
+  if (/videollamada|video llamada|meet|zoom|teams|virtual|en linea|en lÃ­nea/.test(joined)) {
+    return APPOINTMENT_MODALITIES.VIDEO_CALL;
+  }
+
+  if (/llamada|llamar|telefono|tel[eÃ©]fono/.test(joined)) {
+    return APPOINTMENT_MODALITIES.PHONE_CALL;
+  }
+
+  if (/presencial|en persona|reunion presencial|reuni[oÃ³]n presencial/.test(joined)) {
+    return APPOINTMENT_MODALITIES.IN_PERSON;
+  }
+
+  return null;
+}
+
+function inferSchedulingModalityFromLeadMessages(messages = []) {
+  const leadMessages = messages
+    .filter((message) => message.role === "lead")
+    .map((message) => message.content || "")
+    .reverse();
+
+  for (const content of leadMessages) {
+    const normalized = content.toLowerCase();
+
+    if (/videollamada|video llamada|meet|zoom|teams|virtual|en linea|en lÃƒÂ­nea/.test(normalized)) {
+      return APPOINTMENT_MODALITIES.VIDEO_CALL;
+    }
+
+    if (/llamada|llamar|telefono|tel[eÃƒÂ©]fono/.test(normalized)) {
+      return APPOINTMENT_MODALITIES.PHONE_CALL;
+    }
+
+    if (/presencial|en persona|reunion presencial|reuni[oÃƒÂ³]n presencial/.test(normalized)) {
+      return APPOINTMENT_MODALITIES.IN_PERSON;
+    }
+  }
+
+  return null;
+}
+
+function isCalendarBackedAppointmentConfirmed(appointment, providerName) {
+  const isConfirmed = String(appointment?.status || "").toLowerCase() === "confirmed";
+
+  if (!isConfirmed || !appointment?.confirmedAt) {
+    return false;
+  }
+
+  if (providerName === "GOOGLE" && !appointment.googleCalendarEventId) {
+    return false;
+  }
+
+  return true;
+}
+
+function shouldPreventAiSchedulingHandoff({ incoming, aiResult, recentMessages = [] }) {
+  if (!aiResult?.shouldTransferToHuman) {
+    return false;
+  }
+
+  const combined = [
+    incoming?.content || "",
+    aiResult.reply || "",
+    aiResult.nextSuggestedAction || "",
+    ...recentMessages.slice(-6).map((message) => message.content || ""),
+  ]
+    .join("\n")
+    .toLowerCase();
+
+  return /llamada|cita|agenda|agendar|horario|disponibilidad|lunes|martes|miercoles|mi[eÃ©]rcoles|jueves|viernes|sabado|s[aÃ¡]bado|domingo/.test(
+    combined
   );
 }
 
@@ -1431,6 +1635,239 @@ async function handleSchedulingFlow({ lead, conversation, incoming, outgoingProv
     conversationId: conversation.id,
   });
   const status = state.status || "PROFILING";
+  let schedulingRecentMessages = null;
+  async function getSchedulingRecentMessages() {
+    if (!schedulingRecentMessages) {
+      schedulingRecentMessages = await getRecentConversationMessages({
+        conversationId: conversation.id,
+        limit: 12,
+      });
+    }
+
+    return schedulingRecentMessages;
+  }
+
+  if (status !== SCHEDULING_STATUSES.DECLINED) {
+    const recentMessages = await getSchedulingRecentMessages();
+    const inferredModality = state.modality || inferSchedulingModalityFromLeadMessages(recentMessages);
+    const schedulingContext = mergeSchedulingContext(
+      inferredModality ? { ...state, modality: inferredModality } : state,
+      incoming.content
+    );
+    const requestedSlot = detectRequestedAppointmentSlot(incoming.content, {
+      timeZone: env.googleCalendarTimeZone || "America/Mexico_City",
+      modality: schedulingContext.modality,
+      location: schedulingContext.location,
+    });
+
+    if (requestedSlot && hasUsefulSchedulingContext({ lead, recentMessages })) {
+      if (!schedulingContext.modality) {
+        await logSchedulingState({
+          leadId: lead.id,
+          conversationId: conversation.id,
+          status: SCHEDULING_STATUSES.MODALITY_REQUIRED,
+          metadata: {
+            requestedSlot,
+            modality: null,
+            requestedModality: schedulingContext.requestedModality,
+            location: schedulingContext.location,
+          },
+        });
+
+        return sendAndPersistSchedulingReply({
+          lead,
+          conversation,
+          incoming,
+          outgoingProvider,
+          replyContent:
+            "Antes de consultar ese horario, necesito confirmar la modalidad de la reunion: videollamada, llamada telefonica o, si estas en Ciudad de Mexico, reunion presencial. Cual prefieres?",
+          scheduling: {
+            status: SCHEDULING_STATUSES.MODALITY_REQUIRED,
+            selectedSlot: requestedSlot,
+            modality: null,
+            requestedModality: schedulingContext.requestedModality,
+            location: schedulingContext.location,
+          },
+        });
+      }
+
+      await logSchedulingState({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        status: SCHEDULING_STATUSES.AVAILABILITY_REQUIRED,
+        metadata: {
+          requestedSlot,
+          modality: schedulingContext.modality,
+          location: schedulingContext.location,
+        },
+      });
+
+      const slots = await calendarProvider.getAvailableSlots({
+        preferredSlot: requestedSlot,
+        modality: schedulingContext.modality,
+        location: schedulingContext.location,
+        conversationId: conversation.id,
+        leadId: lead.id,
+      });
+      const selectedSlot = slots.find((slot) => slot.startsAt === requestedSlot.startsAt);
+
+      if (!selectedSlot) {
+        await logSchedulingState({
+          leadId: lead.id,
+          conversationId: conversation.id,
+          status: SCHEDULING_STATUSES.SLOT_OPTIONS_PRESENTED,
+          metadata: {
+            requestedSlot,
+            slots,
+            modality: schedulingContext.modality,
+            location: schedulingContext.location,
+          },
+        });
+
+        return sendAndPersistSchedulingReply({
+          lead,
+          conversation,
+          incoming,
+          outgoingProvider,
+          replyContent: `Ese horario no aparece disponible en calendario. ${buildSlotOptionsReply(
+            slots,
+            schedulingContext.modality
+          )}`,
+          scheduling: {
+            status: SCHEDULING_STATUSES.SLOT_OPTIONS_PRESENTED,
+            requestedSlot,
+            slots,
+            modality: schedulingContext.modality,
+            location: schedulingContext.location,
+          },
+        });
+      }
+
+      const summary = await getConversationSummaryForScheduling({
+        conversationId: conversation.id,
+        lead,
+      });
+      let appointment;
+
+      try {
+        appointment = await calendarProvider.createAppointment({
+          slot: selectedSlot,
+          summary,
+          modality: schedulingContext.modality,
+          location: schedulingContext.location || null,
+          idempotencyKey: `${conversation.id}:${lead.id}:${selectedSlot.id}`,
+        });
+      } catch (error) {
+        await logSchedulingState({
+          leadId: lead.id,
+          conversationId: conversation.id,
+          status: SCHEDULING_STATUSES.AVAILABILITY_REQUIRED,
+          metadata: {
+            requestedSlot,
+            errorCode: error.code || "calendar_appointment_failed",
+            calendarError: error.details || null,
+          },
+        });
+
+        return sendAndPersistSchedulingReply({
+          lead,
+          conversation,
+          incoming,
+          outgoingProvider,
+          replyContent:
+            "No pude confirmar ese horario en este momento. La cita no quedo programada. Podemos intentar con otra opcion o retomarlo un poco mas tarde.",
+          scheduling: {
+            status: SCHEDULING_STATUSES.AVAILABILITY_REQUIRED,
+            requestedSlot,
+            errorCode: error.code || "calendar_appointment_failed",
+          },
+        });
+      }
+
+      const calendarProviderName = getCalendarProviderName();
+      if (!isCalendarBackedAppointmentConfirmed(appointment, calendarProviderName)) {
+        await logSchedulingState({
+          leadId: lead.id,
+          conversationId: conversation.id,
+          status: SCHEDULING_STATUSES.AVAILABILITY_REQUIRED,
+          metadata: {
+            requestedSlot,
+            appointment,
+            errorCode: "appointment_not_confirmed_for_handoff",
+          },
+        });
+
+        return sendAndPersistSchedulingReply({
+          lead,
+          conversation,
+          incoming,
+          outgoingProvider,
+          replyContent:
+            "No pude confirmar ese horario en calendario. La cita no quedo programada, asi que seguimos por aqui para intentar con otra opcion.",
+          scheduling: {
+            status: SCHEDULING_STATUSES.AVAILABILITY_REQUIRED,
+            requestedSlot,
+            appointment,
+            errorCode: "appointment_not_confirmed_for_handoff",
+          },
+        });
+      }
+
+      await logSchedulingState({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        status: SCHEDULING_STATUSES.SLOT_SELECTED,
+        metadata: {
+          selectedSlot,
+          modality: appointment.modality,
+          location: appointment.location,
+        },
+      });
+      await logSchedulingState({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        status: SCHEDULING_STATUSES.APPOINTMENT_CONFIRMED,
+        metadata: {
+          appointment,
+          summary,
+          modality: appointment.modality,
+          location: appointment.location,
+          timeZone: appointment.timeZone || selectedSlot.timeZone || "America/Mexico_City",
+          googleCalendarEventId: appointment.googleCalendarEventId || null,
+        },
+      });
+      await finalizeHandoffAfterAppointment({
+        leadId: lead.id,
+        conversationId: conversation.id,
+      });
+      await logSchedulingState({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        status: SCHEDULING_STATUSES.HANDOFF_FINALIZED,
+        metadata: {
+          appointmentId: appointment.id,
+        },
+      });
+
+      return sendAndPersistSchedulingReply({
+        lead,
+        conversation,
+        incoming,
+        outgoingProvider,
+        replyContent: buildAppointmentConfirmedReply(selectedSlot, appointment.modality),
+        scheduling: {
+          status: SCHEDULING_STATUSES.APPOINTMENT_CONFIRMED,
+          selectedSlot,
+          appointment,
+          summary,
+          modality: appointment.modality,
+          location: appointment.location,
+          timeZone: appointment.timeZone || selectedSlot.timeZone || "America/Mexico_City",
+          googleCalendarEventId: appointment.googleCalendarEventId || null,
+        },
+      });
+    }
+  }
 
   if (
     [
@@ -1599,6 +2036,34 @@ async function handleSchedulingFlow({ lead, conversation, incoming, outgoingProv
         location: appointment.location,
       },
     });
+    const calendarProviderName = getCalendarProviderName();
+    if (!isCalendarBackedAppointmentConfirmed(appointment, calendarProviderName)) {
+      await logSchedulingState({
+        leadId: lead.id,
+        conversationId: conversation.id,
+        status: SCHEDULING_STATUSES.AVAILABILITY_REQUIRED,
+        metadata: {
+          selectedSlot,
+          appointment,
+          errorCode: "appointment_not_confirmed_for_handoff",
+        },
+      });
+
+      return sendAndPersistSchedulingReply({
+        lead,
+        conversation,
+        incoming,
+        outgoingProvider,
+        replyContent:
+          "No pude confirmar ese horario en calendario. La cita no quedo programada, asi que seguimos por aqui para intentar con otra opcion.",
+        scheduling: {
+          status: SCHEDULING_STATUSES.AVAILABILITY_REQUIRED,
+          selectedSlot,
+          appointment,
+          errorCode: "appointment_not_confirmed_for_handoff",
+        },
+      });
+    }
     await logSchedulingState({
       leadId: lead.id,
       conversationId: conversation.id,
@@ -2126,6 +2591,20 @@ async function processIncomingMessage(incoming) {
       recentMessages: simulatorMockHistory,
     });
     replyContent = aiResult.reply;
+    if (
+      shouldPreventAiSchedulingHandoff({
+        incoming,
+        aiResult,
+        recentMessages: simulatorMockHistory,
+      })
+    ) {
+      aiResult = {
+        ...aiResult,
+        shouldTransferToHuman: false,
+        leadStatus: aiResult.leadStatus || lead.status || "ai_profiling",
+        nextSuggestedAction: "Continuar agenda sin handoff hasta confirmar cita",
+      };
+    }
 
     await applyAiResultToLead({
       leadId: lead.id,
@@ -2148,6 +2627,20 @@ async function processIncomingMessage(incoming) {
             reason: decision.reason,
           });
       replyContent = aiResult.reply;
+      if (shouldPreventAiSchedulingHandoff({
+        incoming,
+        aiResult,
+        recentMessages: shouldUseSimulatorMock
+          ? simulatorMockHistory
+          : await getRecentConversationMessages({ conversationId: conversation.id, limit: 12 }),
+      })) {
+        aiResult = {
+          ...aiResult,
+          shouldTransferToHuman: false,
+          leadStatus: aiResult.leadStatus || lead.status || "ai_profiling",
+          nextSuggestedAction: "Continuar agenda sin handoff hasta confirmar cita",
+        };
+      }
 
       await applyAiResultToLead({
         leadId: lead.id,

@@ -133,12 +133,46 @@ function buildCandidateSlots({
   location,
   durationMinutes,
   timeZone,
+  preferredSlot,
   lookaheadDays,
   minNoticeHours,
   bufferMinutes,
 }) {
   const earliest = addMinutes(now, minNoticeHours * 60);
   const slots = [];
+
+  if (preferredSlot?.startsAt && preferredSlot?.endsAt) {
+    const preferredStart = new Date(preferredSlot.startsAt);
+    const preferredEnd = new Date(preferredSlot.endsAt);
+    const preferredParts = getDateParts(preferredStart, timeZone);
+    const preferredHours = BUSINESS_HOURS[preferredParts.dayOfWeek];
+    const businessEnd = preferredHours
+      ? zonedTimeToUtc({ ...preferredParts, hour: preferredHours.end }, timeZone)
+      : null;
+    const withinBusinessHours =
+      preferredHours &&
+      preferredStart >= zonedTimeToUtc({ ...preferredParts, hour: preferredHours.start }, timeZone) &&
+      preferredEnd <= businessEnd;
+
+    if (
+      withinBusinessHours &&
+      preferredStart >= earliest &&
+      !overlapsBusy(preferredStart, preferredEnd, busy, bufferMinutes)
+    ) {
+      slots.push({
+        ...preferredSlot,
+        id: preferredSlot.id || `google-slot-${preferredStart.toISOString()}`,
+        label: preferredSlot.label || "Horario solicitado",
+        startsAt: preferredStart.toISOString(),
+        endsAt: preferredEnd.toISOString(),
+        durationMinutes,
+        timeZone,
+        modality,
+        location,
+        simulated: false,
+      });
+    }
+  }
 
   for (let offset = 0; offset <= lookaheadDays; offset += 1) {
     const cursor = new Date(now);
@@ -159,6 +193,10 @@ function buildCandidateSlots({
       }
 
       if (overlapsBusy(start, end, busy, bufferMinutes)) {
+        continue;
+      }
+
+      if (slots.some((slot) => slot.startsAt === start.toISOString())) {
         continue;
       }
 
@@ -277,6 +315,7 @@ async function getAvailableSlots({
   now = new Date(),
   modality = null,
   location = null,
+  preferredSlot = null,
   durationMinutes = env.googleCalendarDefaultDurationMinutes,
   engineerTimeZone = env.googleCalendarTimeZone,
   prospectTimeZone = null,
@@ -303,6 +342,7 @@ async function getAvailableSlots({
     busy,
     modality,
     location,
+    preferredSlot,
     durationMinutes,
     timeZone: engineerTimeZone,
     prospectTimeZone,

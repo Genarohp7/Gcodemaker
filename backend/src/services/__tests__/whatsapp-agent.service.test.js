@@ -1362,6 +1362,130 @@ async function testSchedulingCalendarFailureDoesNotFinalizeHandoff() {
   assert.match(database.state.messages.at(-1).content, /no quedo programada/i);
 }
 
+async function testDirectRequestedSlotRequiresConfirmedGoogleEventBeforeHandoff() {
+  const calendarProvider = {
+    async getAvailableSlots({ preferredSlot, modality = null, location = null } = {}) {
+      return [
+        {
+          ...preferredSlot,
+          modality,
+          location,
+          simulated: false,
+        },
+      ];
+    },
+    async createAppointment({ slot, summary, modality = null, location = null }) {
+      return {
+        id: "google-appointment-missing-event",
+        status: "confirmed",
+        slot,
+        startsAt: slot.startsAt,
+        endsAt: slot.endsAt,
+        timeZone: slot.timeZone,
+        modality,
+        location,
+        confirmedAt: "2026-08-01T12:00:00.000Z",
+        googleCalendarEventId: null,
+        summary,
+        simulated: false,
+      };
+    },
+  };
+  const { service, database } = loadServiceWithFakes({
+    useRealIntentGuard: true,
+    calendarProvider,
+    calendarProviderName: "GOOGLE",
+  });
+  const phone = "999000000037";
+
+  for (const [index, text] of [
+    "Quiero un agente de IA para mi pizzeria",
+    "Necesito que tome pedidos por WhatsApp",
+    "Me interesa coordinar una llamada",
+    "Podria ser el proximo lunes a las 13:00?",
+  ].entries()) {
+    await service.processSimulatorInbound({
+      sessionId: "sim-session-direct-slot-google-no-event",
+      text,
+      messageId: `sim-direct-slot-no-event-${index + 1}`,
+      phone,
+      mode: "MOCK",
+    });
+  }
+
+  const statuses = database.state.activityLogs
+    .filter((activity) => activity.action === "malu_scheduling_state_changed")
+    .map((activity) => activity.metadata.status);
+  assert.ok(statuses.includes("CALENDAR_AVAILABILITY_REQUIRED"), statuses.join(","));
+  assert.ok(!statuses.includes("APPOINTMENT_CONFIRMED"), statuses.join(","));
+  assert.ok(!statuses.includes("HANDOFF_FINALIZED"), statuses.join(","));
+  assert.equal(database.state.conversations[0].conversation_owner, "MALU");
+  assert.equal(database.state.conversations[0].human_takeover, false);
+  assert.match(database.state.messages.at(-1).content, /no quedo programada/i);
+}
+
+async function testDirectRequestedSlotWithGoogleEventFinalizesHandoff() {
+  const calendarProvider = {
+    async getAvailableSlots({ preferredSlot, modality = null, location = null } = {}) {
+      return [
+        {
+          ...preferredSlot,
+          modality,
+          location,
+          simulated: false,
+        },
+      ];
+    },
+    async createAppointment({ slot, summary, modality = null, location = null }) {
+      return {
+        id: "google-appointment-confirmed",
+        status: "confirmed",
+        slot,
+        startsAt: slot.startsAt,
+        endsAt: slot.endsAt,
+        timeZone: slot.timeZone,
+        modality,
+        location,
+        confirmedAt: "2026-08-01T12:00:00.000Z",
+        googleCalendarEventId: "google-event-present",
+        summary,
+        simulated: false,
+      };
+    },
+  };
+  const { service, database } = loadServiceWithFakes({
+    useRealIntentGuard: true,
+    calendarProvider,
+    calendarProviderName: "GOOGLE",
+  });
+  const phone = "999000000038";
+
+  for (const [index, text] of [
+    "Quiero un agente de IA para mi pizzeria",
+    "Necesito que tome pedidos por WhatsApp",
+    "Me interesa coordinar una llamada",
+    "Podria ser el proximo lunes a las 13:00?",
+  ].entries()) {
+    await service.processSimulatorInbound({
+      sessionId: "sim-session-direct-slot-google-event",
+      text,
+      messageId: `sim-direct-slot-event-${index + 1}`,
+      phone,
+      mode: "MOCK",
+    });
+  }
+
+  const appointmentEvent = database.state.activityLogs.find(
+    (activity) => activity.metadata.status === "APPOINTMENT_CONFIRMED"
+  );
+  assert.equal(appointmentEvent.metadata.googleCalendarEventId, "google-event-present");
+  assert.equal(appointmentEvent.metadata.modality, "LLAMADA");
+  assert.equal(database.state.conversations[0].conversation_owner, "INGENIERO");
+  assert.equal(database.state.conversations[0].human_takeover, true);
+  assert.match(database.state.messages.at(-1).content, /llamada/i);
+  assert.match(database.state.messages.at(-1).content, /quedo programada/i);
+}
+
 async function testSchedulingDeclinedKeepsMaluOwner() {
   const { service, database } = loadServiceWithFakes({ useRealIntentGuard: true });
   const phone = "999000000013";
@@ -1805,6 +1929,8 @@ async function main() {
   await testSchedulingUnknownLocationAsksNaturallyBeforeClosing();
   await testSchedulingRemoteFromStartDoesNotRequireLocation();
   await testSchedulingCalendarFailureDoesNotFinalizeHandoff();
+  await testDirectRequestedSlotRequiresConfirmedGoogleEventBeforeHandoff();
+  await testDirectRequestedSlotWithGoogleEventFinalizesHandoff();
   await testSchedulingDeclinedKeepsMaluOwner();
   await testScopeBlocksPureOffTopicBeforeOpenAi();
   await testScopeStopsRepeatedRecreationalUse();
