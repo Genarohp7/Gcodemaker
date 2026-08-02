@@ -622,6 +622,93 @@ async function testOwnerFlowDoesNotRunCommercialGuards() {
   assert.equal(database.state.activityLogs[0].metadata.actorType, "OWNER");
 }
 
+async function testRealWhatsAppInboundAutoReplyDisabledSuppressesAutomationEarly() {
+  const calendarProvider = {
+    async getAvailableSlots() {
+      throw new Error("calendar should not run when whatsapp auto reply is disabled");
+    },
+    async createAppointment() {
+      throw new Error("appointment should not run when whatsapp auto reply is disabled");
+    },
+  };
+  const { service, database, calls } = loadServiceWithFakes({
+    calendarProvider,
+    env: {
+      whatsappAgentAutoReplyEnabled: false,
+    },
+  });
+
+  const result = await service.processWebhookPayload(
+    createWhatsAppPayload({
+      messageId: "wamid-auto-disabled-1",
+      text: "Necesito un agente para WhatsApp",
+    })
+  );
+
+  assert.equal(result.messagesReceived, 1);
+  assert.equal(result.messagesProcessed, 1);
+  assert.equal(result.results[0].automationSuppressed, true);
+  assert.equal(result.results[0].reason, "auto_reply_disabled");
+  assert.equal(result.results[0].decision.usedAi, false);
+  assert.equal(calls.ai, 0);
+  assert.equal(calls.whatsapp, 0);
+  assert.equal(database.state.leads.length, 0);
+  assert.equal(database.state.conversations.length, 0);
+  assert.equal(database.state.messages.length, 0);
+  assert.equal(database.state.activityLogs.length, 1);
+  assert.equal(database.state.activityLogs[0].action, "malu_whatsapp_inbound_suppressed");
+  assert.equal(database.state.activityLogs[0].metadata.automationSuppressed, true);
+}
+
+async function testRealWhatsAppInboundAutoReplyEnabledUsesNormalMaluFlow() {
+  const { service, database, calls } = loadServiceWithFakes({
+    env: {
+      whatsappAgentAutoReplyEnabled: true,
+    },
+  });
+
+  const result = await service.processWebhookPayload(
+    createWhatsAppPayload({
+      messageId: "wamid-auto-enabled-1",
+      text: "Necesito un agente para WhatsApp",
+    })
+  );
+
+  assert.equal(result.messagesReceived, 1);
+  assert.equal(result.messagesProcessed, 1);
+  assert.equal(result.results[0].automationSuppressed, undefined);
+  assert.equal(calls.ai, 1);
+  assert.equal(calls.whatsapp, 1);
+  assert.equal(database.state.leads.length, 1);
+  assert.equal(database.state.conversations.length, 1);
+  assert.equal(database.state.messages.filter((message) => message.role === "lead").length, 1);
+  assert.equal(database.state.messages.filter((message) => message.role === "ai").length, 1);
+}
+
+async function testSimulatorLiveAiIgnoresWhatsAppAutoReplyFlag() {
+  const { service, database, calls } = loadServiceWithFakes({
+    env: {
+      whatsappAgentAutoReplyEnabled: false,
+    },
+  });
+
+  const result = await service.processSimulatorInbound({
+    sessionId: "sim-live-ai-auto-disabled",
+    phone: "5215551234500",
+    text: "Necesito una landing para mi negocio",
+    mode: "LIVE_AI",
+  });
+
+  assert.equal(result.automationSuppressed, undefined);
+  assert.equal(result.decision.usedAi, true);
+  assert.equal(calls.ai, 1);
+  assert.equal(calls.whatsapp, 0);
+  assert.equal(database.state.leads.length, 1);
+  assert.equal(database.state.conversations.length, 1);
+  assert.equal(database.state.messages.filter((message) => message.role === "lead").length, 1);
+  assert.equal(database.state.messages.filter((message) => message.role === "ai").length, 1);
+}
+
 async function testFirstReplyIdentifiesMaluOnlyOnce() {
   const { service, database, calls } = loadServiceWithFakes();
 
@@ -869,17 +956,23 @@ async function testAutoReplyDisabledStillSavesMessagesWithoutSending() {
     },
   });
 
-  await service.processWebhookPayload(
+  const result = await service.processWebhookPayload(
     createWhatsAppPayload({
       messageId: "wamid-disabled-1",
     })
   );
 
-  assert.equal(calls.ai, 1);
+  assert.equal(result.messagesReceived, 1);
+  assert.equal(result.messagesProcessed, 1);
+  assert.equal(result.results[0].automationSuppressed, true);
+  assert.equal(result.results[0].reason, "auto_reply_disabled");
+  assert.equal(calls.ai, 0);
   assert.equal(calls.whatsapp, 0);
-  assert.equal(database.state.messages.filter((message) => message.role === "lead").length, 1);
-  assert.equal(database.state.messages.filter((message) => message.role === "ai").length, 1);
-  assert.equal(database.state.messages.at(-1).metadata.rawPayload.autoReply.reason, "auto_reply_disabled");
+  assert.equal(database.state.leads.length, 0);
+  assert.equal(database.state.conversations.length, 0);
+  assert.equal(database.state.messages.length, 0);
+  assert.equal(database.state.activityLogs.length, 1);
+  assert.equal(database.state.activityLogs[0].action, "malu_whatsapp_inbound_suppressed");
 }
 
 async function testSimulatorMockUsesRealFlowWithoutOpenAiOrMeta() {
@@ -2232,6 +2325,9 @@ async function main() {
   await testDifferentPhoneIsNotOwner();
   await testOwnerClaimFromDifferentPhoneStaysCommercial();
   await testOwnerFlowDoesNotRunCommercialGuards();
+  await testRealWhatsAppInboundAutoReplyDisabledSuppressesAutomationEarly();
+  await testRealWhatsAppInboundAutoReplyEnabledUsesNormalMaluFlow();
+  await testSimulatorLiveAiIgnoresWhatsAppAutoReplyFlag();
   await testFirstReplyIdentifiesMaluOnlyOnce();
   await testTransferSetsEngineerOwner();
   await testAiTransferSetsEngineerOwner();

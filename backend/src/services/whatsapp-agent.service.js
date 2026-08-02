@@ -25,6 +25,7 @@ const SIMULATOR_PROVIDER = "simulator";
 const SCHEDULING_ACTION = "malu_scheduling_state_changed";
 const SCOPE_METRIC_ACTION = "malu_scope_consumption_metric";
 const OWNER_INBOUND_ACTION = "malu_owner_inbound_message";
+const WHATSAPP_INBOUND_SUPPRESSED_ACTION = "malu_whatsapp_inbound_suppressed";
 const OWNER_RESPONSE_SOURCE = "DETERMINISTIC_OWNER";
 const OWNER_ACKNOWLEDGEMENT_MESSAGE =
   "Hola. Te reconozco como propietario de GCodemaker. En esta fase todavia no tengo comandos administrativos activos, pero no voy a tratar esta conversacion como prospecto comercial.";
@@ -732,6 +733,116 @@ async function findOwnerInboundActivity({ provider, providerMessageId }) {
   );
 
   return result.rows[0] || null;
+}
+
+async function findSuppressedWhatsAppInboundActivity({ provider, providerMessageId }) {
+  if (!providerMessageId) {
+    return null;
+  }
+
+  const result = await pool.query(
+    `
+      SELECT id
+      FROM gc_ai_activity_logs
+      WHERE action = $1
+        AND metadata->>'provider' = $2
+        AND metadata->>'providerMessageId' = $3
+      LIMIT 1
+    `,
+    [WHATSAPP_INBOUND_SUPPRESSED_ACTION, provider, providerMessageId]
+  );
+
+  return result.rows[0] || null;
+}
+
+function shouldSuppressRealWhatsAppAutomation({ incoming, incomingProvider }) {
+  return (
+    incomingProvider === "whatsapp_webhook" &&
+    incoming?.transport !== "simulator" &&
+    !env.whatsappAgentAutoReplyEnabled
+  );
+}
+
+async function logSuppressedWhatsAppInbound({ incoming, incomingProvider }) {
+  await pool.query(
+    `
+      INSERT INTO gc_ai_activity_logs (
+        id,
+        action,
+        entity_type,
+        entity_id,
+        metadata
+      )
+      VALUES ($1, $2, 'gc_ai_whatsapp_inbound', $3, $4::jsonb)
+    `,
+    [
+      createId("activity"),
+      WHATSAPP_INBOUND_SUPPRESSED_ACTION,
+      incoming.whatsappMessageId || createId("suppressed-inbound"),
+      JSON.stringify({
+        provider: incomingProvider,
+        providerMessageId: incoming.whatsappMessageId || null,
+        messageType: incoming.messageType || "unknown",
+        contentPresent: Boolean(String(incoming.content || "").trim()),
+        phoneNumberIdPresent: Boolean(incoming.phoneNumberId),
+        senderPresent: Boolean(incoming.fromPhone),
+        autoReplyEnabled: false,
+        automationSuppressed: true,
+      }),
+    ]
+  );
+}
+
+async function handleSuppressedWhatsAppInbound({ incoming, incomingProvider }) {
+  const duplicateSuppressedInbound = await findSuppressedWhatsAppInboundActivity({
+    provider: incomingProvider,
+    providerMessageId: incoming.whatsappMessageId,
+  });
+
+  if (duplicateSuppressedInbound) {
+    console.info("whatsapp_agent_inbound_suppressed", {
+      provider: incomingProvider,
+      autoReplyEnabled: false,
+      duplicate: true,
+    });
+
+    return {
+      processed: true,
+      duplicate: true,
+      reason: "auto_reply_disabled_duplicate_inbound",
+      autoReply: {
+        sent: false,
+        reason: "auto_reply_disabled",
+      },
+    };
+  }
+
+  console.info("whatsapp_agent_inbound_suppressed", {
+    provider: incomingProvider,
+    autoReplyEnabled: false,
+    messageType: incoming.messageType || "unknown",
+  });
+
+  await logSuppressedWhatsAppInbound({
+    incoming,
+    incomingProvider,
+  });
+
+  return {
+    processed: true,
+    reason: "auto_reply_disabled",
+    automationSuppressed: true,
+    commercialLeadCreated: false,
+    decision: {
+      action: "whatsapp_auto_reply_disabled",
+      usedAi: false,
+      humanTakeover: false,
+    },
+    autoReply: {
+      sent: false,
+      reason: "auto_reply_disabled",
+    },
+  };
 }
 
 async function logOwnerInboundActivity({ actorId, incoming, incomingProvider, outgoingProvider, sendResult }) {
@@ -2544,17 +2655,6 @@ async function processIncomingMessage(incoming) {
 
   const incomingProvider = getIncomingProvider(incoming);
   const outgoingProvider = getOutgoingProvider(incoming);
-  const ownerIdentity = getOwnerIdentity(incoming.fromPhone);
-
-  if (ownerIdentity.isOwner) {
-    return handleOwnerInbound({
-      incoming,
-      incomingProvider,
-      outgoingProvider,
-      ownerIdentity,
-    });
-  }
-
   const duplicateInboundMessage = await findMessageByProviderMessageId({
     provider: incomingProvider,
     providerMessageId: incoming.whatsappMessageId,
@@ -2575,6 +2675,24 @@ async function processIncomingMessage(incoming) {
         reason: "duplicate_provider_message_id",
       },
     };
+  }
+
+  if (shouldSuppressRealWhatsAppAutomation({ incoming, incomingProvider })) {
+    return handleSuppressedWhatsAppInbound({
+      incoming,
+      incomingProvider,
+    });
+  }
+
+  const ownerIdentity = getOwnerIdentity(incoming.fromPhone);
+
+  if (ownerIdentity.isOwner) {
+    return handleOwnerInbound({
+      incoming,
+      incomingProvider,
+      outgoingProvider,
+      ownerIdentity,
+    });
   }
 
   if (demoModeService.isDemoCommand(incoming.content)) {
