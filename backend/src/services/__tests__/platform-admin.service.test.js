@@ -45,3 +45,9 @@ test("permissions metadata hides modules outside current user permissions", () =
     ["overview.view", "conversations.view", "leads.view"]
   );
 });
+
+test("suspended legacy users are hidden from the active tenant user list", () => {
+  assert.equal(platformAdmin.isVisibleTenantUserStatus("active"), true);
+  assert.equal(platformAdmin.isVisibleTenantUserStatus("invitation_pending"), true);
+  assert.equal(platformAdmin.isVisibleTenantUserStatus("suspended"), false);
+});

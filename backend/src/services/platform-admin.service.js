@@ -46,6 +46,10 @@ function sanitizeUser(user) {
   };
 }
 
+function isVisibleTenantUserStatus(status) {
+  return status !== "suspended";
+}
+
 function intersectPermissions(requestedPermissions, actorPermissions) {
   const normalizedRequested = permissionsService.normalizePermissionList(requestedPermissions);
   const actorAllowed = new Set(actorPermissions || []);
@@ -95,6 +99,7 @@ async function listTenantUsers(actor) {
       SELECT id
       FROM gc_broadcast_users
       WHERE tenant_id = $1
+        AND status <> 'suspended'
       ORDER BY created_at ASC
     `,
     [actor.tenantId]
@@ -275,6 +280,7 @@ function getPermissionsMetadata(actor) {
 module.exports = {
   createTenantUser,
   getPermissionsMetadata,
+  isVisibleTenantUserStatus,
   listTenantUsers,
   updateTenantUser,
   updateTenantUserStatus,
