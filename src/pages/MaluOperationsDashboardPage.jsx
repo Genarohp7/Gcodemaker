@@ -8,6 +8,10 @@ import {
   getMaluDashboardOverview,
   getMaluDashboardStatus,
   getMaluDashboardUsage,
+  getPlatformPermissions,
+  getPlatformUsers,
+  createPlatformUser,
+  updatePlatformUser,
 } from "../lib/maluDashboardApi";
 import MaluSimulatorPage from "./MaluSimulatorPage";
 
@@ -21,15 +25,28 @@ const PERIODS = [
   { value: "custom", label: "Rango personalizado" },
 ];
 const NAV_ITEMS = [
-  { id: "overview", label: "Overview" },
-  { id: "conversations", label: "Conversaciones" },
-  { id: "leads", label: "Leads" },
-  { id: "agenda", label: "Agenda" },
-  { id: "analytics", label: "Analytics" },
-  { id: "usage", label: "Consumo" },
-  { id: "status", label: "Estado" },
-  { id: "qa", label: "QA de Malu", group: "Herramientas" },
-  { id: "settings", label: "Configuracion", group: "Herramientas" },
+  { id: "overview", label: "Overview", permission: "overview.view" },
+  { id: "conversations", label: "Conversaciones", permission: "conversations.view" },
+  { id: "leads", label: "Leads", permission: "leads.view" },
+  { id: "agenda", label: "Agenda", permission: "agenda.view" },
+  { id: "analytics", label: "Analytics", permission: "analytics.view" },
+  { id: "usage", label: "Consumo", permission: "usage.view" },
+  { id: "status", label: "Estado", permission: "status.view" },
+  { id: "qa", label: "QA de Malu", permission: "qa.access", group: "Herramientas" },
+  { id: "settings", label: "Configuracion", permission: "settings.view", group: "Herramientas" },
+];
+
+const USER_ROLE_OPTIONS = [
+  { value: "ADMIN", label: "ADMIN" },
+  { value: "MANAGER", label: "MANAGER" },
+  { value: "SALES", label: "SALES" },
+  { value: "VIEWER", label: "VIEWER" },
+];
+
+const USER_STATUS_OPTIONS = [
+  { value: "active", label: "Activo" },
+  { value: "invitation_pending", label: "Invitacion pendiente" },
+  { value: "suspended", label: "Suspendido" },
 ];
 
 function loadStoredBroadcastSession() {
@@ -47,6 +64,18 @@ function storeBroadcastSession(session) {
 
 function clearBroadcastSession() {
   localStorage.removeItem(BROADCAST_SESSION_STORAGE_KEY);
+}
+
+function hasPermission(session, permission) {
+  return Boolean(session?.permissions?.includes(permission));
+}
+
+function canAccessDashboard(session) {
+  return NAV_ITEMS.some((item) => hasPermission(session, item.permission));
+}
+
+function getVisibleNavItems(session) {
+  return NAV_ITEMS.filter((item) => hasPermission(session, item.permission));
 }
 
 function formatNumber(value) {
@@ -646,6 +675,198 @@ function UsageView({ usage }) {
   );
 }
 
+function UserForm({ permissionsMetadata, onCancel, onSubmit, status }) {
+  const [form, setForm] = useState({
+    name: "",
+    username: "",
+    role: "SALES",
+    status: "active",
+    password: "",
+    permissions: ["conversations.view", "leads.view", "agenda.view"],
+  });
+  const modules = permissionsMetadata?.modules || [];
+
+  function togglePermission(permission) {
+    setForm((current) => {
+      const nextPermissions = current.permissions.includes(permission)
+        ? current.permissions.filter((item) => item !== permission)
+        : [...current.permissions, permission];
+
+      return {
+        ...current,
+        permissions: nextPermissions,
+      };
+    });
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    onSubmit(form);
+  }
+
+  return (
+    <aside className="malu-dash-drawer">
+      <div className="malu-dash-drawer__header">
+        <div>
+          <p className="malu-dash-eyebrow">Usuarios</p>
+          <h2>Agregar usuario</h2>
+        </div>
+        <button type="button" onClick={onCancel}>Cerrar</button>
+      </div>
+      <form className="malu-dash-user-form" onSubmit={handleSubmit}>
+        <label>
+          Nombre
+          <input
+            value={form.name}
+            onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+            placeholder="Nombre del usuario"
+          />
+        </label>
+        <label>
+          Correo/usuario
+          <input
+            value={form.username}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, username: event.target.value }))
+            }
+            autoComplete="username"
+            placeholder="usuario@empresa.com"
+          />
+        </label>
+        <label>
+          Password temporal
+          <input
+            type="password"
+            value={form.password}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, password: event.target.value }))
+            }
+            autoComplete="new-password"
+            placeholder="Definida por el admin"
+          />
+        </label>
+        <div className="malu-dash-user-form__row">
+          <label>
+            Rol
+            <select
+              value={form.role}
+              onChange={(event) => setForm((current) => ({ ...current, role: event.target.value }))}
+            >
+              {USER_ROLE_OPTIONS.map((role) => (
+                <option key={role.value} value={role.value}>{role.label}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Estado
+            <select
+              value={form.status}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, status: event.target.value }))
+              }
+            >
+              {USER_STATUS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <fieldset>
+          <legend>Modulos visibles</legend>
+          <div className="malu-dash-permission-grid">
+            {modules.map((modulePermission) => (
+              <label key={modulePermission.permission}>
+                <input
+                  type="checkbox"
+                  checked={form.permissions.includes(modulePermission.permission)}
+                  onChange={() => togglePermission(modulePermission.permission)}
+                />
+                {modulePermission.label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <button type="submit" disabled={status === "saving-user"}>
+          {status === "saving-user" ? "Guardando..." : "Guardar usuario"}
+        </button>
+      </form>
+    </aside>
+  );
+}
+
+function UsersSettingsView({
+  users,
+  permissionsMetadata,
+  canManageUsers,
+  onAddUser,
+  onStatusChange,
+}) {
+  return (
+    <section className="malu-dash-panel">
+      <div className="malu-dash-panel__header">
+        <div>
+          <p className="malu-dash-eyebrow">Configuracion</p>
+          <h2>Usuarios</h2>
+        </div>
+        {canManageUsers ? (
+          <button type="button" onClick={onAddUser}>Agregar usuario</button>
+        ) : null}
+      </div>
+      <p className="malu-dash-muted">
+        Tenant: {permissionsMetadata?.tenant?.name || "Sin tenant"} · Acceso segun permisos.
+      </p>
+      {!users ? (
+        <DashboardSkeleton />
+      ) : users.length ? (
+        <div className="malu-dash-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Ultimo acceso</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user.id}>
+                  <td>{user.name}</td>
+                  <td>{user.username}</td>
+                  <td><Badge>{user.role}</Badge></td>
+                  <td>{user.status}</td>
+                  <td>{formatDateTime(user.lastAccessAt)}</td>
+                  <td>
+                    {canManageUsers ? (
+                      <select
+                        value={user.status}
+                        onChange={(event) => onStatusChange(user.id, event.target.value)}
+                      >
+                        {USER_STATUS_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      "Solo lectura"
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <EmptyState
+          title="Sin usuarios adicionales"
+          text="Los administradores del tenant apareceran aqui cuando se creen."
+        />
+      )}
+    </section>
+  );
+}
+
 function DashboardSkeleton({ compact = false }) {
   return (
     <div className={`malu-dash-skeleton ${compact ? "malu-dash-skeleton--compact" : ""}`}>
@@ -676,9 +897,16 @@ export default function MaluOperationsDashboardPage() {
   const [search, setSearch] = useState("");
   const [conversationFilter, setConversationFilter] = useState("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [permissionsMetadata, setPermissionsMetadata] = useState(null);
+  const [users, setUsers] = useState(null);
+  const [showUserForm, setShowUserForm] = useState(false);
 
   const sessionToken = session?.sessionToken;
-  const isAdmin = session?.role === "admin_cliente" && sessionToken;
+  const isAuthorized = sessionToken && canAccessDashboard(session);
+  const visibleNavItems = useMemo(() => getVisibleNavItems(session), [session]);
+  const canManageUsers = Boolean(
+    permissionsMetadata?.tenant?.canManageUsers && hasPermission(session, "users.manage")
+  );
   const periodParams = useMemo(
     () => ({
       period,
@@ -698,8 +926,8 @@ export default function MaluOperationsDashboardPage() {
         password: credentials.password,
       });
 
-      if (nextSession.role !== "admin_cliente") {
-        throw new Error("Esta pantalla requiere una sesion admin.");
+      if (!canAccessDashboard(nextSession)) {
+        throw new Error("Esta pantalla requiere permisos administrativos.");
       }
 
       storeBroadcastSession(nextSession);
@@ -742,6 +970,28 @@ export default function MaluOperationsDashboardPage() {
   useEffect(() => {
     if (!sessionToken) return;
 
+    async function loadPermissions() {
+      try {
+        setPermissionsMetadata(await getPlatformPermissions(sessionToken));
+      } catch (error) {
+        setDashboardError(error.message);
+      }
+    }
+
+    loadPermissions();
+  }, [sessionToken]);
+
+  useEffect(() => {
+    if (!isAuthorized || visibleNavItems.some((item) => item.id === activeView)) {
+      return;
+    }
+
+    setActiveView(visibleNavItems[0]?.id || "overview");
+  }, [activeView, isAuthorized, visibleNavItems]);
+
+  useEffect(() => {
+    if (!sessionToken) return;
+
     async function loadViewData() {
       try {
         if (activeView === "conversations") {
@@ -765,13 +1015,17 @@ export default function MaluOperationsDashboardPage() {
         if (activeView === "usage") {
           setUsage(await getMaluDashboardUsage(sessionToken, periodParams));
         }
+
+        if (activeView === "settings" && hasPermission(session, "users.view")) {
+          setUsers(await getPlatformUsers(sessionToken));
+        }
       } catch (error) {
         setDashboardError(error.message);
       }
     }
 
     loadViewData();
-  }, [activeView, conversationFilter, periodParams, search, sessionToken]);
+  }, [activeView, conversationFilter, periodParams, search, session, sessionToken]);
 
   useEffect(() => {
     if (!selectedConversationId || !sessionToken) {
@@ -794,13 +1048,39 @@ export default function MaluOperationsDashboardPage() {
     loadConversationDetail();
   }, [selectedConversationId, sessionToken]);
 
-  if (!isAdmin) {
+  if (!isAuthorized) {
     return <LoginScreen onLogin={handleLogin} status={authStatus} error={authError} />;
   }
 
   function handleLogout() {
     clearBroadcastSession();
     setSession(null);
+  }
+
+  async function handleCreateUser(user) {
+    setAuthStatus("saving-user");
+    setDashboardError("");
+
+    try {
+      await createPlatformUser(sessionToken, user);
+      setUsers(await getPlatformUsers(sessionToken));
+      setShowUserForm(false);
+      setAuthStatus("idle");
+    } catch (error) {
+      setDashboardError(error.message);
+      setAuthStatus("idle");
+    }
+  }
+
+  async function handleUserStatusChange(userId, status) {
+    setDashboardError("");
+
+    try {
+      await updatePlatformUser(sessionToken, userId, { status });
+      setUsers(await getPlatformUsers(sessionToken));
+    } catch (error) {
+      setDashboardError(error.message);
+    }
   }
 
   return (
@@ -814,9 +1094,9 @@ export default function MaluOperationsDashboardPage() {
           </div>
         </div>
         <nav>
-          {NAV_ITEMS.map((item, index) => (
+          {visibleNavItems.map((item, index) => (
             <div key={item.id}>
-              {item.group && NAV_ITEMS[index - 1]?.group !== item.group ? (
+              {item.group && visibleNavItems[index - 1]?.group !== item.group ? (
                 <p className="malu-dash-nav-group">{item.group}</p>
               ) : null}
               <button
@@ -944,13 +1224,20 @@ export default function MaluOperationsDashboardPage() {
         ) : null}
 
         {activeView === "settings" ? (
-          <section className="malu-dash-panel">
-            <p className="malu-dash-eyebrow">Configuracion</p>
-            <EmptyState
-              title="Solo lectura en V1"
-              text="Las acciones administrativas se agregaran en una fase posterior."
+          hasPermission(session, "users.view") ? (
+            <UsersSettingsView
+              users={users}
+              permissionsMetadata={permissionsMetadata}
+              canManageUsers={canManageUsers}
+              onAddUser={() => setShowUserForm(true)}
+              onStatusChange={handleUserStatusChange}
             />
-          </section>
+          ) : (
+            <section className="malu-dash-panel">
+              <p className="malu-dash-eyebrow">Configuracion</p>
+              <EmptyState title="Sin permiso" text="Tu usuario no puede administrar usuarios." />
+            </section>
+          )
         ) : null}
       </section>
 
@@ -962,6 +1249,15 @@ export default function MaluOperationsDashboardPage() {
             setSelectedConversationId(null);
             setConversationDetail(null);
           }}
+        />
+      ) : null}
+
+      {showUserForm ? (
+        <UserForm
+          permissionsMetadata={permissionsMetadata}
+          onCancel={() => setShowUserForm(false)}
+          onSubmit={handleCreateUser}
+          status={authStatus}
         />
       ) : null}
     </main>

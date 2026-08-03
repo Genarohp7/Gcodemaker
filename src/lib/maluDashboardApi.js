@@ -76,3 +76,48 @@ export function getMaluDashboardStatus(sessionToken) {
     sessionToken,
   });
 }
+
+export function getPlatformPermissions(sessionToken) {
+  return requestDashboard("/admin/permissions", {
+    sessionToken,
+  });
+}
+
+export function getPlatformUsers(sessionToken) {
+  return requestDashboard("/admin/users", {
+    sessionToken,
+  });
+}
+
+async function writePlatform(path, { sessionToken, method = "POST", body } = {}) {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method,
+    headers: {
+      Authorization: `Bearer ${sessionToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  const payload = await response.json().catch(() => null);
+
+  if (!response.ok || !payload?.ok) {
+    throw new Error(payload?.message || "No pudimos guardar la configuracion");
+  }
+
+  return payload.data;
+}
+
+export function createPlatformUser(sessionToken, user) {
+  return writePlatform("/admin/users", {
+    sessionToken,
+    body: user,
+  });
+}
+
+export function updatePlatformUser(sessionToken, userId, user) {
+  return writePlatform(`/admin/users/${userId}`, {
+    sessionToken,
+    method: "PATCH",
+    body: user,
+  });
+}

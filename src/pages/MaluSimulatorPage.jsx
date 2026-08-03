@@ -89,7 +89,9 @@ export default function MaluSimulatorPage({ authMode = "manual", embedded = fals
   const messages = useMemo(() => conversation?.messages || [], [conversation?.messages]);
   const sessionToken = authMode === "broadcast" ? broadcastSession?.sessionToken : "";
   const isBroadcastAdmin =
-    authMode === "broadcast" && broadcastSession?.role === "admin_cliente" && sessionToken;
+    authMode === "broadcast" &&
+    broadcastSession?.permissions?.includes("qa.access") &&
+    sessionToken;
   const isAuthorized = authMode === "broadcast" ? isBroadcastAdmin : adminKey.trim();
   const canSend = isAuthorized && input.trim() && conversation && status !== "sending";
   const latestResult = useMemo(() => {
@@ -112,8 +114,8 @@ export default function MaluSimulatorPage({ authMode = "manual", embedded = fals
         password: loginForm.password,
       });
 
-      if (session.role !== "admin_cliente") {
-        throw new Error("Esta pantalla requiere una sesion admin.");
+      if (!session.permissions?.includes("qa.access")) {
+        throw new Error("Esta pantalla requiere permiso de QA.");
       }
 
       storeBroadcastSession(session);

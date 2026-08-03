@@ -665,6 +665,69 @@
   font-weight: 800;
 }
 
+.malu-dash-muted {
+  margin: 0 0 1rem;
+  color: #9db0cb;
+}
+
+.malu-dash-user-form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.malu-dash-user-form label,
+.malu-dash-user-form fieldset {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  color: #9db0cb;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.malu-dash-user-form input,
+.malu-dash-user-form select,
+.malu-dash-table select {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid rgba(173, 202, 238, 0.18);
+  border-radius: 8px;
+  background: rgba(8, 15, 26, 0.86);
+  color: #eef6ff;
+  padding: 0.65rem 0.75rem;
+}
+
+.malu-dash-user-form__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.malu-dash-permission-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.malu-dash-permission-grid label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 38px;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgba(173, 202, 238, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #d9ebff;
+}
+
+.malu-dash-permission-grid input {
+  width: auto;
+  min-height: auto;
+}
+
 .malu-dash-drawer {
   position: fixed;
   top: 1rem;
@@ -804,7 +867,9 @@
   .malu-dash-kpis,
   .malu-dash-mini-kpis,
   .malu-dash-secondary-metrics,
-  .malu-dash-drawer__meta {
+  .malu-dash-drawer__meta,
+  .malu-dash-user-form__row,
+  .malu-dash-permission-grid {
     grid-template-columns: 1fr;
   }
 
