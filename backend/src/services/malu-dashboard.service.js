@@ -4,6 +4,15 @@ const { pool } = require("../db");
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_PAGE_SIZE = 50;
 const MX_TIMEZONE = "America/Mexico_City";
+const DEFAULT_TENANT_ID = "tenant-gcodemaker-malu";
+const DEFAULT_AGENT_ID = "agent-malu";
+
+function getDashboardContext(context = {}) {
+  return {
+    tenantId: context.tenantId || DEFAULT_TENANT_ID,
+    agentId: context.agentId || DEFAULT_AGENT_ID,
+  };
+}
 
 function toIsoDate(date) {
   return date.toISOString().slice(0, 10);
@@ -577,16 +586,29 @@ function getBaseConversationSql({ countOnly = false } = {}) {
       LEFT JOIN usage_stats us ON us.conversation_id = c.id
       WHERE c.created_at >= $1
         AND c.created_at < $2
+        AND c.tenant_id = $3
+        AND ($4::text IS NULL OR c.agent_id = $4)
         AND COALESCE(l.source, '') NOT IN ('simulator', 'owner')
         AND COALESCE(c.demo_mode, false) = false
     )
-    ${countOnly ? "SELECT COUNT(*)::int AS total FROM base WHERE ($3::text IS NULL OR lead_name ILIKE $3 OR phone ILIKE $3 OR business_name ILIKE $3)" : "SELECT * FROM base WHERE ($3::text IS NULL OR lead_name ILIKE $3 OR phone ILIKE $3 OR business_name ILIKE $3)"}
+    ${countOnly ? "SELECT COUNT(*)::int AS total FROM base WHERE ($5::text IS NULL OR lead_name ILIKE $5 OR phone ILIKE $5 OR business_name ILIKE $5)" : "SELECT * FROM base WHERE ($5::text IS NULL OR lead_name ILIKE $5 OR phone ILIKE $5 OR business_name ILIKE $5)"}
   `;
 }
 
-async function getConversationRows(period, { search = null, limit = null, offset = null } = {}) {
-  const sql = `${getBaseConversationSql()} ORDER BY last_activity_at DESC${limit ? " LIMIT $4 OFFSET $5" : ""}`;
-  const params = [period.from, period.to, search];
+async function getConversationRows(
+  period,
+  { search = null, limit = null, offset = null } = {},
+  context = {}
+) {
+  const dashboardContext = getDashboardContext(context);
+  const sql = `${getBaseConversationSql()} ORDER BY last_activity_at DESC${limit ? " LIMIT $6 OFFSET $7" : ""}`;
+  const params = [
+    period.from,
+    period.to,
+    dashboardContext.tenantId,
+    dashboardContext.agentId,
+    search,
+  ];
 
   if (limit) {
     params.push(limit, offset || 0);
@@ -596,16 +618,20 @@ async function getConversationRows(period, { search = null, limit = null, offset
   return result.rows;
 }
 
-async function getConversationCount(period, search = null) {
+async function getConversationCount(period, search = null, context = {}) {
+  const dashboardContext = getDashboardContext(context);
   const result = await pool.query(getBaseConversationSql({ countOnly: true }), [
     period.from,
     period.to,
+    dashboardContext.tenantId,
+    dashboardContext.agentId,
     search,
   ]);
   return toNumber(result.rows[0]?.total);
 }
 
-async function getAppointmentRows(period) {
+async function getAppointmentRows(period, context = {}) {
+  const dashboardContext = getDashboardContext(context);
   const result = await pool.query(
     `
       SELECT
@@ -619,22 +645,24 @@ async function getAppointmentRows(period) {
       LEFT JOIN gc_ai_conversations c ON c.id = a.conversation_id
       WHERE a.created_at >= $1
         AND a.created_at < $2
+        AND a.tenant_id = $3
+        AND ($4::text IS NULL OR a.agent_id = $4)
         AND COALESCE(l.source, '') NOT IN ('simulator', 'owner')
         AND COALESCE(c.demo_mode, false) = false
       ORDER BY a.starts_at ASC
     `,
-    [period.from, period.to]
+    [period.from, period.to, dashboardContext.tenantId, dashboardContext.agentId]
   );
 
   return result.rows;
 }
 
-async function getDashboardOverview(query = {}) {
+async function getDashboardOverview(query = {}, context = {}) {
   const period = resolvePeriod(query);
   const [rows, previousRows, appointments] = await Promise.all([
-    getConversationRows(period),
-    getConversationRows({ from: period.previousFrom, to: period.previousTo }),
-    getAppointmentRows(period),
+    getConversationRows(period, {}, context),
+    getConversationRows({ from: period.previousFrom, to: period.previousTo }, {}, context),
+    getAppointmentRows(period, context),
   ]);
 
   return buildOverviewModel({
@@ -662,7 +690,7 @@ function filterConversation(conversation, filter) {
   return Boolean(map[filter]);
 }
 
-async function getDashboardConversations(query = {}) {
+async function getDashboardConversations(query = {}, context = {}) {
   const period = resolvePeriod(query);
   const pagination = getPagination(query);
   const search = getSearchParams(query);
@@ -670,8 +698,8 @@ async function getDashboardConversations(query = {}) {
     search,
     limit: pagination.pageSize,
     offset: pagination.offset,
-  });
-  const total = await getConversationCount(period, search);
+  }, context);
+  const total = await getConversationCount(period, search, context);
   const conversations = rows.map(mapConversation).filter((item) => filterConversation(item, query.filter));
 
   return {
@@ -685,12 +713,13 @@ async function getDashboardConversations(query = {}) {
   };
 }
 
-async function getDashboardConversationDetail(conversationId) {
+async function getDashboardConversationDetail(conversationId, context = {}) {
+  const dashboardContext = getDashboardContext(context);
   const period = {
     from: new Date("2000-01-01T00:00:00.000Z"),
     to: new Date("2100-01-01T00:00:00.000Z"),
   };
-  const rows = await getConversationRows(period);
+  const rows = await getConversationRows(period, {}, context);
   const conversation = rows.map(mapConversation).find((item) => item.id === conversationId);
 
   if (!conversation) {
@@ -703,18 +732,22 @@ async function getDashboardConversationDetail(conversationId) {
         SELECT id, role, content, provider, message_type, tokens_input, tokens_output, estimated_cost, created_at
         FROM gc_ai_messages
         WHERE conversation_id = $1
+          AND tenant_id = $2
+          AND ($3::text IS NULL OR agent_id = $3)
         ORDER BY created_at ASC
       `,
-      [conversationId]
+      [conversationId, dashboardContext.tenantId, dashboardContext.agentId]
     ),
     pool.query(
       `
         SELECT *
         FROM gc_ai_calendar_appointments
         WHERE conversation_id = $1
+          AND tenant_id = $2
+          AND ($3::text IS NULL OR agent_id = $3)
         ORDER BY created_at DESC
       `,
-      [conversationId]
+      [conversationId, dashboardContext.tenantId, dashboardContext.agentId]
     ),
   ]);
 
@@ -744,8 +777,8 @@ async function getDashboardConversationDetail(conversationId) {
   };
 }
 
-async function getDashboardLeads(query = {}) {
-  const conversations = await getDashboardConversations(query);
+async function getDashboardLeads(query = {}, context = {}) {
+  const conversations = await getDashboardConversations(query, context);
 
   return {
     period: conversations.period,
@@ -769,9 +802,9 @@ async function getDashboardLeads(query = {}) {
   };
 }
 
-async function getDashboardAppointments(query = {}) {
+async function getDashboardAppointments(query = {}, context = {}) {
   const period = resolvePeriod(query);
-  const rows = await getAppointmentRows(period);
+  const rows = await getAppointmentRows(period, context);
   const appointments = rows.map(mapAppointment);
 
   return {
@@ -785,8 +818,8 @@ async function getDashboardAppointments(query = {}) {
   };
 }
 
-async function getDashboardUsage(query = {}) {
-  const overview = await getDashboardOverview(query);
+async function getDashboardUsage(query = {}, context = {}) {
+  const overview = await getDashboardOverview(query, context);
   const conversations = overview.metrics.conversationsStarted;
   const leads = overview.metrics.profiledLeads || 1;
 
@@ -806,7 +839,8 @@ async function getDashboardUsage(query = {}) {
   };
 }
 
-async function getDashboardStatus() {
+async function getDashboardStatus(context = {}) {
+  const dashboardContext = getDashboardContext(context);
   const calendarConnectionResult = await pool.query(
     `
       SELECT status, calendar_id
@@ -814,9 +848,12 @@ async function getDashboardStatus() {
       WHERE provider = 'google_calendar'
         AND status = 'ACTIVE'
         AND encrypted_refresh_token IS NOT NULL
+        AND tenant_id = $1
+        AND ($2::text IS NULL OR agent_id = $2)
       ORDER BY connected_at DESC
       LIMIT 1
-    `
+    `,
+    [dashboardContext.tenantId, dashboardContext.agentId]
   );
 
   return {

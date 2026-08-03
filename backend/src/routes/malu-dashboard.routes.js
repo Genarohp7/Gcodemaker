@@ -2,21 +2,32 @@ const express = require("express");
 
 const dashboardController = require("../controllers/malu-dashboard.controller");
 const {
-  requireMaluQaAdmin,
+  requirePlatformAuth,
+  requirePlatformPermission,
+} = require("../middleware/platform-auth.middleware");
+const {
   requireMaluQaPanelEnabled,
 } = require("../middleware/malu-qa-auth.middleware");
 
 const router = express.Router();
 
 router.use(requireMaluQaPanelEnabled);
-router.use(requireMaluQaAdmin);
+router.use(requirePlatformAuth);
 
-router.get("/overview", dashboardController.getOverview);
-router.get("/conversations", dashboardController.getConversations);
-router.get("/conversations/:conversationId", dashboardController.getConversationDetail);
-router.get("/leads", dashboardController.getLeads);
-router.get("/appointments", dashboardController.getAppointments);
-router.get("/usage", dashboardController.getUsage);
-router.get("/status", dashboardController.getStatus);
+router.get("/overview", requirePlatformPermission("overview.view"), dashboardController.getOverview);
+router.get(
+  "/conversations",
+  requirePlatformPermission("conversations.view"),
+  dashboardController.getConversations
+);
+router.get(
+  "/conversations/:conversationId",
+  requirePlatformPermission("conversations.view"),
+  dashboardController.getConversationDetail
+);
+router.get("/leads", requirePlatformPermission("leads.view"), dashboardController.getLeads);
+router.get("/appointments", requirePlatformPermission("agenda.view"), dashboardController.getAppointments);
+router.get("/usage", requirePlatformPermission("usage.view"), dashboardController.getUsage);
+router.get("/status", requirePlatformPermission("status.view"), dashboardController.getStatus);
 
 module.exports = router;

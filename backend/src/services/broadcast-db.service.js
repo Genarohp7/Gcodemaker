@@ -2,8 +2,11 @@ const crypto = require("crypto");
 
 const env = require("../config/env");
 const { pool } = require("../db");
+const permissionsService = require("./platform-permissions.service");
 
 const COMPANY_ID = "cacp";
+const MALU_TENANT_ID = "tenant-gcodemaker-malu";
+const MALU_AGENT_ID = "agent-malu";
 const MENU_ACCESS_OPTIONS = [
   "dashboard",
   "users",
@@ -132,11 +135,24 @@ function getSessionSecret() {
 }
 
 function signSessionToken(user) {
+  const platformRole = permissionsService.normalizePlatformRole(user.platform_role);
+  const dashboardPermissions = Array.isArray(user.dashboard_permissions)
+    ? user.dashboard_permissions
+    : [];
+  const effectivePermissions = permissionsService.getEffectivePermissions({
+    platformRole,
+    dashboardPermissions,
+  });
   const header = base64UrlEncode({ alg: "HS256", typ: "JWT" });
   const payload = base64UrlEncode({
     sub: user.id,
     role: user.role,
     companyId: user.company_id,
+    tenantId: user.tenant_id || MALU_TENANT_ID,
+    tenantType: user.tenant_type || "NORMAL",
+    agentId: user.agent_id || MALU_AGENT_ID,
+    platformRole,
+    permissions: effectivePermissions,
     whatsappConnectionId: user.whatsapp_connection_id || null,
     iat: Math.floor(Date.now() / 1000),
     exp: Math.floor(Date.now() / 1000) + 60 * 60 * 8,
@@ -239,9 +255,23 @@ function mapLine(row) {
 }
 
 function mapUser(row) {
+  const platformRole = permissionsService.normalizePlatformRole(row.platform_role);
+  const dashboardPermissions = Array.isArray(row.dashboard_permissions)
+    ? row.dashboard_permissions
+    : [];
+  const effectivePermissions = permissionsService.getEffectivePermissions({
+    platformRole,
+    dashboardPermissions,
+  });
+
   return {
     id: row.id,
     companyId: row.company_id,
+    tenantId: row.tenant_id || MALU_TENANT_ID,
+    tenantName: row.tenant_name || "GCodemaker / Malu",
+    tenantType: row.tenant_type || "NORMAL",
+    agentId: row.agent_id || MALU_AGENT_ID,
+    agentName: row.agent_name || "Malu",
     name: row.name,
     phone: row.phone,
     whatsappConnectionId: row.whatsapp_connection_id,
@@ -250,6 +280,10 @@ function mapUser(row) {
     whatsappPhoneNumberId: row.whatsapp_phone_number_id || null,
     hasPassword: Boolean(row.password_hash),
     role: row.role,
+    platformRole,
+    dashboardPermissions,
+    permissions: effectivePermissions,
+    canManageUsers: row.tenant_type !== "DEMO" && effectivePermissions.includes("users.manage"),
     assignedMessages: Number(row.assigned_messages),
     menuAccess: Array.isArray(row.menu_access) ? row.menu_access : [],
     status: row.status,
@@ -381,20 +415,24 @@ async function ensureSeedData() {
       INSERT INTO gc_broadcast_users (
         id,
         company_id,
+        tenant_id,
         name,
         phone,
         password_hash,
         role,
+        platform_role,
+        dashboard_permissions,
         assigned_messages,
         menu_access,
         status
       )
-      VALUES ($1, $2, $3, $4, $5, $6, 1300, $7::jsonb, 'active')
+      VALUES ($1, $2, $3, $4, $5, $6, $7, 'ADMIN', '[]'::jsonb, 1300, $8::jsonb, 'active')
       ON CONFLICT (id) DO NOTHING
     `,
     [
       "admin-cacp",
       COMPANY_ID,
+      MALU_TENANT_ID,
       "Administrador CACP",
       "Pendiente",
       hashPassword("123456789"),
@@ -474,6 +512,10 @@ async function getUsers() {
     `
       SELECT
         users.*,
+        tenants.name AS tenant_name,
+        tenants.type AS tenant_type,
+        agents.id AS agent_id,
+        agents.name AS agent_name,
         connections.line_name AS whatsapp_line_name,
         connections.display_phone_number AS whatsapp_display_phone_number,
         connections.phone_number_id AS whatsapp_phone_number_id,
@@ -481,6 +523,11 @@ async function getUsers() {
         signatures.signature_name,
         signatures.signature_text
       FROM gc_broadcast_users users
+      LEFT JOIN gc_platform_tenants tenants
+        ON tenants.id = users.tenant_id
+      LEFT JOIN gc_platform_agents agents
+        ON agents.tenant_id = tenants.id
+        AND agents.slug = 'malu'
       LEFT JOIN gc_broadcast_whatsapp_connections connections
         ON connections.id = users.whatsapp_connection_id
       LEFT JOIN (
@@ -494,9 +541,10 @@ async function getUsers() {
         ORDER BY user_id, updated_at DESC
       ) signatures ON signatures.user_id = users.id
       WHERE users.company_id = $1
+        AND users.tenant_id = $2
       ORDER BY users.created_at ASC
     `,
-    [COMPANY_ID]
+    [COMPANY_ID, MALU_TENANT_ID]
   );
 
   return result.rows.map(mapUser);
@@ -507,6 +555,10 @@ async function getUserById(userId) {
     `
       SELECT
         users.*,
+        tenants.name AS tenant_name,
+        tenants.type AS tenant_type,
+        agents.id AS agent_id,
+        agents.name AS agent_name,
         connections.line_name AS whatsapp_line_name,
         connections.display_phone_number AS whatsapp_display_phone_number,
         connections.phone_number_id AS whatsapp_phone_number_id,
@@ -514,6 +566,11 @@ async function getUserById(userId) {
         signatures.signature_name,
         signatures.signature_text
       FROM gc_broadcast_users users
+      LEFT JOIN gc_platform_tenants tenants
+        ON tenants.id = users.tenant_id
+      LEFT JOIN gc_platform_agents agents
+        ON agents.tenant_id = tenants.id
+        AND agents.slug = 'malu'
       LEFT JOIN gc_broadcast_whatsapp_connections connections
         ON connections.id = users.whatsapp_connection_id
       LEFT JOIN (
@@ -596,6 +653,9 @@ async function createUser({
   phone,
   password,
   role,
+  tenantId = MALU_TENANT_ID,
+  platformRole = "VIEWER",
+  dashboardPermissions = [],
   assignedMessages,
   menuAccess = [],
   whatsappConnectionId = null,
@@ -608,6 +668,10 @@ async function createUser({
     throw new Error("Rol no valido para GC Broadcast");
   }
 
+  const normalizedPlatformRole = permissionsService.normalizePlatformRole(platformRole);
+  const normalizedDashboardPermissions =
+    permissionsService.normalizePermissionList(dashboardPermissions);
+
   const normalizedWhatsAppConnectionId = await getPrimaryWhatsAppConnectionId();
 
   try {
@@ -616,25 +680,31 @@ async function createUser({
         INSERT INTO gc_broadcast_users (
           id,
           company_id,
+          tenant_id,
           name,
           phone,
           password_hash,
           role,
+          platform_role,
+          dashboard_permissions,
           whatsapp_connection_id,
           assigned_messages,
           menu_access,
           status
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, 'invitation_pending')
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12::jsonb, 'invitation_pending')
         RETURNING *
       `,
       [
         createId("user"),
         COMPANY_ID,
+        tenantId,
         String(name).trim(),
         normalizedPhone,
         hashPassword(password),
         role,
+        normalizedPlatformRole,
+        JSON.stringify(normalizedDashboardPermissions),
         normalizedWhatsAppConnectionId,
         validateAssignedMessages(assignedMessages),
         JSON.stringify(validateMenuAccess(menuAccess)),
@@ -662,6 +732,10 @@ async function login({ username, password }) {
     `
       SELECT
         users.*,
+        tenants.name AS tenant_name,
+        tenants.type AS tenant_type,
+        agents.id AS agent_id,
+        agents.name AS agent_name,
         connections.line_name AS whatsapp_line_name,
         connections.display_phone_number AS whatsapp_display_phone_number,
         connections.phone_number_id AS whatsapp_phone_number_id,
@@ -669,6 +743,11 @@ async function login({ username, password }) {
         signatures.signature_name,
         signatures.signature_text
       FROM gc_broadcast_users users
+      LEFT JOIN gc_platform_tenants tenants
+        ON tenants.id = users.tenant_id
+      LEFT JOIN gc_platform_agents agents
+        ON agents.tenant_id = tenants.id
+        AND agents.slug = 'malu'
       LEFT JOIN gc_broadcast_whatsapp_connections connections
         ON connections.id = users.whatsapp_connection_id
       LEFT JOIN (
@@ -700,6 +779,10 @@ async function login({ username, password }) {
 
   if (user.status === "suspended") {
     throw new Error("Este usuario esta suspendido");
+  }
+
+  if (user.status !== "active" && user.status !== "invitation_pending") {
+    throw new Error("Este usuario no esta activo");
   }
 
   await pool.query(
@@ -2492,6 +2575,8 @@ module.exports = {
   validateUserTemplateAssignment,
   assignSignatureTemplatesToUser,
   assignCacpTemplatesToGabriela,
+  MALU_TENANT_ID,
+  MALU_AGENT_ID,
   getOrCreateWebChatConversation,
   createWebChatMessage,
   getWebChatConversations,

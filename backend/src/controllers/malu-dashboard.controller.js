@@ -17,7 +17,7 @@ function sendError(res, error) {
 
 async function getOverview(req, res) {
   try {
-    sendData(res, await dashboardService.getDashboardOverview(req.query));
+    sendData(res, await dashboardService.getDashboardOverview(req.query, req.platformUser));
   } catch (error) {
     sendError(res, error);
   }
@@ -25,7 +25,7 @@ async function getOverview(req, res) {
 
 async function getConversations(req, res) {
   try {
-    sendData(res, await dashboardService.getDashboardConversations(req.query));
+    sendData(res, await dashboardService.getDashboardConversations(req.query, req.platformUser));
   } catch (error) {
     sendError(res, error);
   }
@@ -33,7 +33,10 @@ async function getConversations(req, res) {
 
 async function getConversationDetail(req, res) {
   try {
-    const data = await dashboardService.getDashboardConversationDetail(req.params.conversationId);
+    const data = await dashboardService.getDashboardConversationDetail(
+      req.params.conversationId,
+      req.platformUser
+    );
 
     if (!data) {
       return res.status(404).json({
@@ -50,7 +53,7 @@ async function getConversationDetail(req, res) {
 
 async function getLeads(req, res) {
   try {
-    sendData(res, await dashboardService.getDashboardLeads(req.query));
+    sendData(res, await dashboardService.getDashboardLeads(req.query, req.platformUser));
   } catch (error) {
     sendError(res, error);
   }
@@ -58,7 +61,7 @@ async function getLeads(req, res) {
 
 async function getAppointments(req, res) {
   try {
-    sendData(res, await dashboardService.getDashboardAppointments(req.query));
+    sendData(res, await dashboardService.getDashboardAppointments(req.query, req.platformUser));
   } catch (error) {
     sendError(res, error);
   }
@@ -66,7 +69,7 @@ async function getAppointments(req, res) {
 
 async function getUsage(req, res) {
   try {
-    sendData(res, await dashboardService.getDashboardUsage(req.query));
+    sendData(res, await dashboardService.getDashboardUsage(req.query, req.platformUser));
   } catch (error) {
     sendError(res, error);
   }
@@ -74,7 +77,7 @@ async function getUsage(req, res) {
 
 async function getStatus(req, res) {
   try {
-    sendData(res, await dashboardService.getDashboardStatus());
+    sendData(res, await dashboardService.getDashboardStatus(req.platformUser));
   } catch (error) {
     sendError(res, error);
   }

@@ -21,6 +21,8 @@ const WHATSAPP_AGENT_ROUTES_PATH = "../../routes/whatsapp-agent.routes";
 const BROADCAST_ROUTES_PATH = "../../routes/broadcast.routes";
 const MALU_SIMULATOR_ROUTES_PATH = "../../routes/malu-simulator.routes";
 const MALU_QA_AUTH_MIDDLEWARE_PATH = "../../middleware/malu-qa-auth.middleware";
+const PLATFORM_AUTH_MIDDLEWARE_PATH = "../../middleware/platform-auth.middleware";
+const PLATFORM_PERMISSIONS_SERVICE_PATH = "../platform-permissions.service";
 const BROADCAST_DB_SERVICE_PATH = "../broadcast-db.service";
 
 function clearModules() {
@@ -44,6 +46,8 @@ function clearModules() {
     BROADCAST_ROUTES_PATH,
     MALU_SIMULATOR_ROUTES_PATH,
     MALU_QA_AUTH_MIDDLEWARE_PATH,
+    PLATFORM_AUTH_MIDDLEWARE_PATH,
+    PLATFORM_PERMISSIONS_SERVICE_PATH,
     BROADCAST_DB_SERVICE_PATH,
   ]) {
     delete require.cache[require.resolve(modulePath)];
@@ -376,6 +380,13 @@ function createMiddlewareRequest(headers = {}) {
   };
 }
 
+function invokeMiddleware(middleware, req, res) {
+  return new Promise((resolve) => {
+    middleware(req, res, () => resolve(true));
+    setImmediate(() => resolve(false));
+  });
+}
+
 function loadMaluQaMiddleware({ env = {}, session = null } = {}) {
   clearModules();
   require.cache[require.resolve(ENV_PATH)] = {
@@ -390,6 +401,27 @@ function loadMaluQaMiddleware({ env = {}, session = null } = {}) {
       verifySessionToken() {
         return session;
       },
+      async getUserById() {
+        if (!session?.sub) {
+          return null;
+        }
+
+        return {
+          id: session.sub,
+          role: session.role,
+          status: "active",
+          tenantId: "tenant-gcodemaker-malu",
+          tenantName: "GCodemaker / Malu",
+          tenantType: "NORMAL",
+          agentId: "agent-malu",
+          agentName: "Malu",
+          platformRole: session.platformRole || "VIEWER",
+          permissions: session.permissions || [],
+          canManageUsers: false,
+        };
+      },
+      MALU_TENANT_ID: "tenant-gcodemaker-malu",
+      MALU_AGENT_ID: "agent-malu",
     },
   };
 
@@ -417,10 +449,13 @@ async function testMaluQaPanelRequiresFeatureFlagAndAdmin() {
     },
   });
   const noAuthResponse = createResponse();
-  enabledNoAuth.requireMaluQaAdmin(createMiddlewareRequest(), noAuthResponse, () => {
-    nextCalled = true;
-  });
+  nextCalled = await invokeMiddleware(
+    enabledNoAuth.requireMaluQaAdmin,
+    createMiddlewareRequest(),
+    noAuthResponse
+  );
   assert.equal(noAuthResponse.statusCode, 401);
+  assert.equal(nextCalled, false);
 
   const enabledWithKey = loadMaluQaMiddleware({
     env: {
@@ -428,12 +463,10 @@ async function testMaluQaPanelRequiresFeatureFlagAndAdmin() {
     },
   });
   let backendKeyAllowed = false;
-  enabledWithKey.requireMaluQaAdmin(
+  backendKeyAllowed = await invokeMiddleware(
+    enabledWithKey.requireMaluQaAdmin,
     createMiddlewareRequest({ "x-admin-key": "admin-key" }),
-    createResponse(),
-    () => {
-      backendKeyAllowed = true;
-    }
+    createResponse()
   );
   assert.equal(backendKeyAllowed, true);
 
@@ -444,15 +477,15 @@ async function testMaluQaPanelRequiresFeatureFlagAndAdmin() {
     session: {
       role: "admin_cliente",
       sub: "admin-user",
+      platformRole: "ADMIN",
+      permissions: ["qa.access"],
     },
   });
   let adminSessionAllowed = false;
-  enabledWithAdminSession.requireMaluQaAdmin(
+  adminSessionAllowed = await invokeMiddleware(
+    enabledWithAdminSession.requireMaluQaAdmin,
     createMiddlewareRequest({ authorization: "Bearer signed-session" }),
-    createResponse(),
-    () => {
-      adminSessionAllowed = true;
-    }
+    createResponse()
   );
   assert.equal(adminSessionAllowed, true);
 
@@ -463,18 +496,18 @@ async function testMaluQaPanelRequiresFeatureFlagAndAdmin() {
     session: {
       role: "operador_cliente",
       sub: "operator-user",
+      platformRole: "SALES",
+      permissions: ["conversations.view"],
     },
   });
   const operatorResponse = createResponse();
   let operatorAllowed = false;
-  enabledWithOperatorSession.requireMaluQaAdmin(
+  operatorAllowed = await invokeMiddleware(
+    enabledWithOperatorSession.requireMaluQaAdmin,
     createMiddlewareRequest({ authorization: "Bearer signed-session" }),
-    operatorResponse,
-    () => {
-      operatorAllowed = true;
-    }
+    operatorResponse
   );
-  assert.equal(operatorResponse.statusCode, 401);
+  assert.equal(operatorResponse.statusCode, 403);
   assert.equal(operatorAllowed, false);
 }
 
