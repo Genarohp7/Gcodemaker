@@ -54,11 +54,15 @@ function formatNumber(value) {
 }
 
 function formatMoney(value) {
+  const amount = Number(value || 0);
+  const maximumFractionDigits = amount > 0 && amount < 0.01 ? 4 : 2;
+
   return new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "MXN",
-    maximumFractionDigits: 2,
-  }).format(Number(value || 0));
+    minimumFractionDigits: maximumFractionDigits,
+    maximumFractionDigits,
+  }).format(amount);
 }
 
 function formatPercent(value) {
@@ -94,6 +98,15 @@ function formatTime(value) {
 
 function StatusDot({ status }) {
   return <span className={`malu-dash-dot malu-dash-dot--${status || "attention"}`} />;
+}
+
+function InfoTooltip({ text }) {
+  return (
+    <span className="malu-dash-info" tabIndex={0} aria-label={text}>
+      i
+      <span role="tooltip">{text}</span>
+    </span>
+  );
 }
 
 function LoginScreen({ onLogin, status, error }) {
@@ -179,18 +192,47 @@ function PeriodSelector({ value, customRange, onChange, onCustomRangeChange }) {
   );
 }
 
-function KpiCard({ label, value, detail, variation }) {
+function getVariationLabel({ current, variation }) {
+  const numericCurrent = Number(current || 0);
+
+  if (numericCurrent === 0 && Number(variation || 0) === 0) {
+    return {
+      text: "Sin cambios",
+      tone: "neutral",
+    };
+  }
+
+  if (Number(variation) === 100 && numericCurrent > 0) {
+    return {
+      text: `+${formatNumber(numericCurrent)} vs periodo anterior`,
+      tone: "positive",
+    };
+  }
+
+  return {
+    text: `${Number(variation) >= 0 ? "+" : ""}${variation}% vs periodo anterior`,
+    tone: Number(variation || 0) >= 0 ? "positive" : "negative",
+  };
+}
+
+function KpiCard({ label, value, detail, variation, rawValue, compact = false, tooltip }) {
+  const variationLabel =
+    variation !== undefined
+      ? getVariationLabel({ current: rawValue, variation })
+      : null;
   const variationClass = Number(variation || 0) >= 0 ? "positive" : "negative";
 
   return (
-    <article className="malu-dash-kpi">
-      <span>{label}</span>
+    <article className={`malu-dash-kpi ${compact ? "malu-dash-kpi--compact" : ""}`}>
+      <span>
+        {label}
+        {tooltip ? <InfoTooltip text={tooltip} /> : null}
+      </span>
       <strong>{value}</strong>
       <div>
         {variation !== undefined ? (
-          <small className={`malu-dash-kpi__trend malu-dash-kpi__trend--${variationClass}`}>
-            {Number(variation) >= 0 ? "+" : ""}
-            {variation}% vs periodo anterior
+          <small className={`malu-dash-kpi__trend malu-dash-kpi__trend--${variationLabel?.tone || variationClass}`}>
+            {variationLabel.text}
           </small>
         ) : (
           <small>{detail}</small>
@@ -231,6 +273,37 @@ function TimelineChart({ data = [] }) {
   );
 }
 
+function TimelineState({ overview }) {
+  const timeline = overview?.timeline || [];
+  const totalConversations = overview?.metrics?.conversationsStarted || 0;
+  const activeDays = timeline.filter(
+    (item) => item.conversations || item.interested || item.appointments
+  ).length;
+
+  if (!totalConversations) {
+    return (
+      <EmptyState
+        title="Sin actividad todavia"
+        text="Aun no hay conversaciones comerciales en este periodo."
+      />
+    );
+  }
+
+  return (
+    <>
+      {totalConversations < 8 || activeDays < 3 ? (
+        <div className="malu-dash-chart-note">
+          <strong>Datos en formacion</strong>
+          <span>
+            Los datos comenzaran a formar una tendencia conforme Malu atienda mas conversaciones.
+          </span>
+        </div>
+      ) : null}
+      <TimelineChart data={timeline} />
+    </>
+  );
+}
+
 function Funnel({ funnel = [] }) {
   const first = Math.max(funnel[0]?.value || 1, 1);
 
@@ -267,22 +340,52 @@ function Overview({ overview, services }) {
   }
 
   const metrics = overview.metrics;
+  const essentials = ["malu", "whatsapp", "openAi", "calendar", "backend"].map(
+    (key) => services?.[key]?.status
+  );
+  const operationalStatus = !services
+    ? { label: "Estado no disponible", status: "attention" }
+    : essentials.every((status) => status === "operational")
+      ? { label: "Operativa", status: "operational" }
+      : { label: "Revisar servicios", status: "attention" };
 
   return (
     <div className="malu-dash-view">
-      <section className="malu-dash-kpis">
-        <KpiCard label="Conversaciones iniciadas" value={formatNumber(metrics.conversationsStarted)} variation={overview.variations.conversationsStarted} />
-        <KpiCard label="Leads perfilados" value={formatNumber(metrics.profiledLeads)} variation={overview.variations.profiledLeads} />
-        <KpiCard label="Leads con interes" value={formatNumber(metrics.interestedLeads)} variation={overview.variations.interestedLeads} />
-        <KpiCard label="Transferidos" value={formatNumber(metrics.transferredLeads)} variation={overview.variations.transferredLeads} />
-        <KpiCard label="Citas confirmadas" value={formatNumber(metrics.confirmedAppointments)} variation={overview.variations.confirmedAppointments} />
-        <KpiCard label="Abandonos" value={formatNumber(metrics.abandonments)} detail="Sin cita ni handoff" />
+      <section className="malu-dash-overview-head">
+        <div>
+          <p className="malu-dash-eyebrow">Overview</p>
+          <h2>Indicadores comerciales del periodo</h2>
+        </div>
+        <div
+          className={`malu-dash-status-pill malu-dash-status-pill--${operationalStatus.status}`}
+          title="El detalle completo esta disponible en la seccion Estado."
+        >
+          <StatusDot status={operationalStatus.status} />
+          <span>{operationalStatus.label}</span>
+        </div>
+      </section>
+
+      <section className="malu-dash-kpis malu-dash-kpis--primary">
+        <KpiCard label="Conversaciones iniciadas" value={formatNumber(metrics.conversationsStarted)} rawValue={metrics.conversationsStarted} variation={overview.variations.conversationsStarted} />
+        <KpiCard label="Leads perfilados" value={formatNumber(metrics.profiledLeads)} rawValue={metrics.profiledLeads} variation={overview.variations.profiledLeads} />
+        <KpiCard label="Leads con interes" value={formatNumber(metrics.interestedLeads)} rawValue={metrics.interestedLeads} variation={overview.variations.interestedLeads} />
+        <KpiCard label="Transferidos" value={formatNumber(metrics.transferredLeads)} rawValue={metrics.transferredLeads} variation={overview.variations.transferredLeads} />
+        <KpiCard label="Citas confirmadas" value={formatNumber(metrics.confirmedAppointments)} rawValue={metrics.confirmedAppointments} variation={overview.variations.confirmedAppointments} />
+        <KpiCard
+          label="Abandonos"
+          value={formatNumber(metrics.abandonments)}
+          detail="Sin cita ni transferencia"
+          tooltip="Conversaciones comerciales clasificadas sin cita confirmada ni transferencia al ingeniero. Se excluyen OWNER, QA y simulador."
+        />
         <KpiCard label="Mensajes recibidos" value={formatNumber(metrics.messagesReceived)} detail="Inbound comercial" />
         <KpiCard label="Mensajes enviados" value={formatNumber(metrics.messagesSent)} detail="Respuestas Malu" />
-        <KpiCard label="Conv. a interes" value={formatPercent(metrics.conversationToInterestRate)} detail="Tasa del periodo" />
-        <KpiCard label="Conv. a cita" value={formatPercent(metrics.conversationToAppointmentRate)} detail="Tasa del periodo" />
-        <KpiCard label="Conv. a handoff" value={formatPercent(metrics.conversationToHandoffRate)} detail="Tasa del periodo" />
-        <KpiCard label="Costo OpenAI" value={formatMoney(metrics.estimatedOpenAiCost)} detail={`${formatNumber(metrics.totalTokens)} tokens`} />
+      </section>
+
+      <section className="malu-dash-secondary-metrics" aria-label="Metricas secundarias">
+        <KpiCard compact label="Conv. a interes" value={formatPercent(metrics.conversationToInterestRate)} detail="Tasa del periodo" />
+        <KpiCard compact label="Conv. a cita" value={formatPercent(metrics.conversationToAppointmentRate)} detail="Tasa del periodo" />
+        <KpiCard compact label="Conv. a handoff" value={formatPercent(metrics.conversationToHandoffRate)} detail="Tasa del periodo" />
+        <KpiCard compact label="Costo OpenAI" value={formatMoney(metrics.estimatedOpenAiCost)} detail={`${formatNumber(metrics.totalTokens)} tokens`} />
       </section>
 
       <section className="malu-dash-grid malu-dash-grid--main">
@@ -298,11 +401,7 @@ function Overview({ overview, services }) {
               <span>Citas</span>
             </div>
           </div>
-          {overview.timeline.length ? (
-            <TimelineChart data={overview.timeline} />
-          ) : (
-            <EmptyState title="Sin actividad" text="Aun no hay conversaciones en este periodo." />
-          )}
+          <TimelineState overview={overview} />
         </article>
 
         <article className="malu-dash-panel">
@@ -576,6 +675,7 @@ export default function MaluOperationsDashboardPage() {
   const [dashboardError, setDashboardError] = useState("");
   const [search, setSearch] = useState("");
   const [conversationFilter, setConversationFilter] = useState("all");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const sessionToken = session?.sessionToken;
   const isAdmin = session?.role === "admin_cliente" && sessionToken;
@@ -619,6 +719,7 @@ export default function MaluOperationsDashboardPage() {
     }
 
     setDashboardError("");
+    setIsRefreshing(true);
 
     try {
       const [overviewData, statusData] = await Promise.all([
@@ -629,6 +730,8 @@ export default function MaluOperationsDashboardPage() {
       setServices(statusData);
     } catch (error) {
       setDashboardError(error.message);
+    } finally {
+      setIsRefreshing(false);
     }
   }, [periodParams, sessionToken]);
 
@@ -741,7 +844,14 @@ export default function MaluOperationsDashboardPage() {
               onChange={setPeriod}
               onCustomRangeChange={setCustomRange}
             />
-            <button type="button" onClick={loadDashboard}>Actualizar</button>
+            <button
+              type="button"
+              className={isRefreshing ? "is-loading" : ""}
+              onClick={loadDashboard}
+              disabled={isRefreshing}
+            >
+              {isRefreshing ? "Actualizando..." : "Actualizar"}
+            </button>
             <button type="button" onClick={handleLogout}>Salir</button>
           </div>
         </header>
