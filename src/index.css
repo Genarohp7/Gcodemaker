@@ -12,6 +12,7 @@
 @import "../blocks/global-scene.css";
 @import "../blocks/gc-broadcast.css";
 @import "../blocks/malu-simulator.css";
+@import "../blocks/malu-dashboard.css";
 
 :root {
   --color-bg: #07111f;

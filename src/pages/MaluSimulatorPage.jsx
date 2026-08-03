@@ -70,7 +70,7 @@ function clearBroadcastSession() {
   localStorage.removeItem(BROADCAST_SESSION_STORAGE_KEY);
 }
 
-export default function MaluSimulatorPage({ authMode = "manual" }) {
+export default function MaluSimulatorPage({ authMode = "manual", embedded = false }) {
   const [adminKey, setAdminKey] = useState("");
   const [broadcastSession, setBroadcastSession] = useState(() =>
     authMode === "broadcast" ? loadStoredBroadcastSession() : null
@@ -227,7 +227,7 @@ export default function MaluSimulatorPage({ authMode = "manual" }) {
   }
 
   return (
-    <main className="malu-sim-page">
+    <main className={`malu-sim-page ${embedded ? "malu-sim-page--embedded" : ""}`}>
       <section className="malu-sim-shell">
         <header className="malu-sim-header">
           <div>

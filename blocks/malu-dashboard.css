@@ -1,0 +1,638 @@
+.malu-dash-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  background:
+    linear-gradient(135deg, rgba(77, 163, 255, 0.12), transparent 34%),
+    linear-gradient(180deg, #07111f 0%, #081524 52%, #0b1728 100%);
+  color: #e5eefc;
+}
+
+.malu-dash-login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background:
+    linear-gradient(135deg, rgba(77, 163, 255, 0.14), transparent 36%),
+    #07111f;
+}
+
+.malu-dash-login__panel {
+  width: min(100%, 460px);
+  display: grid;
+  gap: 1rem;
+  padding: 2rem;
+  border: 1px solid rgba(173, 202, 238, 0.16);
+  border-radius: 8px;
+  background: rgba(10, 23, 40, 0.88);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+}
+
+.malu-dash-login__panel h1,
+.malu-dash-topbar h1,
+.malu-dash-panel h2,
+.malu-dash-drawer h2 {
+  margin: 0;
+  color: #ffffff;
+  letter-spacing: 0;
+}
+
+.malu-dash-login__panel p {
+  margin: 0;
+  color: #9db0cb;
+  line-height: 1.6;
+}
+
+.malu-dash-login__form,
+.malu-dash-login__form label {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.malu-dash-login__form label,
+.malu-dash-period,
+.malu-dash-filters {
+  color: #9db0cb;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.malu-dash-login__form input,
+.malu-dash-period select,
+.malu-dash-period input,
+.malu-dash-filters select,
+.malu-dash-filters input {
+  min-height: 42px;
+  width: 100%;
+  border: 1px solid rgba(173, 202, 238, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  padding: 0.7rem 0.85rem;
+  outline: none;
+}
+
+.malu-dash-login__form button,
+.malu-dash-topbar button,
+.malu-dash-drawer button {
+  min-height: 42px;
+  border: 1px solid rgba(77, 163, 255, 0.34);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #238bff, #4da3ff);
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.malu-dash-error {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  background: rgba(217, 72, 72, 0.14);
+  color: #ffdede;
+  border: 1px solid rgba(217, 72, 72, 0.3);
+}
+
+.malu-dash-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  align-content: start;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  border-right: 1px solid rgba(173, 202, 238, 0.12);
+  background: rgba(6, 15, 28, 0.72);
+  backdrop-filter: blur(18px);
+}
+
+.malu-dash-brand {
+  display: flex;
+  gap: 0.85rem;
+  align-items: center;
+}
+
+.malu-dash-brand > span {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  background: #4da3ff;
+  color: #06111f;
+  font-weight: 900;
+}
+
+.malu-dash-brand div {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.malu-dash-brand small,
+.malu-dash-nav-group,
+.malu-dash-eyebrow {
+  color: #9db0cb;
+}
+
+.malu-dash-sidebar nav {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.malu-dash-nav-group {
+  margin: 1rem 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.malu-dash-sidebar button {
+  width: 100%;
+  min-height: 40px;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #c9d8ee;
+  text-align: left;
+  cursor: pointer;
+}
+
+.malu-dash-sidebar button:hover,
+.malu-dash-sidebar button.is-active {
+  border-color: rgba(77, 163, 255, 0.22);
+  background: rgba(77, 163, 255, 0.12);
+  color: #ffffff;
+}
+
+.malu-dash-main {
+  min-width: 0;
+  display: grid;
+  gap: 1.25rem;
+  align-content: start;
+  padding: 1.25rem;
+}
+
+.malu-dash-topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.malu-dash-eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.malu-dash-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.malu-dash-period,
+.malu-dash-period__custom,
+.malu-dash-filters {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.malu-dash-view {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.malu-dash-kpis,
+.malu-dash-mini-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.malu-dash-kpi,
+.malu-dash-panel,
+.malu-dash-cards-list article,
+.malu-dash-feed article,
+.malu-dash-drawer {
+  border: 1px solid rgba(173, 202, 238, 0.14);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.035)),
+    rgba(9, 22, 38, 0.78);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.2);
+}
+
+.malu-dash-kpi {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem;
+}
+
+.malu-dash-kpi span,
+.malu-dash-kpi small,
+.malu-dash-cards-list small,
+.malu-dash-feed small,
+.malu-dash-table span,
+.malu-dash-abandonment small {
+  color: #9db0cb;
+}
+
+.malu-dash-kpi strong {
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  color: #ffffff;
+}
+
+.malu-dash-kpi__trend--positive {
+  color: #7fe0b2;
+}
+
+.malu-dash-kpi__trend--negative {
+  color: #ff9b9b;
+}
+
+.malu-dash-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.malu-dash-grid--main {
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.75fr);
+}
+
+.malu-dash-grid--secondary {
+  grid-template-columns: minmax(0, 1fr) 320px 360px;
+}
+
+.malu-dash-panel {
+  min-width: 0;
+  padding: 1rem;
+}
+
+.malu-dash-panel__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.malu-dash-legend {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  color: #9db0cb;
+  font-size: 0.82rem;
+}
+
+.malu-dash-legend span::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 0.35rem;
+  border-radius: 99px;
+  background: #4da3ff;
+}
+
+.malu-dash-legend span:nth-child(2)::before {
+  background: #ffcb4e;
+}
+
+.malu-dash-legend span:nth-child(3)::before {
+  background: #7fe0b2;
+}
+
+.malu-dash-chart {
+  min-height: 280px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(28px, 1fr);
+  gap: 0.45rem;
+  align-items: end;
+  overflow-x: auto;
+  padding-top: 1rem;
+}
+
+.malu-dash-chart__day {
+  min-width: 28px;
+  display: grid;
+  gap: 0.45rem;
+  align-items: end;
+}
+
+.malu-dash-chart__bars {
+  height: 220px;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 3px;
+  border-bottom: 1px solid rgba(173, 202, 238, 0.14);
+}
+
+.malu-dash-chart__bars span {
+  width: 7px;
+  min-height: 3px;
+  border-radius: 6px 6px 0 0;
+  background: #4da3ff;
+}
+
+.malu-dash-chart__bars span:nth-child(2) {
+  background: #ffcb4e;
+}
+
+.malu-dash-chart__bars span:nth-child(3) {
+  background: #7fe0b2;
+}
+
+.malu-dash-chart__day small {
+  color: #7f91ac;
+  font-size: 0.68rem;
+  text-align: center;
+}
+
+.malu-dash-funnel,
+.malu-dash-abandonment,
+.malu-dash-services,
+.malu-dash-feed,
+.malu-dash-cards-list,
+.malu-dash-agenda {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.malu-dash-funnel__step,
+.malu-dash-abandonment article {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.malu-dash-funnel__step div:first-child,
+.malu-dash-abandonment article div:first-child,
+.malu-dash-services div,
+.malu-dash-cards-list article div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.malu-dash-funnel__track,
+.malu-dash-abandonment article div:nth-child(2) {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(173, 202, 238, 0.12);
+}
+
+.malu-dash-funnel__track span,
+.malu-dash-abandonment article div:nth-child(2) span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #4da3ff, #ffcb4e);
+}
+
+.malu-dash-summary {
+  margin: 0;
+  color: #d9ebff;
+  line-height: 1.8;
+}
+
+.malu-dash-services div {
+  align-items: center;
+  justify-content: start;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.malu-dash-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffcb4e;
+}
+
+.malu-dash-dot--operational {
+  background: #7fe0b2;
+}
+
+.malu-dash-dot--disconnected {
+  background: #ff9b9b;
+}
+
+.malu-dash-feed article,
+.malu-dash-cards-list article {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.85rem;
+  box-shadow: none;
+}
+
+.malu-dash-empty {
+  display: grid;
+  gap: 0.35rem;
+  min-height: 160px;
+  place-content: center;
+  text-align: center;
+  color: #9db0cb;
+  border: 1px dashed rgba(173, 202, 238, 0.2);
+  border-radius: 8px;
+}
+
+.malu-dash-empty strong {
+  color: #ffffff;
+}
+
+.malu-dash-table {
+  overflow: auto;
+}
+
+.malu-dash-table table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 980px;
+}
+
+.malu-dash-table th,
+.malu-dash-table td {
+  padding: 0.85rem;
+  border-bottom: 1px solid rgba(173, 202, 238, 0.1);
+  text-align: left;
+  vertical-align: top;
+}
+
+.malu-dash-table th {
+  color: #9db0cb;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.malu-dash-table tr {
+  cursor: pointer;
+}
+
+.malu-dash-table tr:hover {
+  background: rgba(77, 163, 255, 0.08);
+}
+
+.malu-dash-table td strong,
+.malu-dash-table td span {
+  display: block;
+}
+
+.malu-dash-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid rgba(77, 163, 255, 0.28);
+  border-radius: 999px;
+  color: #d9ebff;
+  background: rgba(77, 163, 255, 0.1);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.malu-dash-drawer {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 30;
+  width: min(520px, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  display: grid;
+  gap: 1rem;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.malu-dash-drawer__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.malu-dash-drawer__header button {
+  padding: 0 0.85rem;
+}
+
+.malu-dash-drawer__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.malu-dash-drawer__meta span {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #9db0cb;
+}
+
+.malu-dash-drawer__meta strong {
+  color: #ffffff;
+}
+
+.malu-dash-timeline {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.malu-dash-timeline article {
+  display: grid;
+  gap: 0.35rem;
+  width: min(92%, 420px);
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.malu-dash-timeline article.is-ai {
+  justify-self: end;
+  background: rgba(77, 163, 255, 0.12);
+}
+
+.malu-dash-timeline p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.malu-dash-skeleton {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.malu-dash-skeleton span {
+  height: 64px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+}
+
+.malu-dash-skeleton--compact span {
+  height: 34px;
+}
+
+.malu-dash-qa .malu-sim-page--embedded {
+  min-height: auto;
+  background: transparent;
+  padding: 0;
+}
+
+.malu-dash-qa .malu-sim-shell {
+  width: 100%;
+}
+
+@media (max-width: 1180px) {
+  .malu-dash-page {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .malu-dash-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .malu-dash-grid--main,
+  .malu-dash-grid--secondary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 820px) {
+  .malu-dash-page {
+    grid-template-columns: 1fr;
+  }
+
+  .malu-dash-sidebar {
+    position: static;
+    height: auto;
+  }
+
+  .malu-dash-sidebar nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .malu-dash-topbar,
+  .malu-dash-panel__header {
+    display: grid;
+  }
+
+  .malu-dash-topbar__actions,
+  .malu-dash-period,
+  .malu-dash-period__custom,
+  .malu-dash-filters {
+    width: 100%;
+    display: grid;
+  }
+
+  .malu-dash-kpis,
+  .malu-dash-mini-kpis,
+  .malu-dash-drawer__meta {
+    grid-template-columns: 1fr;
+  }
+}
