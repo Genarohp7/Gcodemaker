@@ -4,6 +4,7 @@ const demoRoutes = require("./demo.routes");
 const broadcastRoutes = require("./broadcast.routes");
 const aiAdminRoutes = require("./ai-admin.routes");
 const calendarAdminRoutes = require("./calendar-admin.routes");
+const maluDashboardRoutes = require("./malu-dashboard.routes");
 const maluSimulatorRoutes = require("./malu-simulator.routes");
 const whatsappAgentRoutes = require("./whatsapp-agent.routes");
 
@@ -18,6 +19,7 @@ router.get("/health", (req, res) => {
 
 router.use("/", demoRoutes);
 router.use("/", whatsappAgentRoutes);
+router.use("/admin/malu-dashboard", maluDashboardRoutes);
 router.use("/admin/malu-simulator", maluSimulatorRoutes);
 router.use("/admin", calendarAdminRoutes);
 router.use("/admin", aiAdminRoutes);
