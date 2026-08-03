@@ -727,8 +727,32 @@ async function testFirstReplyIdentifiesMaluOnlyOnce() {
 
   const aiMessages = database.state.messages.filter((message) => message.role === "ai");
   assert.equal(calls.ai, 2);
-  assert.match(aiMessages[0].content, /^Hola, soy Malu, asistente virtual de GCodemaker\./);
-  assert.doesNotMatch(aiMessages[1].content, /^Hola, soy Malu, asistente virtual de GCodemaker\./);
+  assert.match(aiMessages[0].content, /^Hola, soy Malu de GCodemaker\./);
+  assert.doesNotMatch(aiMessages[0].content, /^Hola, soy Malu, asistente virtual de GCodemaker\./);
+  assert.doesNotMatch(aiMessages[0].content, /inteligencia artificial/i);
+  assert.doesNotMatch(aiMessages[0].content, /\b(bot|chatbot)\b/i);
+  assert.doesNotMatch(aiMessages[1].content, /^Hola, soy Malu de GCodemaker\./);
+}
+
+async function testDirectIdentityQuestionAllowsAiTransparency() {
+  const { service, database } = loadServiceWithFakes({
+    aiResult: {
+      reply:
+        "Soy Malu, el asistente de IA de GCodemaker, y puedo ayudarte con informacion sobre nuestros servicios.",
+    },
+  });
+
+  await service.processWebhookPayload(
+    createWhatsAppPayload({
+      messageId: "wamid-identity-1",
+      text: "Eres una IA?",
+    })
+  );
+
+  const reply = database.state.messages.at(-1).content;
+  assert.match(reply, /^Hola, soy Malu de GCodemaker\./);
+  assert.match(reply, /asistente de IA de GCodemaker/i);
+  assert.doesNotMatch(reply, /asistente virtual/i);
 }
 
 async function testTransferSetsEngineerOwner() {
@@ -992,7 +1016,10 @@ async function testSimulatorMockUsesRealFlowWithoutOpenAiOrMeta() {
   assert.equal(result.decision.humanTakeover, false);
   assert.equal(result.decision.usedAi, true);
   assert.equal(database.state.messages.filter((message) => message.provider === "simulator").length, 2);
-  assert.match(database.state.messages.at(-1).content, /^Hola, soy Malu, asistente virtual de GCodemaker\./);
+  assert.match(database.state.messages.at(-1).content, /^Hola, soy Malu de GCodemaker\./);
+  assert.doesNotMatch(database.state.messages.at(-1).content, /asistente virtual/i);
+  assert.doesNotMatch(database.state.messages.at(-1).content, /inteligencia artificial/i);
+  assert.doesNotMatch(database.state.messages.at(-1).content, /\b(bot|chatbot)\b/i);
   assert.match(database.state.messages.at(-1).content, /paquete de Agentes de IA/);
   assert.doesNotMatch(database.state.messages.at(-1).content, /\$1,900 MXN mensuales/);
   assert.match(database.state.messages.at(-1).content, /cuantos mensajes recibes/i);
@@ -2292,6 +2319,9 @@ Tu trabajo:
   assert.ok(aiAgentSource.includes(originalPromptKnowledge));
   assert.match(aiAgentSource, /paginas web profesionales, landing pages, sistemas web a medida/);
   assert.match(aiAgentSource, /precios base expresamente autorizados/);
+  assert.match(aiAgentSource, /No digas espontaneamente que eres IA/);
+  assert.match(aiAgentSource, /responde con transparencia/);
+  assert.doesNotMatch(aiAgentSource, /debe identificarse como: "Hola, soy Malu, asistente virtual/);
   assert.match(aiAgentSource, /Antes de transferir una conversacion/);
   assert.match(aiAgentSource, /Para tiempos de implementacion/);
   assert.match(aiAgentSource, /ingeniero responsable/);
@@ -2329,6 +2359,7 @@ async function main() {
   await testRealWhatsAppInboundAutoReplyEnabledUsesNormalMaluFlow();
   await testSimulatorLiveAiIgnoresWhatsAppAutoReplyFlag();
   await testFirstReplyIdentifiesMaluOnlyOnce();
+  await testDirectIdentityQuestionAllowsAiTransparency();
   await testTransferSetsEngineerOwner();
   await testAiTransferSetsEngineerOwner();
   await testDuplicateProviderMessageIdDoesNotRepeatEffects();

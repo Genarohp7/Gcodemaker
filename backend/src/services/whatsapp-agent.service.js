@@ -10,8 +10,7 @@ const intentGuardService = require("./intent-guard.service");
 const scopeGuardService = require("./malu-scope-guard.service");
 const whatsappService = require("./whatsapp.service");
 
-const MALU_INTRODUCTION =
-  "Hola, soy Malu, asistente virtual de GCodemaker.";
+const MALU_INTRODUCTION = "Hola, soy Malu de GCodemaker.";
 const POST_HANDOFF_CONTACT_QUESTION =
   "El ingeniero ya esta atendiendo tu caso y los detalles de tu servicio podras revisarlos directamente con el. Gustas que le pida que se ponga en contacto contigo?";
 const POST_HANDOFF_CONTACT_CONFIRMATION =
@@ -540,6 +539,7 @@ function withMaluIntroduction(reply, conversation) {
   if (!conversation?.isNew) {
     return text
       .replace(/^Hola,\s*soy Malu,\s*asistente virtual de GCodemaker\.\s*/i, "")
+      .replace(/^Hola,\s*soy Malu de GCodemaker\.\s*/i, "")
       .trim();
   }
 
