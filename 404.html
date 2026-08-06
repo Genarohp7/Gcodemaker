@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es-MX">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GCodemaker</title>
+    <script>
+      (function redirectToSpa(location) {
+        var pathSegmentsToKeep = 0;
+        var pathParts = location.pathname.split("/");
+        var basePath = pathParts.slice(0, 1 + pathSegmentsToKeep).join("/");
+        var routePath = pathParts.slice(1 + pathSegmentsToKeep).join("/");
+        var query = location.search
+          ? "&" + location.search.slice(1).replace(/&/g, "~and~")
+          : "";
+
+        location.replace(
+          location.protocol +
+            "//" +
+            location.hostname +
+            (location.port ? ":" + location.port : "") +
+            basePath +
+            "/?/" +
+            routePath.replace(/&/g, "~and~") +
+            query +
+            location.hash
+        );
+      })(window.location);
+    </script>
+  </head>
+  <body></body>
+</html>
