@@ -108,7 +108,7 @@ test("builds overview excluding rows omitted by DB filters and produces funnel",
   assert.equal(model.funnel[3].label, "Citas");
 });
 
-test("sanitizes phone numbers for dashboard output", () => {
-  assert.equal(dashboard.sanitizePhone("+52 55 1234 5678"), "***5678");
+test("keeps full phone numbers for authenticated dashboard follow-up", () => {
+  assert.equal(dashboard.sanitizePhone("+52 55 1234 5678"), "+52 55 1234 5678");
   assert.equal(dashboard.sanitizePhone(""), "Sin telefono");
 });

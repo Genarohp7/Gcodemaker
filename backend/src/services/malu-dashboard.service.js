@@ -137,7 +137,7 @@ function sanitizePhone(phone) {
     return "Sin telefono";
   }
 
-  return `***${digits.slice(-4)}`;
+  return phone;
 }
 
 function hasProfile(row) {
